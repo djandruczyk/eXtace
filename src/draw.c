@@ -86,9 +86,11 @@ int draw(void)
 	gint count=0;
 	gfloat resolution=0.0;
 
+	/* If no window, just return */
+	if (!main_display->window) return (TRUE);
+	/* Run audio processor */
 	if (!audio_chewer()) return (TRUE);
 
-	if (!main_display->window) return (TRUE);
 
 	/* Next set of routines ONLY ONLY needs to be done for 3D Landform
 	 * and 2D EQ. Scope, spikes, and spectrogram don't need these, so

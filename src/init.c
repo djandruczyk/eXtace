@@ -52,12 +52,14 @@ void init()
 	winstyle = FULL;	/* use full window function, not cramped version */
 	nsamp = 2048;		/* number of samples per FFT/scope */
 	bands = 128;		/* to start with, should be configurable */
+	
 	bandwidth_change = 0;	/* FLAG, reset to default */
 	mode = LAND_3D;		/* default mode. (3D FFT) */
 	sub_mode_3D = FILL_3D;	/* default 3D mode */
 	scope_sub_mode = LINE_SCOPE;/* default Scope mode */
 	show_graticule = 1;	/* show scope graticule*/
 	lag = 500;		/* Lag (how many milliseconds behind) */
+	decimation_factor=NO_DECIMATION;	
 	last_is_full = 0;	/* its initially ready ?? */
 
 	seg_height = 2;		/* height per segment in 2d spectrum analyzer */
@@ -188,6 +190,7 @@ void read_config(void)
 		extace_cfg_read_int(cfgfile, "Global", "mode", &mode);
 		extace_cfg_read_float(cfgfile, "Global", "bandwidth", &bandwidth);
 		extace_cfg_read_int(cfgfile, "Global", "sound_source", &sound_source);
+		extace_cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
 		extace_cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
 		extace_cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
 		extace_cfg_read_int(cfgfile, "Global", "landflip", &landflip);
@@ -198,6 +201,7 @@ void read_config(void)
 		extace_cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 
 		elements_to_get = nsamp/2;/* how many samples to read at a time */
+		copy_window = nsamp < 2048 ? 4096 : nsamp *2;
 		/* fft_lag is an added delay because the fft looks most synced to
 		 * audio when viewing the "middle" of the datawindow. i.e. 
 		 * at 1/2 the number of samples in the window
@@ -282,6 +286,7 @@ void save_config(void)
 	extace_cfg_write_int(cfgfile, "Global", "mode", mode);
 	extace_cfg_write_float(cfgfile, "Global", "bandwidth", bandwidth);
 	extace_cfg_write_int(cfgfile, "Global", "sound_source", sound_source);
+	extace_cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
 	extace_cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
 	extace_cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
 	extace_cfg_write_int(cfgfile, "Global", "landflip", landflip);
@@ -387,9 +392,10 @@ void mem_alloc()
 	end = malloc(nsamp*sizeof(GdkColor));
 
 	/* Audio block in time domain currently being processed, size of nsamp */
-	audio_data = malloc(nsamp*sizeof(gdouble));
+	centered_buffer = malloc(BUFFER*sizeof(gshort));
 	/* Audio block in frequency domain being processed, size of nsamp */
 	raw_fft_out = malloc(nsamp*sizeof(gdouble));
+	raw_fft_in = malloc(nsamp*sizeof(gdouble));
 	/* datawindow applied to TIME series data, thus need "nsamp" datapoints */
 	datawindow = malloc(nsamp*sizeof(gdouble));
 	/* FFT after scaling/massaging, size of (nsamp+1)/2 */
@@ -414,8 +420,9 @@ void mem_alloc()
 	pip_arr = malloc(8192*sizeof(gint));
 
 
-	if ((audio_data == NULL) \
+	if ((centered_buffer == NULL) \
 			|| (raw_fft_out == NULL) \
+			|| (raw_fft_in == NULL) \
 			|| (start == NULL) \
 			|| (pt2 == NULL) \
 			|| (pt3 == NULL) \
@@ -441,8 +448,9 @@ void mem_alloc()
 	memset((void *)pt4 , 0, nsamp*sizeof(GdkColor));
 	memset((void *)end , 0, nsamp*sizeof(GdkColor));
 
-	memset((void *)audio_data , 0, nsamp*sizeof(gdouble));
+	memset((void *)centered_buffer , 0, BUFFER*sizeof(gshort));
 	memset((void *)raw_fft_out , 0, nsamp*sizeof(gdouble));
+	memset((void *)raw_fft_in , 0, nsamp*sizeof(gdouble));
 	memset((void *)norm_fft , 0, nsamp*sizeof(gdouble));
 	memset((void *)datawindow , 0, nsamp*sizeof(gdouble));
 	memset((void *)audio_ring, 0, BUFFER*sizeof(gshort));
@@ -456,13 +464,14 @@ void mem_alloc()
 	/* set pointers to proper values */
 	ring_pos = 0;	/* 0 = beginning */
 	ring_end = BUFFER; /* endpoint in ELEMENTS, NOT bytes */
-	ring_byte_end = BUFFER*4; /*endpoint in bytes*/
+	centered_buffer_end = BUFFER;
 }
 
 void mem_dealloc()
 {
-	free(audio_data);
+	free(centered_buffer);
 	free(raw_fft_out);
+	free(raw_fft_in);
 	free(norm_fft);
 	free(datawindow);
 	free(audio_ring);

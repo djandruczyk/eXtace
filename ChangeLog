@@ -1,3 +1,22 @@
+2003-04-14 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	Major rewrite of the audio_processing functions to accomodate 
+	decimation (used to get better low-freq resolution). Seems to be 
+	fully functional except the markers on the spectragrams are 
+	incorrect when using decimations.  The left-click markers on 
+	the graphic EQ are also wrong as well when using decimation.  
+	The scope can see much lower freqs easily and a side effect is
+	it looks cooler with higher decimation values. (decimation acts 
+	in a similar manner to the sweep rate control of a conventional 
+	scope). Files modified: scope.c, audio_processing.c, options.c, 
+	globals.h, protos.h, init.c
+
+	Known bugs:              
+        - FFT's larger than 4096 have a buffer problem, causing unwanted
+	harmonics in the display that are NOT in the signal.
+        - The decimator can segfault when using large FFT's if it runs out
+	of bounds. (no bounds checking in place yet..)
+        - The markers are all wrong when using decimation.
+
 2003-04-08 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	Rewrote a section of the land3.c file to reduce redundant calcs. 
 	reduced CPU usage a swidgeon. Code cleans throughout that file, 

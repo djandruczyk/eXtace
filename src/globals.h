@@ -55,22 +55,24 @@ GdkGC		*arc_gc;	/* Graphics context for Arc in dircontrol */
 GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
 GdkImlibImage	*im;		/* Image for colormap */
 gulong		ring_pos;	/* place safe to write in ringbuffer */
-gulong		process_ptr;	/* place safe to write in ringbuffer */
 gulong		ring_end;	/* end of ringbuffer in ELEMENTS */
 gulong		elements_to_get;	/* amount to read in ELEMENTS */
-gulong		ring_byte_end;	/* end of ringbuffer in bytes */
-gshort		*audio_ring;	/* Array of pointers to audio data from esd */
+gshort		*audio_ring;	/* Array raw  audio data from input source */
+gshort		*centered_buffer; /* array of audio to be being crunched */
+gint		centered_buffer_end; /* endpoint in array elements of 
+				      * audio buffer to be crunched */
 gshort		*audio_left;	/* left channel (scope??) */
 gshort		*audio_last_l;	/* last one of above, left channel (scope??) */
 gshort		*audio_last_r;	/* last one of above, right channel (scope??) */
 gshort		*audio_right;	/* right channel (scope??) */
+gdouble		*raw_fft_in;	/* RAW input to fft routine */
 gdouble		*raw_fft_out;	/* RAW output of fft routine */
 gdouble		*norm_fft;	/* normalized fft data */
-gdouble		*audio_data;	/* pointer to audio buffer being crunched  */
 gdouble		*datawindow;	/* pointer to window function array */
 gint		*pip_arr;	/* array of pip values for screen */
 gint		*disp_val;	/* Display level for screen */
 gint		keep_reading;	/* keeps audio loop running */
+gint 		decimation_factor; /* for sub hertz resolution */
 gint		esd_processor_running; /* FLAG when function is running */
 gint 		lag;		/* delay between getting audio and displaying */
 gint 		fft_lag;	/* delay between getting audio and displaying */
@@ -145,18 +147,18 @@ gfloat		old_y_disp;	/* Y displacement */
 gint		dir_win_present;/* Flag */
 gint		grad_win_present;/* Flag */
 
-GtkObject	*x3d_start_ptr;	/* Pointer */
-GtkObject	*x3d_end_ptr;	/* Pointer */
-GtkObject	*y3d_start_ptr;	/* Pointer */
-GtkObject	*y3d_end_ptr;	/* Pointer */
-GtkObject	*xdet_start_ptr;/* Pointer */
-GtkObject	*xdet_end_ptr;	/* Pointer */
-GtkObject	*ydet_start_ptr;/* Pointer */
-GtkObject	*ydet_end_ptr;	/* Pointer */
-GtkObject	*x3d_scroll_ptr;/* Pointer */
-GtkObject	*z3d_scroll_ptr;/* Pointer */
-GtkObject	*xdet_scroll_ptr;/* Pointer */
-GtkObject	*zdet_scroll_ptr;/* Pointer */
+//GtkObject	*x3d_start_ptr;	/* Pointer */
+//GtkObject	*x3d_end_ptr;	/* Pointer */
+//GtkObject	*y3d_start_ptr;	/* Pointer */
+//GtkObject	*y3d_end_ptr;	/* Pointer */
+//GtkObject	*xdet_start_ptr;/* Pointer */
+//GtkObject	*xdet_end_ptr;	/* Pointer */
+//GtkObject	*ydet_start_ptr;/* Pointer */
+//GtkObject	*ydet_end_ptr;	/* Pointer */
+//GtkObject	*x3d_scroll_ptr;/* Pointer */
+//GtkObject	*z3d_scroll_ptr;/* Pointer */
+//GtkObject	*xdet_scroll_ptr;/* Pointer */
+//GtkObject	*zdet_scroll_ptr;/* Pointer */
 GtkWidget	*main_win_ptr;	/* Pointer */
 GtkWidget	*dir_win_ptr;	/* Pointer */
 GtkWidget	*about_but_ptr;	/* Pointer */
@@ -243,6 +245,8 @@ gint		refresh_rate;	/* display refresh rate*/
 guint 		display_id;	/* display ID for gtk_timeout_* */
 gint		convolve_factor;	
 gshort 		*raw_ptr;
+gshort 		copywindow;	/* size of intermediate buffer for processing */
+gint 		copy_window;	/* intermediate buffer size */
 gfloat		update_factor;
 gint 		rtc_fd;		/* Real Time Clock Filedescriptor */
 gint 		use_rtc;

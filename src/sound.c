@@ -206,7 +206,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		}
 		else	/* over-run */
 		{
-			/* printf("read overrun past end of ring, FAULT!!!\b\n"); */
+ printf("read overrun past end of ring, FAULT!!!\b\n"); 
 			exit (-3);
 		}
 		bytes_to_read = elements_to_get*2;
@@ -215,7 +215,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		elements_to_get = nsamp/2;
 		/* printf("Wrap complete, read in %i more bytes\n",count); */
 	}
-	else 	/*normal read, no rsik of wrapping the buffer */
+	else 	/*normal read, no risk of wrapping the buffer */
 	{
 		bytes_to_read = elements_to_get*2;
 		/* printf("Requesting %i bytes\n",bytes_to_read); */
@@ -229,7 +229,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		}
 		else if (count > bytes_to_read)
 		{
-			/* printf("BUG \n"); */
+			printf("BUG\b More data came in than requested, Oh shit!!!\n");
 		}
 		else
 		{

@@ -35,6 +35,7 @@ gint button_oscilloscope(GtkWidget *, gpointer *);
 gint button_3d_detailed(GtkWidget *, gpointer *);
 gint button_about(GtkWidget *, gpointer *);
 gint scope_mode(GtkWidget *, gpointer *);
+gint set_decimation_factor(GtkWidget *widget, gpointer *data);
 void init(void);
 void update_freq_markers();
 void update_time_markers();
@@ -50,6 +51,8 @@ void change_spec_start(gint);
 void change_x_start(gint,gint);
 void change_x_end(gint,gint);
 int audio_chewer(void);
+void copy_to_centered_buffer(void);
+void split_and_decimate(void);
 
 gint configure_event(GtkWidget *, GdkEventConfigure *, gpointer );
 gint expose_event(GtkWidget *, GdkEventExpose *, gpointer );

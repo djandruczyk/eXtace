@@ -537,6 +537,31 @@ gint button_oscilloscope(GtkWidget *widget, gpointer *data)
 
 	return 0;
 }
+gint set_decimation_factor(GtkWidget *widget, gpointer *data)
+{
+	switch((gint)data)
+	{
+		case NO_DECIMATION:
+			decimation_factor = (gint)data;
+			break;
+		case DECIMATE_BY_2:
+			decimation_factor = (gint)data;
+			break;
+		case DECIMATE_BY_3:
+			decimation_factor = (gint)data;
+			break;
+		case DECIMATE_BY_4:
+			decimation_factor = (gint)data;
+			break;
+		case DECIMATE_BY_5:
+			decimation_factor = (gint)data;
+			break;
+		default:
+			decimation_factor = NO_DECIMATION;
+			break;
+	}
+	return (0);
+}
 gint scope_mode(GtkWidget *widget, gpointer *data)
 {
 	if (data == (gpointer)DOT_SCOPE)

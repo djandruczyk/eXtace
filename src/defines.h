@@ -20,7 +20,6 @@
  
  
 /* Audio Data Specific definitions */
-//#define FRAMES		176400  // Audio ring size in audio "frames"
 #define FRAMES		44100  // Audio ring size in audio "frames"
 /* 1 frame is a left and right channel of audio, Signed 16 bit LE.
  * thus 1 frame is 32 bits in total size, 16 bits for left and 16 bits for right
@@ -131,3 +130,11 @@
 /* Misc Options */
 #define REFRESH_RATE    0xc0
 /* Misc Options */
+
+/* Scope/FFT Decimation */
+#define NO_DECIMATION	0xd0
+#define DECIMATE_BY_2	0xd1
+#define DECIMATE_BY_3	0xd2
+#define DECIMATE_BY_4	0xd3
+#define DECIMATE_BY_5	0xd4
+/* Scope/FFT Decimation */

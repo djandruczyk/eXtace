@@ -79,6 +79,60 @@ int setup_options()
 			GTK_UPDATE_CONTINUOUS);
 	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
 			GTK_SIGNAL_FUNC (slider_changed), (gpointer)REFRESH_RATE);
+	sep = gtk_hseparator_new();
+	gtk_box_pack_start(GTK_BOX(vbox),sep,TRUE, TRUE, 0);
+
+	label = gtk_label_new("Scope/FFT Decimation Factors");
+	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
+
+
+	hbox = gtk_hbox_new(TRUE,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,0);
+
+	button = gtk_radio_button_new_with_label(NULL, "1 (no decimation)");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)NO_DECIMATION);
+        if (decimation_factor == NO_DECIMATION)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+        button = gtk_radio_button_new_with_label(group, "2");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)DECIMATE_BY_2);
+        if (decimation_factor == DECIMATE_BY_2)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+        button = gtk_radio_button_new_with_label(group, "3");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)DECIMATE_BY_3);
+        if (decimation_factor == DECIMATE_BY_3)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+        button = gtk_radio_button_new_with_label(group, "4");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)DECIMATE_BY_4);
+        if (decimation_factor == DECIMATE_BY_4)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+        button = gtk_radio_button_new_with_label(group, "5");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)DECIMATE_BY_5);
+        if (decimation_factor == DECIMATE_BY_5)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
 
 	sep = gtk_hseparator_new();
 	gtk_box_pack_start(GTK_BOX(vbox),sep,TRUE, TRUE, 0);
@@ -87,7 +141,6 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)PAUSE_DISP);
-	//    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), paused);
 
 	button = gtk_toggle_button_new_with_label("Backing Pixmap Disabled");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
