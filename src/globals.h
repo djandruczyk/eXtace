@@ -250,8 +250,6 @@ gint 		draw_running;
 gint 		winstyle;	/* window function options */	
 gint		active_drawing_area;
 gfloat 		noise_floor;
-gfloat 		noise_floor_min;
-gfloat 		noise_floor_max;
 gint 		paused;
 gint		low_freq;
 gint		high_freq;

@@ -3,7 +3,7 @@ AC_INIT(src/main.c)
 
 EXTACE_MAJOR_VERSION=1
 EXTACE_MINOR_VERSION=7
-EXTACE_MICRO_VERSION=6
+EXTACE_MICRO_VERSION=7
 
 EXTACE_VERSION=$EXTACE_MAJOR_VERSION.$EXTACE_MINOR_VERSION.${EXTACE_MICRO_VERSION}
 
@@ -20,7 +20,6 @@ have_rfftw=no
 have_drfftw=no
 dnl have_alsa_05x=no
 dnl have_alsa_final=no
-
 
 
 dnl Checks for library functions.
