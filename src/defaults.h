@@ -14,13 +14,13 @@
  */
 
 
-const float	lag_min = 0.001;		/* Minimum lag allowed */
+const float	lag_min = 1.00;		/* Minimum lag allowed */
 const float	scaler_min = -200.0;
 const float	scaler_max = 20.0;
 const float	multiplier_max = 800;	/* Sensivity max allowed */
 const float	bar_decay_max = 15;
 const float	peak_hold_max = 15;
 const float	peak_decay_max = 15;
-const float	refresh_max = 85;
+const float	refresh_max = 91;
 const float	tape_scroll_max = 12;
 

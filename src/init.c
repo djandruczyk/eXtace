@@ -519,12 +519,9 @@ void reinit_extace(int new_nsamp)
      * The idea is the shift the lag slighly so that the "on-time" data
      * is in the MIDDLE of the window function for better eye/ear matchup
      */
-//    lag += (int)(1000*(((float)(new_nsamp-nsamp)/2.0)/(float)RATE));
     nsamp = new_nsamp;
     fft_lag = 1000*((nsamp/2)/(float)RATE);
-//    GTK_ADJUSTMENT(lag_adj)->value = lag;
-//    GTK_ADJUSTMENT(lag_adj)->upper = 1000*((float)(BUFFER/2)/(float)RATE);
-//    gtk_adjustment_changed(GTK_ADJUSTMENT(lag_adj));
+
     convolve_factor = floor(nsamp/width) < 3 ? floor(nsamp/width) : 3 ;
     if (convolve_factor == 0)
 	convolve_factor = 1;

@@ -71,7 +71,7 @@ int open_sound(void)
     {
 	case ESD:
 	    esd_handle=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,RATE,NULL,"extace");
-	    if (esd_handle)
+	    if (esd_handle > 0)
 	    {
 		handle = 1;
 		read_started = 0;
@@ -128,7 +128,7 @@ int open_sound(void)
 	errbox = gtk_window_new(GTK_WINDOW_DIALOG);
 	
 	gtk_window_set_title(GTK_WINDOW(errbox),"ERROR!!!");
-	label = gtk_label_new("Error, Cannot connect to Sound source!!\n. PLease make sure you havethe proper setting in the options panel.\n");
+	label = gtk_label_new("Error, Cannot connect to Sound source!!\n. PLease make sure you have the proper setting in the options panel.\n");
 	gtk_container_add(GTK_CONTAINER(errbox), label);
 	gtk_widget_show_all(errbox);
 
