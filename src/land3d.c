@@ -27,7 +27,11 @@ static GdkPoint oldpt[4];
 static GdkPoint lpt[4];
 static gint br,lvl;
 static GdkColor cl;
-static gfloat dir_angle = 0.0;
+static gfloat land_axis_angle_deg = 0.0;
+static gfloat weight = 0.0;
+static gfloat invweight = 0.0;
+static gfloat tmpf = 0.0;
+static gfloat dir_angle_rad = 0.0;
 static gfloat dir_angle_deg = 0.0;
 static gint x_draw_width = 0;
 static gint y_draw_height = 0;
@@ -88,39 +92,39 @@ void draw_land3d_fft()
 	gdk_threads_leave();
 	if (landtilt == 0) /* Perspective tilting disabled */
 	{
-		x_tilt=1.0;
-		y_tilt=1.0;
+		x_tilt=0.0;
+		y_tilt=0.0;
 	}
 	else
 	{		 /* Perspective Tilt enabled */
 
-		dir_angle = (float)atan2((float)z3d_scroll, -(float)x3d_scroll);
-		dir_angle_deg = dir_angle*90/M_PI_2;
+		dir_angle_rad = (float)atan2((float)z3d_scroll, -(float)x3d_scroll);
+		dir_angle_deg = dir_angle_rad*90/M_PI_2;
 
 		//printf ("dir_angle_deg = %f\n",dir_angle_deg);
 		if ((dir_angle_deg >= -45.0) && (dir_angle_deg <= 45.0))
 		{
 			//printf("dir_angle between -45 and 45 (QUADRANT 1-4)\n");
-			x_tilt = sin(dir_angle);
-			y_tilt = cos(dir_angle);
+			x_tilt = sin(dir_angle_rad);
+			y_tilt = cos(dir_angle_rad);
 		}
 		else if ((dir_angle_deg >= 45.0) && (dir_angle_deg <= 135.0))
 		{
 			//printf("dir_angle between 45 and 135 (QUADRANT 1-2)\n");
-			x_tilt = cos(dir_angle);
-			y_tilt = sin(dir_angle);
+			x_tilt = cos(dir_angle_rad);
+			y_tilt = sin(dir_angle_rad);
 		}
 		else if  ((dir_angle_deg <= -135.0) || (dir_angle_deg >= 135.0))
 		{
 			//printf("dir_angle between -135 and 135 (QUADRANT 2-3)\n");
-			x_tilt = -sin(dir_angle);
-			y_tilt = -cos(dir_angle);
+			x_tilt = -sin(dir_angle_rad);
+			y_tilt = -cos(dir_angle_rad);
 		}
 		else if ((dir_angle_deg >= -135.0) && (dir_angle_deg <= -45.0))
 		{
 			//printf("dir_angle between -135 and -45 (QUADRANT 3-4)\n");
-			x_tilt = -cos(dir_angle);
-			y_tilt = -sin(dir_angle);
+			x_tilt = -cos(dir_angle_rad);
+			y_tilt = -sin(dir_angle_rad);
 		}
 	}
 
@@ -152,7 +156,40 @@ void draw_land3d_fft()
 	xaxis_tilt = sin(land_axis_angle);
 	yaxis_tilt = cos(land_axis_angle);
 
+	land_axis_angle_deg = land_axis_angle*90/M_PI_2; 
+
+	if ((land_axis_angle_deg >= 0.0) && (land_axis_angle_deg < 90.0))
+	{
+//	printf("QUAD 1\n");
+		weight = land_axis_angle_deg/90;
+		invweight = 1.0-weight;
+	}
+	else if ((land_axis_angle_deg >= 90.0) && (land_axis_angle_deg < 180.0))
+	{
+//	printf("QUAD 2\n");
+		weight = 1.0-((land_axis_angle_deg-90)/90);
+		invweight = -(1.0-weight);
+	}
+	else if ((land_axis_angle_deg >= -180.0) && (land_axis_angle_deg < -90.0))
+	{
+//	printf("QUAD 3\n");
+		weight = -(land_axis_angle_deg+180)/90;
+		invweight = -1.0-weight;
+	}
+	else if ((land_axis_angle_deg >= -90.0) && (land_axis_angle_deg < 0.0))
+	{
+//	printf("QUAD 4\n");
+		weight = land_axis_angle_deg/90;
+		invweight = 1.0+weight;
+	}
+	
+//	printf("weight %f inverse weight %f\n",weight,invweight);
+		
+
+
 //	printf("xaxis_tilt = %f, yaxis_tilt = %f\n",xaxis_tilt,yaxis_tilt);
+	//xaxis_tilt = yaxis_tilt = 0.0;
+//	printf("land_axis_angle %f\n",land_axis_angle);
 	gdk_threads_enter();
 
 	if (((x3d_scroll > 0) && (x_fudge == 1)) || ((x3d_scroll < 0) && (x_fudge == -1)))
@@ -172,7 +209,7 @@ void draw_land3d_forward()
 {
 //printf("land3d forward\n");
 //printf("x_tilt %f, y_tilt %f\n",x_tilt,y_tilt);
-//printf("x_offset %i, y_offset %i\n",x_offset,y_offset);
+//printf("xaxis_tilt %f, yaxis_tilt %f\n",xaxis_tilt,yaxis_tilt);
 	for( i=0; i < bands; i++)
 	{
 		if (i==0)
@@ -180,42 +217,51 @@ void draw_land3d_forward()
 			pt[0].x=width-(((i*x_draw_width)*(1-x3d_start))/bands)\
 				-((((bands-i)*x_draw_width)*(1-x3d_end))/bands)\
 				-(x3d_scroll/2)-x_offset+x_fudge-(x3d_scroll%2)
-				-((gint)plevels[i]*(x_tilt*xaxis_tilt));
+				-((gint)plevels[i]*(xaxis_tilt))\
+				-((gint)plevels[i]*(x_tilt*weight));
 
 			pt[0].y=height-((i*y_draw_height*y3d_start)/bands)\
 				-(((bands-i)*y_draw_height*y3d_end)/bands)\
 				-(2*y_shift_per_block)-y_offset-(z3d_scroll%2)\
-				-((gint)plevels[i]*(y_tilt*yaxis_tilt));
+				-((gint)plevels[i]*(yaxis_tilt))\
+				-((gint)plevels[i]*(y_tilt*invweight));
 
 			pt[1].x=pt[0].x+(2*(x3d_scroll/2))+(x3d_scroll%2)\
-				-((gint)levels[i]*(x_tilt*xaxis_tilt))\
-				+((gint)plevels[i]*(x_tilt*xaxis_tilt));
+				-((gint)levels[i]*(xaxis_tilt))\
+				-((gint)levels[i]*(x_tilt*weight))\
+				+((gint)plevels[i]*(xaxis_tilt))\
+				+((gint)plevels[i]*(x_tilt*weight));
 
 			pt[1].y=height-((i*y_draw_height*y3d_start)/bands)\
 				-(((bands-i)*y_draw_height*y3d_end)/bands)\
 				-y_offset\
-				-((gint)levels[i]*(y_tilt*yaxis_tilt));
+				-((gint)levels[i]*(yaxis_tilt))\
+				-((gint)levels[i]*(y_tilt*invweight));
 
 			pt[2].x=width-(((i*x_draw_width)*(1-x3d_start))/bands)\
 				-((((bands-i)*x_draw_width)*(1-x3d_end))/bands)\
 				-x_shift_per_block+(x3d_scroll/2)-x_offset\
-				-((gint)levels[i+1]*(x_tilt*xaxis_tilt));
+				-((gint)levels[i+1]*(xaxis_tilt))\
+				-((gint)levels[i+1]*(x_tilt*weight));
 
 			pt[2].y=height-(((i+1)*y_draw_height*y3d_start)/bands)\
 				-(((bands-i-1)*y_draw_height*y3d_end)/bands)\
 				-y_offset\
-				-((gint)levels[i+1]*(y_tilt*yaxis_tilt));
+				-((gint)levels[i+1]*(yaxis_tilt))\
+				-((gint)levels[i+1]*(y_tilt*invweight));
 
 			pt[3].x=width-(((i*x_draw_width)*(1-x3d_start))/bands)\
 				-((((bands-i)*x_draw_width)*(1-x3d_end))/bands)\
 				-x_shift_per_block-(x3d_scroll/2)\
 				-x_offset-(x3d_scroll%2)\
-				-((gint)plevels[i+1]*(x_tilt*xaxis_tilt));
+				-((gint)plevels[i+1]*(xaxis_tilt))\
+				-((gint)plevels[i+1]*(x_tilt*weight));
 
 			pt[3].y=height-(((i+1)*y_draw_height*y3d_start)/bands)\
 				-(((bands-i-1)*y_draw_height*y3d_end)/bands)\
 				-(2*y_shift_per_block)-y_offset-(z3d_scroll%2)\
-				-((gint)plevels[i+1]*(y_tilt*yaxis_tilt));
+				-((gint)plevels[i+1]*(yaxis_tilt))\
+				-((gint)plevels[i+1]*(y_tilt*invweight));
 
 			/* Low Freq "cap" to avoid open end in the 3D disp */
 			cap_pt[0].x=width\
@@ -249,23 +295,27 @@ void draw_land3d_forward()
 			pt[2].x=width-(((i*x_draw_width)*(1-x3d_start))/bands)\
 				-((((bands-i)*x_draw_width)*(1-x3d_end))/bands)\
 				-x_shift_per_block+(x3d_scroll/2)-x_offset\
-				-((gint)levels[i+1]*(x_tilt*xaxis_tilt));
+				-((gint)levels[i+1]*(xaxis_tilt))\
+				-((gint)levels[i+1]*(x_tilt*weight));
 
 			pt[2].y=height-(((i+1)*y_draw_height*y3d_start)/bands)\
 				-(((bands-i-1)*y_draw_height*y3d_end)/bands)\
 				-y_offset\
-				-((gint)levels[i+1]*(y_tilt*yaxis_tilt));
+				-((gint)levels[i+1]*(yaxis_tilt))\
+				-((gint)levels[i+1]*(y_tilt*invweight));
 
 			pt[3].x=width-(((i*x_draw_width)*(1-x3d_start))/bands)\
 				-((((bands-i)*x_draw_width)*(1-x3d_end))/bands)\
 				-x_shift_per_block-(x3d_scroll/2)\
 				-x_offset-(x3d_scroll%2)\
-				-((gint)plevels[i+1]*(x_tilt*xaxis_tilt));
+				-((gint)plevels[i+1]*(xaxis_tilt))\
+				-((gint)plevels[i+1]*(x_tilt*weight));
 
 			pt[3].y=height-(((i+1)*y_draw_height*y3d_start)/bands)\
 				-(((bands-i-1)*y_draw_height*y3d_end)/bands)\
 				-(2*y_shift_per_block)-y_offset-(z3d_scroll%2)\
-				-((gint)plevels[i+1]*(y_tilt*yaxis_tilt));
+				-((gint)plevels[i+1]*(yaxis_tilt))\
+				-((gint)plevels[i+1]*(y_tilt*invweight));
 		}
 		if (i == (bands-1))
 		{
@@ -284,6 +334,7 @@ void draw_land3d_forward()
 				-((((bands-i)*x_draw_width)*(1-x3d_end))/bands)\
 				-x_shift_per_block-(x3d_scroll/2)\
 				-x_offset-(x3d_scroll%2);
+
 			pt[3].y=height-(((i+1)*y_draw_height*y3d_start)/bands)\
 				-(((bands-i-1)*y_draw_height*y3d_end)/bands)\
 				-(2*y_shift_per_block)-y_offset-(z3d_scroll%2);
@@ -304,8 +355,10 @@ void draw_land3d_forward()
 
 		/* Variables for black outline on the displays */
 
-		lpt[0].x=pt[1].x+((gint)levels[i]*(x_tilt*xaxis_tilt));
-		lpt[0].y=pt[1].y+((gint)levels[i]*(y_tilt*yaxis_tilt));
+		lpt[0].x=pt[1].x+((gint)levels[i]*(xaxis_tilt))\
+				+((gint)levels[i]*(x_tilt*weight));
+		lpt[0].y=pt[1].y+((gint)levels[i]*(yaxis_tilt))\
+				+((gint)levels[i]*(y_tilt*invweight));
 		lpt[1].x=pt[1].x;
 		lpt[1].y=pt[1].y;
 		lpt[2].x=pt[2].x;
@@ -317,8 +370,10 @@ void draw_land3d_forward()
 		}
 		else
 		{
-			lpt[3].x=pt[2].x+((gint)levels[i+1]*(x_tilt*xaxis_tilt));
-			lpt[3].y=pt[2].y+((gint)levels[i+1]*(y_tilt*yaxis_tilt));
+			lpt[3].x=pt[2].x+((gint)levels[i+1]*(xaxis_tilt))\
+					+((gint)levels[i+1]*(x_tilt*weight));
+			lpt[3].y=pt[2].y+((gint)levels[i+1]*(yaxis_tilt))\
+					+((gint)levels[i+1]*(y_tilt*invweight));
 					
 		}
 
@@ -417,26 +472,31 @@ void draw_land3d_reverse()
 {
 //printf("land3d reverse\n");
 //printf("x_tilt %f, y_tilt %f\n",x_tilt,y_tilt);
-//printf("x_offset %i, y_offset %i\n",x_offset,y_offset);
+//printf("xaxis_tilt %f, yaxis_tilt %f\n",xaxis_tilt,yaxis_tilt);
 	for(i=bands-1; i >= 0; i--)
 	{
 		pt[0].x=width-(((i*x_draw_width)*(1-x3d_start))/bands)\
 			-((((bands-i)*x_draw_width)*(1-x3d_end))/bands)\
 			-(x3d_scroll/2)-x_offset+x_fudge-(x3d_scroll%2)\
-			-((gint)plevels[i]*(x_tilt*xaxis_tilt));
+			-((gint)plevels[i]*(xaxis_tilt))\
+			-((gint)plevels[i]*(x_tilt*weight));
 
 		pt[0].y=height-(((i)*y_draw_height*y3d_start)/bands)\
 			-(((bands-i)*y_draw_height*y3d_end)/bands)\
 			-(2*y_shift_per_block)-y_offset-(z3d_scroll%2)\
-			-((gint)plevels[i]*(y_tilt*yaxis_tilt));
+			-((gint)plevels[i]*(yaxis_tilt))\
+			-((gint)plevels[i]*(y_tilt*invweight));
 
 		pt[1].x=pt[0].x+2*(x3d_scroll/2)+(x3d_scroll%2)\
-			-((gint)levels[i]*(x_tilt*xaxis_tilt))\
-			+((gint)plevels[i]*(x_tilt*xaxis_tilt));
+			-((gint)levels[i]*(xaxis_tilt))\
+			-((gint)levels[i]*(x_tilt*weight))\
+			+((gint)plevels[i]*(xaxis_tilt))\
+			+((gint)plevels[i]*(x_tilt*weight));
 
 		pt[1].y=height-(((i)*y_draw_height*y3d_start)/bands)\
 			-(((bands-i)*y_draw_height*y3d_end)/bands)-y_offset\
-			-((gint)levels[i]*(y_tilt*yaxis_tilt));
+			-((gint)levels[i]*(yaxis_tilt))\
+			-((gint)levels[i]*(y_tilt*invweight));
 
 		if(i == (bands-1))
 		{
@@ -498,8 +558,10 @@ void draw_land3d_reverse()
 		cl.pixel=colortab[br][lvl];
 		gdk_gc_set_foreground(gc,&cl);
 
-		lpt[0].x=pt[1].x+((gint)levels[i]*(x_tilt*xaxis_tilt));
-		lpt[0].y=pt[1].y+((gint)levels[i]*(y_tilt*yaxis_tilt));
+		lpt[0].x=pt[1].x+((gint)levels[i]*(xaxis_tilt))\
+				+((gint)levels[i]*(x_tilt*weight));
+		lpt[0].y=pt[1].y+((gint)levels[i]*(yaxis_tilt))\
+				+((gint)levels[i]*(y_tilt*invweight));
 		lpt[1].x=pt[1].x;
 		lpt[1].y=pt[1].y;
 		lpt[2].x=pt[2].x;
@@ -511,8 +573,10 @@ void draw_land3d_reverse()
 		}
 		else
 		{
-			lpt[3].x=pt[2].x+((gint)levels[i+1]*(x_tilt*xaxis_tilt));
-			lpt[3].y=pt[2].y+((gint)levels[i+1]*(y_tilt*yaxis_tilt));
+			lpt[3].x=pt[2].x+((gint)levels[i+1]*(xaxis_tilt))\
+					+((gint)levels[i+1]*(x_tilt*weight));
+			lpt[3].y=pt[2].y+((gint)levels[i+1]*(yaxis_tilt))\
+					+((gint)levels[i+1]*(y_tilt*invweight));
 		}
 
 		switch (sub_mode_3D)

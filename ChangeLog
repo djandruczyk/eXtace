@@ -1,3 +1,8 @@
+2003-08-20 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	FINALLY got the perspective tilting to work the way I want so that
+	things are properly scaled no matter what  and no matter the direction
+	or axis orientation.  Currently only the LAnd3D ones are done.  Need to
+	apply the methodology on the spike3D mode...
 2003-08-18 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	Some work on land3d.c to alter the tilt algorithms.  Still not perfect
 	but fixes some previous issues.  The implementation is difficult since 

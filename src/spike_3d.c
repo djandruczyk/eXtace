@@ -21,7 +21,7 @@
 
 /* See globals.h for variable declarations and DEFINES */
 static gint i=0;
-static gfloat dir_angle = 0.0;
+static gfloat dir_angle_rad = 0.0;
 static gfloat dir_angle_deg = 0.0;
 static gint factor=0;
 static gfloat loc_bins_per_pip=0;
@@ -102,54 +102,47 @@ void draw_spike_3d()
 	x_offset = (width-x_draw_width)/2;
 	y_offset = (height-y_draw_height)/2;
 
-	/* Scroll/tilt */
-//	if (xdet_start-xdet_end <= 0)
-//		factor = -1;
-//	else
-//		factor = 1;
 	if (spiketilt == 0)
 	{
-		x_tilt=1.0;
-		y_tilt=1.0;
-		xaxis_tilt=0.0;
-		yaxis_tilt=1.0;
+		x_tilt=0.0;
+		y_tilt=0.0;
 	}
 	else
 	{
-		dir_angle = (float)atan2((float)zdet_scroll,-(float)xdet_scroll);
-		dir_angle_deg = dir_angle*90/M_PI_2;
+		dir_angle_rad = (float)atan2((float)zdet_scroll,-(float)xdet_scroll);
+		dir_angle_deg = dir_angle_rad*90/M_PI_2;
 
 //		g_print ("dir_angle_deg = %f\n",dir_angle_deg);
 
-		if ((dir_angle_deg >= -45.0) && (dir_angle_deg <= 45.0))
+		if ((dir_angle_deg >= -45.0) && (dir_angle_deg < 45.0))
 		{
 			//g_print("dir_angle between -45 and 45 deg (Quad 1-4)\n");
-			x_tilt = sin(dir_angle);
-			y_tilt = cos(dir_angle);
+			x_tilt = sin(dir_angle_rad);
+			y_tilt = cos(dir_angle_rad);
 
 		}
-		else if ((dir_angle_deg >= 45.0) && (dir_angle_deg <= 135.0))
+		else if ((dir_angle_deg >= 45.0) && (dir_angle_deg < 135.0))
 		{
 			//g_print("dir_angle between 45 and 135 deg (Quad 1-2)\n");
-			x_tilt = cos(dir_angle);
-			y_tilt = sin(dir_angle);
+			x_tilt = cos(dir_angle_rad);
+			y_tilt = sin(dir_angle_rad);
 		}
-		else if ((dir_angle_deg <= -135.0) || (dir_angle_deg >= 135.0))
+		else if ((dir_angle_deg < -135.0) || (dir_angle_deg >= 135.0))
 		{
 			//g_print("dir_angle between -135 and 135 deg (Quad 2-3)\n");
-			x_tilt = -sin(dir_angle);
-			y_tilt = -cos(dir_angle);
+			x_tilt = -sin(dir_angle_rad);
+			y_tilt = -cos(dir_angle_rad);
 		}
-		else if  ((dir_angle_deg >= -135.0) && (dir_angle_deg <= -45.0))
+		else if  ((dir_angle_deg >= -135.0) && (dir_angle_deg < -45.0))
 		{
 			//g_print("dir_angle between -135 and -45 deg (Quad 3-4)\n");
-			x_tilt = -cos(dir_angle);
-			y_tilt = -sin(dir_angle);
+			x_tilt = -cos(dir_angle_rad);
+			y_tilt = -sin(dir_angle_rad);
 		}
 //		g_print("det_axis_angle is %f degrees\n",det_axis_angle);
-		xaxis_tilt = sin(det_axis_angle);
-		yaxis_tilt = cos(det_axis_angle);
 	}
+	xaxis_tilt = sin(det_axis_angle);
+	yaxis_tilt = cos(det_axis_angle);
 
 	/* in pixels */
 	start_x = width-((x_draw_width)*(1.0-xdet_end))-x_offset;
@@ -177,6 +170,7 @@ void draw_spike_3d()
 
 	reducer(low_freq, high_freq, axis_length);
 	gdk_threads_enter();
+//	printf("axis angle %f\n",det_axis_angle);
 //	printf("x_tilt = %f, xaxis_tilt %f, y_tilt %f, yaxis_tile %f\n",x_tilt,xaxis_tilt, y_tilt,yaxis_tilt);
 	for( i=0; i < axis_length; i++ )
 	{
@@ -186,8 +180,12 @@ void draw_spike_3d()
 		pt[0].y=height-(((i*loc_bins_per_pip)*y_draw_height*ydet_start)\
 				/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))\
 					*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
-		pt[1].x=pt[0].x-(gint)pip_arr[i]*(x_tilt*xaxis_tilt);
-		pt[1].y=pt[0].y-(gint)pip_arr[i]*(y_tilt*yaxis_tilt);
+		pt[1].x=pt[0].x\
+	//		-(gint)pip_arr[i]*(x_tilt/2.0)
+			-(gint)pip_arr[i]*(xaxis_tilt);
+		pt[1].y=pt[0].y
+//			-(gint)pip_arr[i]*(y_tilt/2.0)
+			-(gint)pip_arr[i]*(yaxis_tilt);
 		lvl=abs((gint)pip_arr[i]*4);
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
