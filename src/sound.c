@@ -250,7 +250,10 @@ void alsa_reader_thread(void *private_data, char *buffer, size_t count)
 {
     static gint last;
 
-    /* set predicate to block any other threads */
+    /* set predicate to block any other threads 
+     * not really needed as I ripped out the unnecessary thread/mutex
+     * stuff, but the flags might be good to have anyway....
+     */
     alsa_locked = 1;
     bytes_2_move = count;
     bytes_moved = 0;
@@ -284,6 +287,10 @@ void alsa_reader_thread(void *private_data, char *buffer, size_t count)
     audio_arrival_last = audio_arrival;
     gettimeofday(&audio_arrival, NULL);
 
+    //    printf("Moved %i bbytes of input data\n",count);
+
+    //    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+
     if (gdk_window_is_visible(buffer_area->window))
     {
 	/* Only draw it if its visible.  Why waste CPU time ??? */
@@ -306,10 +313,6 @@ void alsa_reader_thread(void *private_data, char *buffer, size_t count)
 	gdk_window_clear(buffer_area->window);
 	gdk_threads_leave();
     }
-
-    //    printf("Moved %i bbytes of input data\n",count);
-
-    //    printf("Last AUDIO at %f, current at %f, diff %fms\n",audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000, audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
     /* unset predicate */
     alsa_locked = 0;
 }
@@ -370,6 +373,9 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 
     audio_arrival_last = audio_arrival;
     gettimeofday(&audio_arrival, NULL);
+//    printf("Moved %i bytes of input data\n",count);
+
+//    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
 
     if (gdk_window_is_visible(buffer_area->window))
     {
@@ -393,9 +399,6 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 	gdk_window_clear(buffer_area->window);
 	gdk_threads_leave();
     }
-//    printf("Moved %i bbytes of input data\n",count);
-
-//    printf("Last at %f, current at %f, diff %fms\n",audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000, audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
     /* unset predicate */
     esd_locked = 0;
 }

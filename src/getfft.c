@@ -47,10 +47,15 @@ int GetFFT(void)
     gdouble *imag_fft_out=NULL;
     gdouble *fft_ptr=NULL;
     gint nsamp_sqd=0;
+    gfloat cur_time=0;
+    gfloat audio_offset_lag=0;
+    gint audio_offset_delay=0;
     gint delay = (int)(((float)(fft_lag+lag)/1000.0)*(float)RATE);
     static gint last;
 
-//    printf("Current FFT lag is %i ms\n",delay*1000/RATE);
+//    printf("Current FFT lag is %i ms\n",fft_lag);
+//    printf("Current SCOPE lag is %i ms\n",lag);
+
 //
 
     /* Set pointer position to be offset from the reader pointer by
@@ -59,8 +64,22 @@ int GetFFT(void)
      */
     draw_win_time_last = draw_win_time;
     gettimeofday(&draw_win_time, NULL); 
+
+    /* cur_time is the absolute time NOW when this function runs.  Its 
+     * needed to calculate how much time has past since the last chunk
+     * of audio came in. (Most usefull with LARGE ft sizes (8192 points 
+     * or more..)
+     */
+    cur_time = draw_win_time.tv_sec + ((double)draw_win_time.tv_usec/1000000);
+    /* audio_offset_lag is hte time difference between when this function runs 
+     * since that last audio block was committed to the ringbuffer.
+     */
+    audio_offset_lag = ((draw_win_time.tv_sec + (double)draw_win_time.tv_usec/1000000)-(audio_arrival.tv_sec + (double)audio_arrival.tv_usec/1000000))*1000;
+
+    /* Need this in sample elements not in milliseconds.... */
+    audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)*(float)RATE);
      
-//    printf("Last DRAW at %f, current at %f, diff %fms\n",draw_win_time_last.tv_sec +(double)draw_win_time_last.tv_usec/1000000, draw_win_time.tv_sec +(double)draw_win_time.tv_usec/1000000,((draw_win_time.tv_sec +(double)draw_win_time.tv_usec/1000000)-(draw_win_time_last.tv_sec +(double)draw_win_time_last.tv_usec/1000000))*1000);
+//    printf("++Window DRAWER: current at %f, diff from LATEST audio %.2fms\n",cur_time,audio_offset_lag);
 
     /* Set pointer to be offset from the beginning of the ring + the position 
      * of the audio reader thread + the buffer size - the time delay (lag
@@ -71,9 +90,9 @@ int GetFFT(void)
 
     /* Must add "BUFFER" to the ring value to make sure that raw_ptr
      * OVERFLOWS, otherwise it never gets to the end and wraps. Function below
-     * takes care of overflow and moves to the right spot
+     * takes care of overflow and moves to the right spot.
      */
-    raw_ptr = audio_ring+ring_pos+BUFFER-((int)delay)*2;
+    raw_ptr = audio_ring+ring_pos+BUFFER-(delay-audio_offset_delay)*2;
 
     data_win_ptr=datawindow;
     audio_data_ptr=audio_data;
@@ -339,10 +358,18 @@ int GetFFT(void)
     {
 //	*fft_ptr=multiplier*(scaler+log10((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
 
-/* Alternatives. 
- *	*fft_ptr=multiplier*(scaler+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
- */
+// Alternatives. 
+// 	Normalized???  Not sure...
+//	*fft_ptr=multiplier*(scaler+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
+//
+// 	Phase and Real Components combined
  	*fft_ptr=multiplier*(scaler+(20*log10(sqrt((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))));
+//
+// 	 Real Components ONLY
+// 	fft_ptr=multiplier*(scaler+(20*log10(sqrt((*real_fft_out * *real_fft_out)))));
+	/* Phase Components ONLY */
+
+// 	*fft_ptr=multiplier*(scaler+(20*log10(sqrt((*imag_fft_out * *imag_fft_out)))));
 	if (*fft_ptr < 0) 
 	    *fft_ptr=0;
 	fft_ptr++;
