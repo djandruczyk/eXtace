@@ -36,6 +36,7 @@ gint micro_ver;
 gint main_x_origin;
 gint main_y_origin;
 
+extern gint ready;
 extern gint seg_height;	/* from 2d_eq.c */
 extern gint seg_space;	/* from 2d_eq.c */
 extern gfloat xdet_start;
@@ -150,7 +151,6 @@ void init()
 	sync_independant = 0;	 /* independtant sync */
 	paused = 0;		 /* display running */
 	low_freq = 0;		 /* Low frequency cutoff in hi-res displays */
-	high_freq = ring_rate/2; /* High frequency cutoff in hi-res displays */
 	clear_display = 0;	/* Flag for markers */
 
 	/*	Color presets (default colormap) */
@@ -203,7 +203,6 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Window", "height", &height);
 		cfg_read_int(cfgfile, "Window", "main_x_origin", &main_x_origin);
 		cfg_read_int(cfgfile, "Window", "main_y_origin", &main_y_origin);
-		//	cfg_read_int(cfgfile, "Window", "grad_win_present", &grad_win_present);
 		cfg_read_int(cfgfile, "Window", "grad_x_origin", &grad_x_origin);
 		cfg_read_int(cfgfile, "Window", "grad_y_origin", &grad_y_origin);
 		cfg_read_int(cfgfile, "Window", "dir_x_origin", &dir_x_origin);
@@ -573,17 +572,16 @@ void reinit_extace(int new_nsamp)
 void ring_rate_changed()
 {
 	/* Fixes all adjustments that depend on sample rate */
-	if (high_freq <= 0)
-		high_freq = ring_rate/nsamp;
+	if (!ready)
+		return;
 
 	GTK_ADJUSTMENT(lf_adj)->lower = (float)ring_rate/(float)nsamp;
-	GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33.0*(ring_rate/(2.0*decimation_factor))/(float)nsamp);
-//	GTK_ADJUSTMENT(lf_adj)->upper = high_freq;
+	GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (64.0*(ring_rate/(2.0*decimation_factor))/(float)nsamp);
 	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(lf_adj)->page_increment = (float)ring_rate/(float)nsamp;
 
 	GTK_ADJUSTMENT(hf_adj)->lower = 
-			low_freq + 33.0*((float)ring_rate/(float)nsamp);
+			low_freq + (64.0*(ring_rate/(2.0*decimation_factor))/(float)nsamp);
 	GTK_ADJUSTMENT(hf_adj)->upper = 
 			ring_rate/(2.0*decimation_factor) + (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)ring_rate/(float)nsamp;

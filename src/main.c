@@ -235,6 +235,7 @@ int main(int argc, char **argv)
 
 	setup_datawindow(NULL,(WindowFunction)window_func);
 
+	ring_rate = 44100;
 	setup_options();
 	init_colortab();
 	init_gc(main_window);

@@ -569,11 +569,6 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 			decimation_factor = (long int)data;
 			recalc_markers=1;
 			ring_rate_changed();
-//			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33.0*ring_rate/(2.0*decimation_factor));
-//			GTK_ADJUSTMENT(hf_adj)->upper = ring_rate/(2.0*decimation_factor)+ring_rate/nsamp;
-//			gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
-//			gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
-
 		}
 	}
 	return (0);
