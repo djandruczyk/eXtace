@@ -47,18 +47,6 @@ void leave(GtkWidget *widget, gpointer *data)
 	gtk_main_quit();
 }
 
-gint button_options(GtkWidget *widget, gpointer *data)
-{
-	if (GTK_TOGGLE_BUTTON (widget)->active)
-	{                                           /* button's down */
-		gtk_widget_show(options_win_ptr);
-	}
-	else
-	{
-		gtk_widget_hide(options_win_ptr);
-	}
-	return 0;
-}
 gint close_dir_win(GtkWidget *widget, gpointer *data)
 {
 	if (dir_win_present)
@@ -126,48 +114,16 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 	}
 	return 0;
 }
-gint change_fftlen(GtkWidget *widget, gpointer *data)
-{
-	int temp_nsamp = 0;
-
-	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
-	{
-		switch ((gint)data)
-		{
-			case 256:
-				temp_nsamp=(gint)data;
-				break;
-			case 512:
-				temp_nsamp=(gint)data;
-				break;
-			case 1024:
-				temp_nsamp=(gint)data;
-				break;
-			case 2048:
-				temp_nsamp=(gint)data;
-				break;
-			case 4096:
-				temp_nsamp=(gint)data;
-				break;
-			case 8192:
-				temp_nsamp=(gint)data;
-				break;
-			case 16384:
-				temp_nsamp=(gint)data;
-				break;
-			case 32768:
-				temp_nsamp=(gint)data;
-				break;
-		}
-	}
-	return 0;
-}
 gint button_handle(GtkWidget *widget, gpointer *data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
 		switch((gint)data)
 		{
+			case OPTIONS:
+				gtk_widget_show(options_win_ptr);
+				break;
+
 			case LEADING_EDGE:
 
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
@@ -381,6 +337,10 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 	{
 		switch((gint)data)
 		{
+			case OPTIONS:
+				gtk_widget_hide(options_win_ptr);
+				break;
+
 			case LEADING_EDGE:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
 						"Leading Edge Shown");
@@ -470,11 +430,12 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 	return 0;
 }
 	
-
-gint button_3d_fft(GtkWidget *widget, gpointer *data)
+gint change_display(GtkWidget *widget, gpointer *data)
 {
-	draw_stop();
+	gint enable_dir_win = 0;
 
+	draw_stop();	/* stop the display */
+	/* Clear the screen to remove stray stuff */
 	gdk_draw_rectangle(main_pixmap,
 			main_display->style->black_gc,
 			TRUE, 0,0,
@@ -484,74 +445,89 @@ gint button_3d_fft(GtkWidget *widget, gpointer *data)
 			TRUE, 0,0,
 			width,height);
 	gdk_window_clear(main_display->window);
-	mode = LAND_3D;
-	if (data == (gpointer)FILL_3D)
-		sub_mode_3D=(gint)data;
-	if (data == (gpointer)WIRE_3D)
-		sub_mode_3D=(gint)data;
-
-	if (!dir_win_present)
+	switch ((gint)data)
 	{
-		gtk_widget_show(dir_win);
-		gtk_widget_set_uposition(dir_win,dir_x_origin,dir_y_origin);
-		dir_win_present = 1;
-	}
-	update_dircontrol(dir_area);
+		case WIRE_3D:
+			mode = LAND_3D;
+			sub_mode_3D = WIRE_3D;
+			enable_dir_win = 1;
+			break;
+		case FILL_3D:
+			mode = LAND_3D;
+			sub_mode_3D = FILL_3D;
+			enable_dir_win = 1;
+			break;
+		case EQ_2D:
+			mode = EQ_2D;
+			enable_dir_win = 0;
+			break;
+		case SCOPE:
+			mode = SCOPE;
+			enable_dir_win = 0;
+			break;
+		case HORIZ_SPECGRAM:
+			mode = HORIZ_SPECGRAM;
+			if (horiz_spec_start < 55)
+				horiz_spec_start = 55;
+			if (horiz_spec_start > width)
+				horiz_spec_start = width-10;
+			enable_dir_win = 0;
+			display_markers = 1;
+			break;
+		case VERT_SPECGRAM:
+			mode = VERT_SPECGRAM;
+			if (vert_spec_start > height)
+				vert_spec_start = height-10;
+			if (vert_spec_start < 120)
+				vert_spec_start = 120;
+			display_markers = 1;
+			break;
+		case SPIKE_3D:
+			mode = SPIKE_3D;
+			enable_dir_win = 1;
+			break;
+		case STARS:
+			mode = STARS;
+			enable_dir_win = 0;
+			if (!stars)
+			{
+				GdkPixmap *pm = NULL, *mk = NULL;
 
+				stars = (GtkWidget *)kt_stars_new(main_display,\
+						main_pixmap);
+				pm = gdk_pixmap_create_from_xpm_d(stars->\
+						window, &mk, NULL, logo_xpm);
+				kt_stars_set_logo_pixmp(stars, pm, mk);
+			}
+			break;
+		default:
+			break;
+	}
+	if (enable_dir_win)	/* enable direction control widget */
+	{
+		if (!dir_win_present)
+		{
+			gtk_widget_show(dir_win);
+			gtk_widget_set_uposition(dir_win,
+					dir_x_origin,dir_y_origin);
+			dir_win_present = 1;
+		}
+		update_dircontrol(dir_area);
+	}
+	else			/* if enabled, disable it */
+	{
+		if (dir_win_present)
+		{
+			gtk_widget_hide(dir_win);
+			dir_win_present = 0;
+		}
+	}
 	draw_start();
 
-	return 0;
+	return TRUE;
+
 }
 
-gint button_2d_fft(GtkWidget *widget, gpointer *data)
-{
-	draw_stop();
-
-	gdk_draw_rectangle(main_pixmap,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_draw_rectangle(main_display->window,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_window_clear(main_display->window);
-	mode = EQ_2D;
-	if(dir_win_present)
-	{
-		gtk_widget_hide(dir_win);
-		dir_win_present = 0;
-	}
-	draw_start();
-
-	return 0;
-}
-
-gint button_oscilloscope(GtkWidget *widget, gpointer *data)
-{
-	draw_stop();
-
-	gdk_draw_rectangle(main_pixmap,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_draw_rectangle(main_display->window,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_window_clear(main_display->window);
-	mode = SCOPE;
-
-	if(dir_win_present)
-	{
-		gtk_widget_hide(dir_win);
-		dir_win_present = 0;
-	}
-	draw_start();
-
-
-	return 0;
-}
 gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 {
 	if (GTK_TOGGLE_BUTTON (widget)->active)
@@ -585,120 +561,6 @@ gint scope_mode(GtkWidget *widget, gpointer *data)
 				width,height);
 		gdk_window_clear(main_display->window);
 	}
-	return 0;
-}
-
-gint button_horiz_specgram(GtkWidget *widget, gpointer *data)
-{
-	draw_stop();
-
-	gdk_draw_rectangle(main_pixmap,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_draw_rectangle(main_display->window,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_window_clear(main_display->window);
-	mode = HORIZ_SPECGRAM;
-	if (horiz_spec_start < 55)
-		horiz_spec_start = 55;
-	if (horiz_spec_start > width)
-		horiz_spec_start = width-10;
-	if(dir_win_present)
-	{
-		gtk_widget_hide(dir_win);
-		dir_win_present = 0;
-	}
-	display_markers = 1;
-	draw_start();
-
-	return 0;
-}
-gint button_vert_specgram(GtkWidget *widget, gpointer *data)
-{
-	draw_stop();
-
-	gdk_draw_rectangle(main_pixmap,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_draw_rectangle(main_display->window,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_window_clear(main_display->window);
-	mode = VERT_SPECGRAM;
-	if (vert_spec_start > height)
-		vert_spec_start = height-10;
-	if (vert_spec_start < 120)
-		vert_spec_start = 120;
-	if(dir_win_present)
-	{
-		gtk_widget_hide(dir_win);
-		dir_win_present = 0;
-	}
-	display_markers = 1;
-	draw_start();
-
-	return 0;
-}
-
-gint button_3d_detailed(GtkWidget *widget, gpointer *data)
-{
-	draw_stop();
-
-	gdk_draw_rectangle(main_pixmap,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_draw_rectangle(main_display->window,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_window_clear(main_display->window);
-	mode = SPIKE_3D;
-	if (!dir_win_present)
-	{
-		gtk_widget_show(dir_win);
-		gtk_widget_set_uposition(dir_win,dir_x_origin,dir_y_origin);
-		dir_win_present = 1;
-	}
-	update_dircontrol(dir_area);
-
-	draw_start();
-	return 0;
-}
-
-gint button_about(GtkWidget *widget, gpointer *data)
-{
-	draw_stop();
-
-	gdk_draw_rectangle(main_pixmap,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_draw_rectangle(main_display->window,
-			main_display->style->black_gc,
-			TRUE, 0,0,
-			width,height);
-	gdk_window_clear(main_display->window);
-	mode=STARS;
-	if (!stars)
-	{
-		GdkPixmap *pm = NULL, *mk = NULL;
-
-		stars = (GtkWidget *)kt_stars_new(main_display, main_pixmap);
-		pm = gdk_pixmap_create_from_xpm_d(stars->window, &mk, NULL, logo_xpm);
-		kt_stars_set_logo_pixmp(stars, pm, mk);
-	}
-	if(dir_win_present)
-	{
-		gtk_widget_hide(dir_win);
-		dir_win_present = 0;
-	}
-	draw_start();
 	return 0;
 }
 

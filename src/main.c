@@ -85,50 +85,58 @@ int main(int argc, char **argv)
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "3D Wireframe FFT", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_3d_fft),(gpointer)WIRE_3D);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)WIRE_3D);
 
 	button=gtk_button_new_with_label("Landform 3D");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "3D Landform FFT", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_3d_fft),(gpointer)FILL_3D);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)FILL_3D);
 
 	button=gtk_button_new_with_label("Graphic EQ");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Graphic Equalizer", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_2d_fft),NULL);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)EQ_2D);
 
 	button=gtk_button_new_with_label("Scope");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Oscilliscope", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_oscilloscope),NULL);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)SCOPE);
 
 	button=gtk_button_new_with_label("3D Spikes");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "3D Hi-resolution FFT", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_3d_detailed),NULL);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)SPIKE_3D);
 
 	button=gtk_button_new_with_label("Horiz Spectrogram");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Horizontal Spectrogram", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_horiz_specgram),NULL);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)HORIZ_SPECGRAM);
 
 	button=gtk_button_new_with_label("Vert Spectrogram");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Vertical Spectrogram", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_vert_specgram),NULL);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)VERT_SPECGRAM);
 
 	button=gtk_button_new_with_label("About");
 	about_but_ptr = button;
 	gtk_tooltips_set_tip(tip, button, "About eXtace", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(button_about),NULL);
+			GTK_SIGNAL_FUNC(change_display),
+			(gpointer)STARS);
 
 	button=gtk_toggle_button_new_with_label("Options");
 	optionsbut=button;
@@ -136,7 +144,7 @@ int main(int argc, char **argv)
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(optionsbut), FALSE);
 	gtk_box_pack_start(GTK_BOX(hbox),optionsbut,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT(optionsbut),"toggled",
-			GTK_SIGNAL_FUNC(button_options),NULL);
+			GTK_SIGNAL_FUNC(button_handle),(gpointer)OPTIONS);
 
 	button=gtk_button_new_with_label("Close");
 	gtk_tooltips_set_tip(tip, button, "Close eXtace!!", NULL);

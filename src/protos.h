@@ -21,96 +21,138 @@
 /* Function Prototypes for all objects/source files */
 
 
+/* buttons.c */
 void leave(GtkWidget *, gpointer *);
-gint button_options(GtkWidget *, gpointer *);
+gint close_dir_win(GtkWidget *, gpointer *);
+gint close_grad_win(GtkWidget *, gpointer *);
 gint close_options(GtkWidget *, gpointer *);
 gint slider_changed(GtkWidget *, gpointer *);
 gint button_handle(GtkWidget *, gpointer *);
-gint change_fftlen(GtkWidget *, gpointer *);
-gint button_3d_fft(GtkWidget *, gpointer *);
-gint button_2d_fft(GtkWidget *, gpointer *);
-gint button_vert_specgram(GtkWidget *, gpointer *);
-gint button_horiz_specgram(GtkWidget *, gpointer *);
-gint button_oscilloscope(GtkWidget *, gpointer *);
-gint button_3d_detailed(GtkWidget *, gpointer *);
-gint button_about(GtkWidget *, gpointer *);
-gint scope_mode(GtkWidget *, gpointer *);
+gint change_display(GtkWidget *, gpointer *);
 gint set_decimation_factor(GtkWidget *widget, gpointer *data);
+gint scope_mode(GtkWidget *, gpointer *);
+/* buttons.c */
+
+/* init.c */
 void init(void);
-void update_freq_markers();
+void read_config(void);
+void save_config(void);
+void make_extace_dirs(void);
+void mem_alloc(void);
+void mem_dealloc(void);
+void reinit_extace(int );
+/* init.c */
+
+/* markers.c */
 void update_time_markers();
-int open_sound(void);
-void close_sound(void);
+void buffer_area_update(void);
+void update_freq_markers();
+/* markers.c */
+
+/* datawindow.h */
 void setup_datawindow(GtkWidget *,WindowFunction );
-gint setup_dircontrol(GtkWidget *);
-gint feed_pointer(gint, gint);
-int draw(void);
-void draw_stop(void);
+/* datawindow.h */
+
+/* draw.c */
 void draw_start(void);
+void draw_stop(void);
+int draw(void);
+/* draw.c */
+
+
+/* events.c */
+gint configure_event(GtkWidget *, GdkEventConfigure *, gpointer );
+gint expose_event(GtkWidget *, GdkEventExpose *, gpointer );
+gint button_notify_event (GtkWidget *, GdkEventButton *, gpointer );
+gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer );
+gint test_on_line(int, int);
+gint test_if_close(int, int);
 void change_spec_start(gint);
 void change_x_start(gint,gint);
 void change_x_end(gint,gint);
-int audio_chewer(void);
-void split_and_decimate(void);
-
-gint configure_event(GtkWidget *, GdkEventConfigure *, gpointer );
-gint expose_event(GtkWidget *, GdkEventExpose *, gpointer );
-
-gint time_disp_configure(GtkWidget *, GdkEventConfigure *);
-
-void init_colortab();
-void handle_read(gpointer , gint , GdkInputCondition );
-
-gint dir_motion (GtkWidget *, GdkEventMotion *, gpointer);
-gint update_dircontrol(GtkWidget *);
-void buffer_area_update(void);
-gint motion_notify_event (GtkWidget *, GdkEventMotion *, gpointer );
-gint button_notify_event (GtkWidget *, GdkEventButton *, gpointer );
-
+/* events.c */
+	
+/* dir.c */
 gint dir_save_state(GtkWidget *, GdkEventFocus *);
-gint grad_win_save_state(GtkWidget *, GdkEventFocus *);
-
-void init_gc(GtkWidget *);
-gint color_event (GtkWidget *, GdkEventButton *, gpointer);
-gint close_dir_win(GtkWidget *, gpointer *);
-gint close_grad_win(GtkWidget *, gpointer *);
-gint color_button(GtkWidget *, gpointer );
+gint update_dircontrol(GtkWidget *);
+gint setup_dircontrol(GtkWidget *);
+gint dir_motion (GtkWidget *, GdkEventMotion *, gpointer);
+gint feed_pointer(gint, gint);
+void dir_axis_update(void);
 gint update_pointer(void);
-void make_extace_dirs(void);
-void read_config(void);
-void mem_alloc(void);
-void mem_dealloc(void);
-void save_config(void);
-void error_close_cb(GtkWidget *, gpointer * );
-void grad_win_create(void);
+/* dir.c */
+
+/* gc_maker.c */
+void init_gc(GtkWidget *);
+/* gc_maker.c */
+
+/* color_win.c */
+gint color_event (GtkWidget *, GdkEventButton *, gpointer);
+gint color_button(GtkWidget *, gpointer );
+void create_initial_colormaps(void);
+void save_colormap(GtkWidget *, GtkFileSelection *);
+void load_colormap(GtkWidget *, GtkFileSelection *);
+void read_colormap(char *);
 void update_gradient(GtkWidget *, int );
+void init_colortab();
+void grad_win_create(void);
+gint grad_win_save_state(GtkWidget *, GdkEventFocus *);
 void gradient_update();
+/* color_win.c */
+
 void kt_stars_update_func(GtkWidget *);
 void kt_stars_stop(GtkWidget *);
 void kt_stars_start(GtkWidget *, gint , gint );
 GtkWidget * kt_stars_new(GtkWidget *, GdkPixmap *);
 void kt_stars_set_logo_pixmp(GtkWidget *, GdkPixmap *, GdkPixmap *);
-gint close_winfun(GtkWidget *, gpointer );
-gint test_if_close(int, int);
-gint test_on_line(int, int);
+
+/* reducer.c */
 void reducer(int, int, int);
-void file_ok_save(GtkWidget *, GtkFileSelection *);
-void file_ok_load(GtkWidget *, GtkFileSelection *);
-void read_colormap(char *);
+/* reducer.c */
+
+/* land_3d.c */
+void draw_land3d_fft(void);
+void draw_land3d_fft(void);
 void draw_land3d_forward(void);
 void draw_land3d_reverse(void);
-void dir_axis_update(void);
-void draw_land3d_fft(void);
+/* land_3d.c */
+
+/* 2d_eq.c */
 void draw_2d_eq(void);
+/* 2d_eq.c */
+
+/* scope.c */
 void draw_scope(void);
+/* scope.c */
+
+/* spike_3d.c */
 void draw_spike_3d(void);
+/* spike_3d.c */
+
+/* vert_specgram.c */
 void draw_vert_specgram(void);
+/* vert_specgram.c */
+
+/* horiz_specgram.c */
 void draw_horiz_specgram(void);
-void create_initial_colormaps(void);
+/* horiz_specgram.c */
+
+/* sound.c */
 int audio_thread_starter(void);
 int audio_thread_stopper(void);
 void *esd_starter_thread(void * );
 void esd_reader_thread(gpointer , gint , GdkInputCondition );
-void reinit_extace(int );
+int open_sound(void);
+void close_sound(void);
+void error_close_cb(GtkWidget *, gpointer * );
+/* sound.c */
+
+/* options.c */
 gint setup_options(void);
+/* options.c */
+
+/* audio_processing.c */
 void run_fft(void);
+int audio_chewer(void);
+void split_and_decimate(void);
+/* audio_processing.c */

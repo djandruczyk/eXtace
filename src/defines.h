@@ -66,6 +66,9 @@
 #define STARS           0x40
 /* About Animation */
 
+/* Options Panel */
+#define OPTIONS		0x45
+
 /* Scrolling Spectragrams */
 #define VERT_SPECGRAM	0x50
 #define HORIZ_SPECGRAM	0x51

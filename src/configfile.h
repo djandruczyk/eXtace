@@ -40,23 +40,23 @@ typedef struct
 }
 ConfigFile;
 
-ConfigFile *extace_cfg_new(void);
-ConfigFile *extace_cfg_open_file(gchar * filename);
-gboolean extace_cfg_write_file(ConfigFile * cfg, gchar * filename);
-void extace_cfg_free(ConfigFile * cfg);
+ConfigFile *cfg_new(void);
+ConfigFile *cfg_open_file(gchar * filename);
+gboolean cfg_write_file(ConfigFile * cfg, gchar * filename);
+void cfg_free(ConfigFile * cfg);
 
-gboolean extace_cfg_read_string(ConfigFile * cfg, gchar * section, gchar * key, gchar ** value);
-gboolean extace_cfg_read_int(ConfigFile * cfg, gchar * section, gchar * key, gint * value);
-gboolean extace_cfg_read_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean * value);
-gboolean extace_cfg_read_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat * value);
-gboolean extace_cfg_read_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble * value);
+gboolean cfg_read_string(ConfigFile * cfg, gchar * section, gchar * key, gchar ** value);
+gboolean cfg_read_int(ConfigFile * cfg, gchar * section, gchar * key, gint * value);
+gboolean cfg_read_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean * value);
+gboolean cfg_read_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat * value);
+gboolean cfg_read_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble * value);
 
-void extace_cfg_write_string(ConfigFile * cfg, gchar * section, gchar * key, gchar * value);
-void extace_cfg_write_int(ConfigFile * cfg, gchar * section, gchar * key, gint value);
-void extace_cfg_write_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean value);
-void extace_cfg_write_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat value);
-void extace_cfg_write_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble value);
+void cfg_write_string(ConfigFile * cfg, gchar * section, gchar * key, gchar * value);
+void cfg_write_int(ConfigFile * cfg, gchar * section, gchar * key, gint value);
+void cfg_write_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean value);
+void cfg_write_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat value);
+void cfg_write_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble value);
 
-void extace_cfg_remove_key(ConfigFile * cfg, gchar * section, gchar * key);
+void cfg_remove_key(ConfigFile * cfg, gchar * section, gchar * key);
 
 #endif

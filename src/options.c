@@ -47,9 +47,9 @@ int setup_options()
 	options_win_ptr = options;
 	gtk_window_set_title(GTK_WINDOW(options),"eXtace Options");
 	gtk_signal_connect(GTK_OBJECT(options),"destroy_event",
-			GTK_SIGNAL_FUNC(close_options),optionsbut);
+			GTK_SIGNAL_FUNC(close_options),NULL);
 	gtk_signal_connect(GTK_OBJECT(options),"delete_event",
-			GTK_SIGNAL_FUNC(close_options),optionsbut);
+			GTK_SIGNAL_FUNC(close_options),NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(options),2);
 
 	notebook = gtk_notebook_new ();

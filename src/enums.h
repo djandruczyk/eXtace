@@ -15,13 +15,13 @@
 
 typedef enum
 {
-    HAMMING	= 1 << 1,
-    HANNING	= 1 << 2,
-    BLACKMAN	= 1 << 3,
-    BLACKMAN_HARRIS	= 1 << 4,
-    GAUSSIAN	= 1 << 5,
-    WELCH	= 1 << 6,
-    PARZEN	= 1 << 7,
-    RECTANGULAR	= 1 << 8
+	HAMMING		= 1 << 1,
+	HANNING		= 1 << 2,
+	BLACKMAN	= 1 << 3,
+	BLACKMAN_HARRIS	= 1 << 4,
+	GAUSSIAN	= 1 << 5,
+	WELCH		= 1 << 6,
+	PARZEN		= 1 << 7,
+	RECTANGULAR	= 1 << 8
 }WindowFunction;
 

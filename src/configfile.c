@@ -25,12 +25,12 @@
 #include <stdlib.h>
 #include "configfile.h"
 
-static ConfigSection *extace_cfg_create_section(ConfigFile * cfg, gchar * name);
-static ConfigLine *extace_cfg_create_string(ConfigSection * section, gchar * key, gchar * value);
-static ConfigSection *extace_cfg_find_section(ConfigFile * cfg, gchar * name);
-static ConfigLine *extace_cfg_find_string(ConfigSection * section, gchar * key);
+static ConfigSection *cfg_create_section(ConfigFile * cfg, gchar * name);
+static ConfigLine *cfg_create_string(ConfigSection * section, gchar * key, gchar * value);
+static ConfigSection *cfg_find_section(ConfigFile * cfg, gchar * name);
+static ConfigLine *cfg_find_string(ConfigSection * section, gchar * key);
 
-ConfigFile *extace_cfg_new(void)
+ConfigFile *cfg_new(void)
 {
 	ConfigFile *cfg;
 
@@ -39,7 +39,7 @@ ConfigFile *extace_cfg_new(void)
 	return cfg;
 }
 
-ConfigFile *extace_cfg_open_file(gchar * filename)
+ConfigFile *cfg_open_file(gchar * filename)
 {
 	ConfigFile *cfg;
 
@@ -75,7 +75,7 @@ ConfigFile *extace_cfg_open_file(gchar * filename)
 			if ((tmp = strchr(lines[i], ']')))
 			{
 				*tmp = '\0';
-				section = extace_cfg_create_section(cfg, &lines[i][1]);
+				section = cfg_create_section(cfg, &lines[i][1]);
 			}
 		}
 		else if (lines[i][0] != '#' && section)
@@ -84,7 +84,7 @@ ConfigFile *extace_cfg_open_file(gchar * filename)
 			{
 				*tmp = '\0';
 				tmp++;
-				extace_cfg_create_string(section, lines[i], tmp);
+				cfg_create_string(section, lines[i], tmp);
 			}
 		}
 		i++;
@@ -93,7 +93,7 @@ ConfigFile *extace_cfg_open_file(gchar * filename)
 	return cfg;
 }
 
-gboolean extace_cfg_write_file(ConfigFile * cfg, gchar * filename)
+gboolean cfg_write_file(ConfigFile * cfg, gchar * filename)
 {
 	FILE *file;
 	GList *section_list, *line_list;
@@ -125,24 +125,24 @@ gboolean extace_cfg_write_file(ConfigFile * cfg, gchar * filename)
 	return TRUE;
 }
 
-gboolean extace_cfg_read_string(ConfigFile * cfg, gchar * section, gchar * key, gchar ** value)
+gboolean cfg_read_string(ConfigFile * cfg, gchar * section, gchar * key, gchar ** value)
 {
 	ConfigSection *sect;
 	ConfigLine *line;
 
-	if (!(sect = extace_cfg_find_section(cfg, section)))
+	if (!(sect = cfg_find_section(cfg, section)))
 		return FALSE;
-	if (!(line = extace_cfg_find_string(sect, key)))
+	if (!(line = cfg_find_string(sect, key)))
 		return FALSE;
 	*value = g_strdup(line->value);
 	return TRUE;
 }
 
-gboolean extace_cfg_read_int(ConfigFile * cfg, gchar * section, gchar * key, gint * value)
+gboolean cfg_read_int(ConfigFile * cfg, gchar * section, gchar * key, gint * value)
 {
 	gchar *str;
 
-	if (!extace_cfg_read_string(cfg, section, key, &str))
+	if (!cfg_read_string(cfg, section, key, &str))
 		return FALSE;
 	*value = atoi(str);
 	g_free(str);
@@ -150,11 +150,11 @@ gboolean extace_cfg_read_int(ConfigFile * cfg, gchar * section, gchar * key, gin
 	return TRUE;
 }
 
-gboolean extace_cfg_read_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean * value)
+gboolean cfg_read_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean * value)
 {
 	gchar *str;
 
-	if (!extace_cfg_read_string(cfg, section, key, &str))
+	if (!cfg_read_string(cfg, section, key, &str))
 		return FALSE;
 	if (!strcasecmp(str, "TRUE"))
 		*value = TRUE;
@@ -164,11 +164,11 @@ gboolean extace_cfg_read_boolean(ConfigFile * cfg, gchar * section, gchar * key,
 	return TRUE;
 }
 
-gboolean extace_cfg_read_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat * value)
+gboolean cfg_read_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat * value)
 {
 	gchar *str;
 
-	if (!extace_cfg_read_string(cfg, section, key, &str))
+	if (!cfg_read_string(cfg, section, key, &str))
 		return FALSE;
 
 	*value = (gfloat) g_strtod(str, NULL);
@@ -177,11 +177,11 @@ gboolean extace_cfg_read_float(ConfigFile * cfg, gchar * section, gchar * key, g
 	return TRUE;
 }
 
-gboolean extace_cfg_read_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble * value)
+gboolean cfg_read_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble * value)
 {
 	gchar *str;
 
-	if (!extace_cfg_read_string(cfg, section, key, &str))
+	if (!cfg_read_string(cfg, section, key, &str))
 		return FALSE;
 
 	*value = g_strtod(str, NULL);
@@ -190,66 +190,66 @@ gboolean extace_cfg_read_double(ConfigFile * cfg, gchar * section, gchar * key, 
 	return TRUE;
 }
 
-void extace_cfg_write_string(ConfigFile * cfg, gchar * section, gchar * key, gchar * value)
+void cfg_write_string(ConfigFile * cfg, gchar * section, gchar * key, gchar * value)
 {
 	ConfigSection *sect;
 	ConfigLine *line;
 
-	sect = extace_cfg_find_section(cfg, section);
+	sect = cfg_find_section(cfg, section);
 	if (!sect)
-		sect = extace_cfg_create_section(cfg, section);
-	if ((line = extace_cfg_find_string(sect, key)))
+		sect = cfg_create_section(cfg, section);
+	if ((line = cfg_find_string(sect, key)))
 	{
 		g_free(line->value);
 		line->value = g_strchug(g_strchomp(g_strdup(value)));
 	}
 	else
-		extace_cfg_create_string(sect, key, value);
+		cfg_create_string(sect, key, value);
 }
 
-void extace_cfg_write_int(ConfigFile * cfg, gchar * section, gchar * key, gint value)
+void cfg_write_int(ConfigFile * cfg, gchar * section, gchar * key, gint value)
 {
 	gchar *strvalue;
 
 	strvalue = g_strdup_printf("%d", value);
-	extace_cfg_write_string(cfg, section, key, strvalue);
+	cfg_write_string(cfg, section, key, strvalue);
 	g_free(strvalue);
 }
 
-void extace_cfg_write_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean value)
+void cfg_write_boolean(ConfigFile * cfg, gchar * section, gchar * key, gboolean value)
 {
 	if (value)
-		extace_cfg_write_string(cfg, section, key, "TRUE");
+		cfg_write_string(cfg, section, key, "TRUE");
 	else
-		extace_cfg_write_string(cfg, section, key, "FALSE");
+		cfg_write_string(cfg, section, key, "FALSE");
 }
 
-void extace_cfg_write_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat value)
+void cfg_write_float(ConfigFile * cfg, gchar * section, gchar * key, gfloat value)
 {
 	gchar *strvalue;
 
 	strvalue = g_strdup_printf("%g", value);
-	extace_cfg_write_string(cfg, section, key, strvalue);
+	cfg_write_string(cfg, section, key, strvalue);
 	g_free(strvalue);
 }
 
-void extace_cfg_write_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble value)
+void cfg_write_double(ConfigFile * cfg, gchar * section, gchar * key, gdouble value)
 {
 	gchar *strvalue;
 
 	strvalue = g_strdup_printf("%g", value);
-	extace_cfg_write_string(cfg, section, key, strvalue);
+	cfg_write_string(cfg, section, key, strvalue);
 	g_free(strvalue);
 }
 
-void extace_cfg_remove_key(ConfigFile * cfg, gchar * section, gchar * key)
+void cfg_remove_key(ConfigFile * cfg, gchar * section, gchar * key)
 {
 	ConfigSection *sect;
 	ConfigLine *line;
 
-	if ((sect = extace_cfg_find_section(cfg, section)))
+	if ((sect = cfg_find_section(cfg, section)))
 	{
-		if ((line = extace_cfg_find_string(sect, key)))
+		if ((line = cfg_find_string(sect, key)))
 		{
 			g_free(line->key);
 			g_free(line->value);
@@ -259,7 +259,7 @@ void extace_cfg_remove_key(ConfigFile * cfg, gchar * section, gchar * key)
 	}
 }
 
-void extace_cfg_free(ConfigFile * cfg)
+void cfg_free(ConfigFile * cfg)
 {
 	ConfigSection *section;
 	ConfigLine *line;
@@ -288,7 +288,7 @@ void extace_cfg_free(ConfigFile * cfg)
 	g_list_free(cfg->sections);
 }
 
-static ConfigSection *extace_cfg_create_section(ConfigFile * cfg, gchar * name)
+static ConfigSection *cfg_create_section(ConfigFile * cfg, gchar * name)
 {
 	ConfigSection *section;
 
@@ -299,7 +299,7 @@ static ConfigSection *extace_cfg_create_section(ConfigFile * cfg, gchar * name)
 	return section;
 }
 
-static ConfigLine *extace_cfg_create_string(ConfigSection * section, gchar * key, gchar * value)
+static ConfigLine *cfg_create_string(ConfigSection * section, gchar * key, gchar * value)
 {
 	ConfigLine *line;
 
@@ -311,7 +311,7 @@ static ConfigLine *extace_cfg_create_string(ConfigSection * section, gchar * key
 	return line;
 }
 
-static ConfigSection *extace_cfg_find_section(ConfigFile * cfg, gchar * name)
+static ConfigSection *cfg_find_section(ConfigFile * cfg, gchar * name)
 {
 	ConfigSection *section;
 	GList *list;
@@ -327,7 +327,7 @@ static ConfigSection *extace_cfg_find_section(ConfigFile * cfg, gchar * name)
 	return NULL;
 }
 
-static ConfigLine *extace_cfg_find_string(ConfigSection * section, gchar * key)
+static ConfigLine *cfg_find_string(ConfigSection * section, gchar * key)
 {
 	ConfigLine *line;
 	GList *list;

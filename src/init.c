@@ -144,22 +144,22 @@ void read_config(void)
 	gchar *temp_cmap = NULL;
 	Color_map.filename = NULL;
 	filename = g_strconcat(g_get_home_dir(), "/.eXtace/config", NULL);
-	cfgfile = extace_cfg_open_file(filename);
+	cfgfile = cfg_open_file(filename);
 	if (cfgfile)
 	{
-		extace_cfg_read_int(cfgfile, "Global", "major_ver", &major_ver);
-		extace_cfg_read_int(cfgfile, "Global", "minor_ver", &minor_ver);
-		extace_cfg_read_int(cfgfile, "Global", "micro_ver", &micro_ver);
+		cfg_read_int(cfgfile, "Global", "major_ver", &major_ver);
+		cfg_read_int(cfgfile, "Global", "minor_ver", &minor_ver);
+		cfg_read_int(cfgfile, "Global", "micro_ver", &micro_ver);
 		if (major_ver == 0)
 		{
 			printf("Config file structure changed. using defaults. \nClosing eXtace will save your NEW settings.\n");
-			extace_cfg_free(cfgfile);
+			cfg_free(cfgfile);
 			unlink(filename);
 			g_free(filename);
 			return;
 
 		}
-		extace_cfg_read_string(cfgfile, "Global", "last_colormap", &temp_cmap);
+		cfg_read_string(cfgfile, "Global", "last_colormap", &temp_cmap);
 		if (temp_cmap != NULL)
 		{
 			fd = open(temp_cmap, O_RDONLY);
@@ -173,32 +173,32 @@ void read_config(void)
 
 			g_free(temp_cmap);
 		}
-		extace_cfg_read_int(cfgfile, "Global", "landtilt", &landtilt);
-		extace_cfg_read_int(cfgfile, "Global", "spiketilt", &spiketilt);
-		extace_cfg_read_int(cfgfile, "Global", "low_freq", &low_freq);
-		extace_cfg_read_int(cfgfile, "Global", "high_freq", &high_freq);
-		extace_cfg_read_int(cfgfile, "Window", "width", &width);
-		extace_cfg_read_int(cfgfile, "Window", "height", &height);
-		extace_cfg_read_int(cfgfile, "Window", "main_x_origin", &main_x_origin);
-		extace_cfg_read_int(cfgfile, "Window", "main_y_origin", &main_y_origin);
-		//	extace_cfg_read_int(cfgfile, "Window", "grad_win_present", &grad_win_present);
-		extace_cfg_read_int(cfgfile, "Window", "grad_x_origin", &grad_x_origin);
-		extace_cfg_read_int(cfgfile, "Window", "grad_y_origin", &grad_y_origin);
-		extace_cfg_read_int(cfgfile, "Window", "dir_x_origin", &dir_x_origin);
-		extace_cfg_read_int(cfgfile, "Window", "dir_y_origin", &dir_y_origin);
+		cfg_read_int(cfgfile, "Global", "landtilt", &landtilt);
+		cfg_read_int(cfgfile, "Global", "spiketilt", &spiketilt);
+		cfg_read_int(cfgfile, "Global", "low_freq", &low_freq);
+		cfg_read_int(cfgfile, "Global", "high_freq", &high_freq);
+		cfg_read_int(cfgfile, "Window", "width", &width);
+		cfg_read_int(cfgfile, "Window", "height", &height);
+		cfg_read_int(cfgfile, "Window", "main_x_origin", &main_x_origin);
+		cfg_read_int(cfgfile, "Window", "main_y_origin", &main_y_origin);
+		//	cfg_read_int(cfgfile, "Window", "grad_win_present", &grad_win_present);
+		cfg_read_int(cfgfile, "Window", "grad_x_origin", &grad_x_origin);
+		cfg_read_int(cfgfile, "Window", "grad_y_origin", &grad_y_origin);
+		cfg_read_int(cfgfile, "Window", "dir_x_origin", &dir_x_origin);
+		cfg_read_int(cfgfile, "Window", "dir_y_origin", &dir_y_origin);
 
-		extace_cfg_read_int(cfgfile, "Global", "mode", &mode);
-		extace_cfg_read_float(cfgfile, "Global", "bandwidth", &bandwidth);
-		extace_cfg_read_int(cfgfile, "Global", "sound_source", &sound_source);
-		extace_cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
-		extace_cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
-		extace_cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
-		extace_cfg_read_int(cfgfile, "Global", "landflip", &landflip);
-		extace_cfg_read_int(cfgfile, "Global", "spikeflip", &spikeflip);
-		extace_cfg_read_int(cfgfile, "Global", "sub_mode_3D", &sub_mode_3D);
-		extace_cfg_read_int(cfgfile, "Global", "scope_sub_mode", &scope_sub_mode);
-		extace_cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
-		extace_cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
+		cfg_read_int(cfgfile, "Global", "mode", &mode);
+		cfg_read_float(cfgfile, "Global", "bandwidth", &bandwidth);
+		cfg_read_int(cfgfile, "Global", "sound_source", &sound_source);
+		cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
+		cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
+		cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
+		cfg_read_int(cfgfile, "Global", "landflip", &landflip);
+		cfg_read_int(cfgfile, "Global", "spikeflip", &spikeflip);
+		cfg_read_int(cfgfile, "Global", "sub_mode_3D", &sub_mode_3D);
+		cfg_read_int(cfgfile, "Global", "scope_sub_mode", &scope_sub_mode);
+		cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
+		cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 
 		elements_to_get = nsamp/2;/* how many samples to read at a time */
 		copy_window = nsamp < 2048 ? 4096 : nsamp *2;
@@ -211,42 +211,42 @@ void read_config(void)
 		 * This factor helps to balance things out..
 		 */
 		fft_lag = 1000*((nsamp/2)/(float)RATE);
-		extace_cfg_read_int(cfgfile, "Global", "window_func", &window_func);
-		extace_cfg_read_int(cfgfile, "Global", "winstyle", &winstyle);
-		extace_cfg_read_int(cfgfile, "Global", "axis_type", &axis_type);
-		extace_cfg_read_int(cfgfile, "Global", "bands", &bands);
-		extace_cfg_read_int(cfgfile, "Global", "lag", &lag);
-		extace_cfg_read_float(cfgfile, "Global", "noise_floor", &noise_floor);
-		extace_cfg_read_int(cfgfile, "Global", "use_back_pixmap", &use_back_pixmap);
-		extace_cfg_read_int(cfgfile, "Global", "seg_height", &seg_height);
-		extace_cfg_read_int(cfgfile, "Global", "seg_space", &seg_space);
-		extace_cfg_read_int(cfgfile, "Global", "bar_decay", &bar_decay);
-		extace_cfg_read_int(cfgfile, "Global", "peak_decay", &peak_decay);
-		extace_cfg_read_int(cfgfile, "Global", "stabilized", &stabilized);
-		extace_cfg_read_int(cfgfile, "Global", "show_graticule", &show_graticule);
-		extace_cfg_read_int(cfgfile, "Global", "decay_speed", &bar_decay_speed);
-		extace_cfg_read_int(cfgfile, "Global", "peak_decay_speed", &peak_decay_speed);
-		extace_cfg_read_int(cfgfile, "Global", "peak_hold_time", &peak_hold_time);
-		extace_cfg_read_int(cfgfile, "Global", "tape_scroll", &tape_scroll);
-		extace_cfg_read_int(cfgfile, "Global", "xdet_scroll", &xdet_scroll);
-		extace_cfg_read_int(cfgfile, "Global", "zdet_scroll", &zdet_scroll);
-		extace_cfg_read_float(cfgfile, "Global", "xdet_start", &xdet_start);
-		extace_cfg_read_float(cfgfile, "Global", "xdet_end", &xdet_end);
-		extace_cfg_read_float(cfgfile, "Global", "ydet_start", &ydet_start);
-		extace_cfg_read_float(cfgfile, "Global", "ydet_end", &ydet_end);
-		extace_cfg_read_float(cfgfile, "Global", "x3d_start", &x3d_start);
-		extace_cfg_read_float(cfgfile, "Global", "x3d_end", &x3d_end);
-		extace_cfg_read_float(cfgfile, "Global", "y3d_start", &y3d_start);
-		extace_cfg_read_float(cfgfile, "Global", "y3d_end", &y3d_end);
-		extace_cfg_read_float(cfgfile, "Global", "multiplier", &multiplier);
-		extace_cfg_read_int(cfgfile, "Global", "x3d_scroll", &x3d_scroll);
-		extace_cfg_read_int(cfgfile, "Global", "z3d_scroll", &z3d_scroll);
-		extace_cfg_read_int(cfgfile, "Global", "show_leader", &show_leader);
-		extace_cfg_read_int(cfgfile, "Global", "sync_to_left", &sync_to_left);
-		extace_cfg_read_int(cfgfile, "Global", "sync_to_right", &sync_to_right);
-		extace_cfg_read_int(cfgfile, "Global", "sync_independant", &sync_independant);
-		extace_cfg_read_int(cfgfile, "Global", "horiz_spec_start", &horiz_spec_start);
-		extace_cfg_read_int(cfgfile, "Global", "vert_spec_start", &vert_spec_start);
+		cfg_read_int(cfgfile, "Global", "window_func", &window_func);
+		cfg_read_int(cfgfile, "Global", "winstyle", &winstyle);
+		cfg_read_int(cfgfile, "Global", "axis_type", &axis_type);
+		cfg_read_int(cfgfile, "Global", "bands", &bands);
+		cfg_read_int(cfgfile, "Global", "lag", &lag);
+		cfg_read_float(cfgfile, "Global", "noise_floor", &noise_floor);
+		cfg_read_int(cfgfile, "Global", "use_back_pixmap", &use_back_pixmap);
+		cfg_read_int(cfgfile, "Global", "seg_height", &seg_height);
+		cfg_read_int(cfgfile, "Global", "seg_space", &seg_space);
+		cfg_read_int(cfgfile, "Global", "bar_decay", &bar_decay);
+		cfg_read_int(cfgfile, "Global", "peak_decay", &peak_decay);
+		cfg_read_int(cfgfile, "Global", "stabilized", &stabilized);
+		cfg_read_int(cfgfile, "Global", "show_graticule", &show_graticule);
+		cfg_read_int(cfgfile, "Global", "decay_speed", &bar_decay_speed);
+		cfg_read_int(cfgfile, "Global", "peak_decay_speed", &peak_decay_speed);
+		cfg_read_int(cfgfile, "Global", "peak_hold_time", &peak_hold_time);
+		cfg_read_int(cfgfile, "Global", "tape_scroll", &tape_scroll);
+		cfg_read_int(cfgfile, "Global", "xdet_scroll", &xdet_scroll);
+		cfg_read_int(cfgfile, "Global", "zdet_scroll", &zdet_scroll);
+		cfg_read_float(cfgfile, "Global", "xdet_start", &xdet_start);
+		cfg_read_float(cfgfile, "Global", "xdet_end", &xdet_end);
+		cfg_read_float(cfgfile, "Global", "ydet_start", &ydet_start);
+		cfg_read_float(cfgfile, "Global", "ydet_end", &ydet_end);
+		cfg_read_float(cfgfile, "Global", "x3d_start", &x3d_start);
+		cfg_read_float(cfgfile, "Global", "x3d_end", &x3d_end);
+		cfg_read_float(cfgfile, "Global", "y3d_start", &y3d_start);
+		cfg_read_float(cfgfile, "Global", "y3d_end", &y3d_end);
+		cfg_read_float(cfgfile, "Global", "multiplier", &multiplier);
+		cfg_read_int(cfgfile, "Global", "x3d_scroll", &x3d_scroll);
+		cfg_read_int(cfgfile, "Global", "z3d_scroll", &z3d_scroll);
+		cfg_read_int(cfgfile, "Global", "show_leader", &show_leader);
+		cfg_read_int(cfgfile, "Global", "sync_to_left", &sync_to_left);
+		cfg_read_int(cfgfile, "Global", "sync_to_right", &sync_to_right);
+		cfg_read_int(cfgfile, "Global", "sync_independant", &sync_independant);
+		cfg_read_int(cfgfile, "Global", "horiz_spec_start", &horiz_spec_start);
+		cfg_read_int(cfgfile, "Global", "vert_spec_start", &vert_spec_start);
 		if (horiz_spec_start > width)
 			horiz_spec_start = width-10; 
 		if (vert_spec_start > height)
@@ -257,7 +257,7 @@ void read_config(void)
 			vert_spec_start = 120;
 
 
-		extace_cfg_free(cfgfile);
+		cfg_free(cfgfile);
 
 	}
 	else
@@ -272,90 +272,90 @@ void save_config(void)
 	gint x;
 	gint y;
 	filename = g_strconcat(g_get_home_dir(), "/.eXtace/config", NULL);
-	cfgfile = extace_cfg_open_file(filename);
+	cfgfile = cfg_open_file(filename);
 	if (!cfgfile)
-		cfgfile = extace_cfg_new();
+		cfgfile = cfg_new();
 
-	extace_cfg_write_int(cfgfile, "Global", "major_ver", _MAJOR_);
-	extace_cfg_write_int(cfgfile, "Global", "minor_ver", _MINOR_);
-	extace_cfg_write_int(cfgfile, "Global", "micro_ver", _MICRO_);
+	cfg_write_int(cfgfile, "Global", "major_ver", _MAJOR_);
+	cfg_write_int(cfgfile, "Global", "minor_ver", _MINOR_);
+	cfg_write_int(cfgfile, "Global", "micro_ver", _MICRO_);
 	if (Color_map.filename)
-		extace_cfg_write_string(cfgfile, "Global", "last_colormap", Color_map.filename);
+		cfg_write_string(cfgfile, "Global", "last_colormap", Color_map.filename);
 	else
-		extace_cfg_write_string(cfgfile, "Global", "last_colormap",g_strconcat(g_get_home_dir(),"/.eXtace/ColorMaps/","Default",NULL));
-	extace_cfg_write_int(cfgfile, "Global", "mode", mode);
-	extace_cfg_write_float(cfgfile, "Global", "bandwidth", bandwidth);
-	extace_cfg_write_int(cfgfile, "Global", "sound_source", sound_source);
-	extace_cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
-	extace_cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
-	extace_cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
-	extace_cfg_write_int(cfgfile, "Global", "landflip", landflip);
-	extace_cfg_write_int(cfgfile, "Global", "spikeflip", spikeflip);
-	extace_cfg_write_int(cfgfile, "Global", "sub_mode_3D", sub_mode_3D);
-	extace_cfg_write_int(cfgfile, "Global", "scope_sub_mode", scope_sub_mode);
-	extace_cfg_write_int(cfgfile, "Global", "dir_win_present", dir_win_present);
-	extace_cfg_write_int(cfgfile, "Global", "nsamp", nsamp);
-	extace_cfg_write_int(cfgfile, "Global", "window_func", window_func);
-	extace_cfg_write_int(cfgfile, "Global", "winstyle", winstyle);
-	extace_cfg_write_int(cfgfile, "Global", "axis_type", axis_type);
-	extace_cfg_write_int(cfgfile, "Global", "bands", bands);
-	extace_cfg_write_int(cfgfile, "Global", "lag", lag);
-	extace_cfg_write_float(cfgfile, "Global", "noise_floor", noise_floor);
-	extace_cfg_write_int(cfgfile, "Global", "use_back_pixmap", use_back_pixmap);
-	extace_cfg_write_int(cfgfile, "Global", "seg_height", seg_height);
-	extace_cfg_write_int(cfgfile, "Global", "seg_space", seg_space);
-	extace_cfg_write_int(cfgfile, "Global", "bar_decay", bar_decay);
-	extace_cfg_write_int(cfgfile, "Global", "peak_decay", peak_decay);
-	extace_cfg_write_int(cfgfile, "Global", "stabilized", stabilized);
-	extace_cfg_write_int(cfgfile, "Global", "show_graticule", show_graticule);
-	extace_cfg_write_int(cfgfile, "Global", "decay_speed", bar_decay_speed);
-	extace_cfg_write_int(cfgfile, "Global", "peak_decay_speed", peak_decay_speed);
-	extace_cfg_write_int(cfgfile, "Global", "peak_hold_time", peak_hold_time);
-	extace_cfg_write_int(cfgfile, "Global", "tape_scroll", tape_scroll);
-	extace_cfg_write_int(cfgfile, "Global", "xdet_scroll", xdet_scroll);
-	extace_cfg_write_int(cfgfile, "Global", "zdet_scroll", zdet_scroll);
-	extace_cfg_write_float(cfgfile, "Global", "xdet_start", xdet_start);
-	extace_cfg_write_float(cfgfile, "Global", "xdet_end", xdet_end);
-	extace_cfg_write_float(cfgfile, "Global", "ydet_start", ydet_start);
-	extace_cfg_write_float(cfgfile, "Global", "ydet_end", ydet_end);
-	extace_cfg_write_float(cfgfile, "Global", "x3d_start", x3d_start);
-	extace_cfg_write_float(cfgfile, "Global", "x3d_end", x3d_end);
-	extace_cfg_write_float(cfgfile, "Global", "y3d_start", y3d_start);
-	extace_cfg_write_float(cfgfile, "Global", "y3d_end", y3d_end);
-	extace_cfg_write_float(cfgfile, "Global", "multiplier", multiplier);
-	extace_cfg_write_int(cfgfile, "Global", "horiz_spec_start", horiz_spec_start);
-	extace_cfg_write_int(cfgfile, "Global", "vert_spec_start", vert_spec_start);
-	extace_cfg_write_int(cfgfile, "Global", "x3d_scroll", x3d_scroll);
-	extace_cfg_write_int(cfgfile, "Global", "z3d_scroll", z3d_scroll);
-	extace_cfg_write_int(cfgfile, "Global", "show_leader", show_leader);
-	extace_cfg_write_int(cfgfile, "Global", "sync_to_left", sync_to_left);
-	extace_cfg_write_int(cfgfile, "Global", "sync_to_right", sync_to_right);
-	extace_cfg_write_int(cfgfile, "Global", "sync_independant", sync_independant);
-	extace_cfg_write_int(cfgfile, "Global", "landtilt",landtilt);
-	extace_cfg_write_int(cfgfile, "Global", "spiketilt", spiketilt);
-	extace_cfg_write_int(cfgfile, "Global", "low_freq", low_freq);
-	extace_cfg_write_int(cfgfile, "Global", "high_freq", high_freq);
-	extace_cfg_write_int(cfgfile, "Window", "width", width);
-	extace_cfg_write_int(cfgfile, "Window", "height", height);
+		cfg_write_string(cfgfile, "Global", "last_colormap",g_strconcat(g_get_home_dir(),"/.eXtace/ColorMaps/","Default",NULL));
+	cfg_write_int(cfgfile, "Global", "mode", mode);
+	cfg_write_float(cfgfile, "Global", "bandwidth", bandwidth);
+	cfg_write_int(cfgfile, "Global", "sound_source", sound_source);
+	cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
+	cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
+	cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
+	cfg_write_int(cfgfile, "Global", "landflip", landflip);
+	cfg_write_int(cfgfile, "Global", "spikeflip", spikeflip);
+	cfg_write_int(cfgfile, "Global", "sub_mode_3D", sub_mode_3D);
+	cfg_write_int(cfgfile, "Global", "scope_sub_mode", scope_sub_mode);
+	cfg_write_int(cfgfile, "Global", "dir_win_present", dir_win_present);
+	cfg_write_int(cfgfile, "Global", "nsamp", nsamp);
+	cfg_write_int(cfgfile, "Global", "window_func", window_func);
+	cfg_write_int(cfgfile, "Global", "winstyle", winstyle);
+	cfg_write_int(cfgfile, "Global", "axis_type", axis_type);
+	cfg_write_int(cfgfile, "Global", "bands", bands);
+	cfg_write_int(cfgfile, "Global", "lag", lag);
+	cfg_write_float(cfgfile, "Global", "noise_floor", noise_floor);
+	cfg_write_int(cfgfile, "Global", "use_back_pixmap", use_back_pixmap);
+	cfg_write_int(cfgfile, "Global", "seg_height", seg_height);
+	cfg_write_int(cfgfile, "Global", "seg_space", seg_space);
+	cfg_write_int(cfgfile, "Global", "bar_decay", bar_decay);
+	cfg_write_int(cfgfile, "Global", "peak_decay", peak_decay);
+	cfg_write_int(cfgfile, "Global", "stabilized", stabilized);
+	cfg_write_int(cfgfile, "Global", "show_graticule", show_graticule);
+	cfg_write_int(cfgfile, "Global", "decay_speed", bar_decay_speed);
+	cfg_write_int(cfgfile, "Global", "peak_decay_speed", peak_decay_speed);
+	cfg_write_int(cfgfile, "Global", "peak_hold_time", peak_hold_time);
+	cfg_write_int(cfgfile, "Global", "tape_scroll", tape_scroll);
+	cfg_write_int(cfgfile, "Global", "xdet_scroll", xdet_scroll);
+	cfg_write_int(cfgfile, "Global", "zdet_scroll", zdet_scroll);
+	cfg_write_float(cfgfile, "Global", "xdet_start", xdet_start);
+	cfg_write_float(cfgfile, "Global", "xdet_end", xdet_end);
+	cfg_write_float(cfgfile, "Global", "ydet_start", ydet_start);
+	cfg_write_float(cfgfile, "Global", "ydet_end", ydet_end);
+	cfg_write_float(cfgfile, "Global", "x3d_start", x3d_start);
+	cfg_write_float(cfgfile, "Global", "x3d_end", x3d_end);
+	cfg_write_float(cfgfile, "Global", "y3d_start", y3d_start);
+	cfg_write_float(cfgfile, "Global", "y3d_end", y3d_end);
+	cfg_write_float(cfgfile, "Global", "multiplier", multiplier);
+	cfg_write_int(cfgfile, "Global", "horiz_spec_start", horiz_spec_start);
+	cfg_write_int(cfgfile, "Global", "vert_spec_start", vert_spec_start);
+	cfg_write_int(cfgfile, "Global", "x3d_scroll", x3d_scroll);
+	cfg_write_int(cfgfile, "Global", "z3d_scroll", z3d_scroll);
+	cfg_write_int(cfgfile, "Global", "show_leader", show_leader);
+	cfg_write_int(cfgfile, "Global", "sync_to_left", sync_to_left);
+	cfg_write_int(cfgfile, "Global", "sync_to_right", sync_to_right);
+	cfg_write_int(cfgfile, "Global", "sync_independant", sync_independant);
+	cfg_write_int(cfgfile, "Global", "landtilt",landtilt);
+	cfg_write_int(cfgfile, "Global", "spiketilt", spiketilt);
+	cfg_write_int(cfgfile, "Global", "low_freq", low_freq);
+	cfg_write_int(cfgfile, "Global", "high_freq", high_freq);
+	cfg_write_int(cfgfile, "Window", "width", width);
+	cfg_write_int(cfgfile, "Window", "height", height);
 	gdk_window_get_root_origin((gpointer) main_win_ptr->window, &x, &y);
-	extace_cfg_write_int(cfgfile, "Window", "main_x_origin", x);
-	extace_cfg_write_int(cfgfile, "Window", "main_y_origin", y);
-	//    extace_cfg_write_int(cfgfile, "Window", "grad_win_present", grad_win_present);
+	cfg_write_int(cfgfile, "Window", "main_x_origin", x);
+	cfg_write_int(cfgfile, "Window", "main_y_origin", y);
+	//    cfg_write_int(cfgfile, "Window", "grad_win_present", grad_win_present);
 	if (grad_win_present)
 	{
 		gdk_window_get_root_origin((gpointer) grad_win_ptr->window, &x, &y);
-		extace_cfg_write_int(cfgfile, "Window", "grad_x_origin", x);
-		extace_cfg_write_int(cfgfile, "Window", "grad_y_origin", y);
+		cfg_write_int(cfgfile, "Window", "grad_x_origin", x);
+		cfg_write_int(cfgfile, "Window", "grad_y_origin", y);
 	}
 	if (dir_win_present)
 	{
 		gdk_window_get_root_origin((gpointer) dir_win_ptr->window, &x, &y);
-		extace_cfg_write_int(cfgfile, "Window", "dir_x_origin", x);
-		extace_cfg_write_int(cfgfile, "Window", "dir_y_origin", y);
+		cfg_write_int(cfgfile, "Window", "dir_x_origin", x);
+		cfg_write_int(cfgfile, "Window", "dir_y_origin", y);
 	}
 
-	extace_cfg_write_file(cfgfile, filename);
-	extace_cfg_free(cfgfile);
+	cfg_write_file(cfgfile, filename);
+	cfg_free(cfgfile);
 
 	g_free(filename);
 

@@ -77,7 +77,7 @@ int color_button(GtkWidget *widget, gpointer data)
 			gtk_signal_connect (GTK_OBJECT(filew), "destroy",
 					(GtkSignalFunc) gtk_widget_destroy, GTK_OBJECT (filew));
 			gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-					"clicked", (GtkSignalFunc) file_ok_save, filew);
+					"clicked", (GtkSignalFunc) save_colormap, filew);
 			gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
 						(filew)->cancel_button),
 					"clicked", (GtkSignalFunc) gtk_widget_destroy,
@@ -90,7 +90,7 @@ int color_button(GtkWidget *widget, gpointer data)
 			gtk_signal_connect (GTK_OBJECT(filew), "destroy",
 					(GtkSignalFunc) gtk_widget_destroy, GTK_OBJECT (filew));
 			gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-					"clicked", (GtkSignalFunc) file_ok_load, filew);
+					"clicked", (GtkSignalFunc) load_colormap, filew);
 			gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
 						(filew)->cancel_button),
 					"clicked", (GtkSignalFunc) gtk_widget_destroy,
@@ -152,40 +152,40 @@ void create_initial_colormaps(void)
 	{
 		tmp = 0.0;
 		filename = g_strconcat(g_get_home_dir(), "/.eXtace/ColorMaps/", names[i],NULL);
-		cfgfile = extace_cfg_open_file(filename);
+		cfgfile = cfg_open_file(filename);
 		if (!cfgfile)
-			cfgfile = extace_cfg_new();
+			cfgfile = cfg_new();
 		else
 		{
 			x+=16; /* Move up to next set of vars for colormap */
 			i++;
-			extace_cfg_free(cfgfile);
+			cfg_free(cfgfile);
 			g_free(filename);
 			continue;
 		}
-		extace_cfg_write_int(cfgfile, "General", "steps", temp_array[x++]);
+		cfg_write_int(cfgfile, "General", "steps", temp_array[x++]);
 
 		/* This assumes only 5 points in above table.  be carefull */
 		for (j=1;j<=5;j++)
 		{
 			sprintf(val,"step_%i",j);
-			extace_cfg_write_float(cfgfile, "General", val, tmp);
+			cfg_write_float(cfgfile, "General", val, tmp);
 			tmp+=0.25;
 			sprintf(val,"red_%i",j);
-			extace_cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
+			cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
 			sprintf(val,"green_%i",j);
-			extace_cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
+			cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
 			sprintf(val,"blue_%i",j);
-			extace_cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
+			cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
 		}
-		extace_cfg_write_file(cfgfile, filename);
-		extace_cfg_free(cfgfile);
+		cfg_write_file(cfgfile, filename);
+		cfg_free(cfgfile);
 
 		g_free(filename);
 		i++;
 	}
 }
-void file_ok_save(GtkWidget * widget, GtkFileSelection *filesel)
+void save_colormap(GtkWidget * widget, GtkFileSelection *filesel)
 {
 	/* This routine needs to be rewritten for the new colortable file format
 	 * The new format has a variable number of steps (up to 50 or so).
@@ -200,39 +200,39 @@ void file_ok_save(GtkWidget * widget, GtkFileSelection *filesel)
 	gint steps = 0;
 	gchar val[20];
 	ConfigFile *cfgfile;
-	//    printf("file_ok_save\n");
+	//    printf("save_colormap\n");
 
 	filename = g_strconcat(gtk_file_selection_get_filename(GTK_FILE_SELECTION(filesel)),NULL);
 
-	cfgfile = extace_cfg_open_file(filename);
+	cfgfile = cfg_open_file(filename);
 	if (!cfgfile)
-		cfgfile = extace_cfg_new();
+		cfgfile = cfg_new();
 
 	steps = Color_map.steps;
 	trip_ptr = Color_map.triplets;
 	loc_ptr = Color_map.locations;
 
-	extace_cfg_write_int(cfgfile, "General", "steps", steps);
+	cfg_write_int(cfgfile, "General", "steps", steps);
 
 	for (j=1;j<=steps;j++)
 	{
 		sprintf(val,"step_%i",j);
-		extace_cfg_write_float(cfgfile, "General", val, *loc_ptr);
+		cfg_write_float(cfgfile, "General", val, *loc_ptr);
 		loc_ptr++;
 
 		sprintf(val,"red_%i",j);
-		extace_cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
+		cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
 		trip_ptr++;
 		sprintf(val,"green_%i",j);
-		extace_cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
+		cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
 		trip_ptr++;
 		sprintf(val,"blue_%i",j);
-		extace_cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
+		cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
 		trip_ptr++;
 	}
 
-	extace_cfg_write_file(cfgfile, filename);
-	extace_cfg_free(cfgfile);
+	cfg_write_file(cfgfile, filename);
+	cfg_free(cfgfile);
 
 	Color_map.filename = g_strdup(filename);
 
@@ -241,10 +241,10 @@ void file_ok_save(GtkWidget * widget, GtkFileSelection *filesel)
 	gtk_widget_hide(GTK_WIDGET(filesel));
 }
 
-void file_ok_load(GtkWidget * widget, GtkFileSelection *filesel)
+void load_colormap(GtkWidget * widget, GtkFileSelection *filesel)
 {
 	gchar * filename;
-	//    printf("file_ok_load\n");
+	//    printf("load_colormap\n");
 	filename = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(filesel)));
 	read_colormap(filename);
 	gtk_widget_hide(GTK_WIDGET(filesel));
@@ -268,7 +268,7 @@ void read_colormap(char * filename)
 	//    printf("read_colormap\n");
 
 
-	cfgfile = extace_cfg_open_file(filename);
+	cfgfile = cfg_open_file(filename);
 	/* For some reason I can't figure out I cannot use the read functions
 	 * below to read directly into the structures (start.red and so on) so
 	 * I used this functional hack, which I'd like to remove eventually.
@@ -277,11 +277,11 @@ void read_colormap(char * filename)
 	if (!cfgfile)
 	{
 		/* NOT FOUND, load default instead */
-		cfgfile = extace_cfg_open_file(g_strconcat(g_get_home_dir(), "/.eXtace/ColorMaps/", "Default",NULL));
+		cfgfile = cfg_open_file(g_strconcat(g_get_home_dir(), "/.eXtace/ColorMaps/", "Default",NULL));
 	}
 	if (cfgfile)
 	{
-		extace_cfg_read_int(cfgfile, "General", "Steps", &steps);
+		cfg_read_int(cfgfile, "General", "Steps", &steps);
 		if (steps == 0)
 		{
 			/*	    This is an older file, we should convert it to the newer format. */
@@ -292,29 +292,29 @@ void read_colormap(char * filename)
 			Color_map.steps = steps;
 			trip_ptr = Color_map.triplets;
 			loc_ptr = Color_map.locations;
-			extace_cfg_read_int(cfgfile, "Colormap", "red_start", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "green_start", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "blue_start", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "red_start", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "green_start", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "blue_start", trip_ptr++);
 			*loc_ptr = 0.0;
 			loc_ptr++;
-			extace_cfg_read_int(cfgfile, "Colormap", "red_pt2", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "green_pt2", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "blue_pt2", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "red_pt2", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "green_pt2", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "blue_pt2", trip_ptr++);
 			*loc_ptr = 0.25;
 			loc_ptr++;
-			extace_cfg_read_int(cfgfile, "Colormap", "red_pt3", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "green_pt3", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "blue_pt3", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "red_pt3", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "green_pt3", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "blue_pt3", trip_ptr++);
 			*loc_ptr = 0.5;
 			loc_ptr++;
-			extace_cfg_read_int(cfgfile, "Colormap", "red_pt4", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "green_pt4", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "blue_pt4", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "red_pt4", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "green_pt4", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "blue_pt4", trip_ptr++);
 			*loc_ptr = 0.75;
 			loc_ptr++;
-			extace_cfg_read_int(cfgfile, "Colormap", "red_end", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "green_end", trip_ptr++);
-			extace_cfg_read_int(cfgfile, "Colormap", "blue_end", trip_ptr);
+			cfg_read_int(cfgfile, "Colormap", "red_end", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "green_end", trip_ptr++);
+			cfg_read_int(cfgfile, "Colormap", "blue_end", trip_ptr);
 			*loc_ptr = 1.0;
 
 		}
@@ -338,28 +338,28 @@ void read_colormap(char * filename)
 				 */
 				/*  Location point */
 				sprintf(val,"step_%i",i);
-				extace_cfg_read_float(cfgfile, "General",val , loc_ptr);
+				cfg_read_float(cfgfile, "General",val , loc_ptr);
 				*loc_ptr = *loc_ptr < 1.0 ? *loc_ptr :1.0;
 				//		printf("%s, %f\n",val,*loc_ptr);
 				loc_ptr++;
 
 				/* Red Value for above location pt */
 				sprintf(val,"red_%i",i);
-				extace_cfg_read_int(cfgfile, "Colormap",val , trip_ptr);
+				cfg_read_int(cfgfile, "Colormap",val , trip_ptr);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
 				//		printf("%s, %i\n",val,*trip_ptr);
 				trip_ptr++;
 
 				/* Green Value for above location pt */
 				sprintf(val,"green_%i",i);
-				extace_cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
+				cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
 				//		printf("%s, %i\n",val,*trip_ptr);
 				trip_ptr++;
 
 				/* Blue Value for above location pt */
 				sprintf(val,"blue_%i",i);
-				extace_cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
+				cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
 				//		printf("%s, %i\n",val,*trip_ptr);
 				trip_ptr++;
@@ -367,7 +367,7 @@ void read_colormap(char * filename)
 
 		}
 
-		extace_cfg_free(cfgfile);
+		cfg_free(cfgfile);
 
 		Color_map.filename = g_strdup(filename);
 	}
