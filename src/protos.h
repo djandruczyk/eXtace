@@ -16,9 +16,6 @@
 #include <config.h>
 #include <enums.h>
 #include <gtk/gtk.h>
-#ifdef HAVE_ALSA
-#include <sys/asoundlib.h>
-#endif
 
 
 /* Function Prototypes for all objects/source files */
@@ -48,7 +45,6 @@ gint setup_dircontrol(GtkWidget *);
 gint feed_pointer(gint, gint);
 int draw(void);
 void draw_stop(void);
-void rtc_open(void);
 void draw_start(void);
 void change_spec_start(gint);
 void change_x_start(gint,gint);
@@ -102,15 +98,6 @@ void read_colormap(char *);
 void draw_land3d_forward(void);
 void draw_land3d_reverse(void);
 void dir_axis_update(void);
-#ifdef HAVE_ALSA
-void loopback_data_arrived(void *, char *, size_t );
-void loopback_position_change(void *, unsigned int );
-void loopback_format_change(void *, snd_pcm_format_t *);
-void loopback_silence(void *, size_t );
-#endif
-void *alsa_jumpstart(void* );
-void *rtc_poller(void* );
-void alsa_adjust(GtkWidget *, gpointer *);
 void draw_land3d_fft(void);
 void draw_2d_eq(void);
 void draw_scope(void);
@@ -120,10 +107,8 @@ void draw_horiz_specgram(void);
 void create_initial_colormaps(void);
 int audio_thread_starter(void);
 int audio_thread_stopper(void);
-int alsa_read_bytes(long int);
-void *alsa_starter_thread(void * );
 void *esd_starter_thread(void * );
-void alsa_reader_thread(void *, char *, size_t);
 void esd_reader_thread(gpointer , gint , GdkInputCondition );
 void reinit_extace(int );
 gint setup_options(void);
+void run_fft(void);

@@ -2,43 +2,47 @@ Extace Waveform Viewer
 ----------------------
 
    This is the eXtace Audio signal visualizer.  It plugs itself in as 
-   an EsounD or ALSA Loopback monitor and displays the output from Audio
-   passing through EsounD or the ALSA card/device/subdevice selected. 
+   an EsounD monitor and displays the output from Audio passing through 
+   EsounD.
+   
    eXtace will NOT display the output of a CD playing in your CD/CDRW/DVD
-   drive, as the drive does all the decoding an just passes analog audio
+   drive, as the drive does all the decoding and just passes analog audio
    through your soundcards mixer. eXtace requires the raw PCM (Pulse Code 
    Modulation) audio data to give you a display.  There are many apps that 
    can extract the audio data from a CD to be played back in this manner. 
    cdda2wav and paranoia are two main applications that can "rip" audio
-   data off of a CD to be piped through ALSA or Esound so eXtace can "see"
+   data off of a CD to be piped through Esound so eXtace can "see"
    it.
    
-   EsounD is Gnome's sound daemon.  ALSA stands for the Advanced Linux
-   Sound Architecture.  It is still in fairly heavy development, but the 
-   0.5.x stable tree works well and has many more features than OSS,
-   which may have came with your Linux box, while maintaining OSS 
-   compatibility.  Currently ALSA is at 0.9.xbeta level, and eXtace does 
-   NOT YET support it as the previous loopback functionality has been removed
-   and I have not yet figured out a workaround yet.
+   EsounD is Gnome's sound daemon.  
+   eXtace used to support ALSA 0.5x as that version had "loopback" support
+   which was dropped in future releases.  Because of this change I was
+   forced to remove support for ALSA.  I am looking into other Sound-Servers
+   possibly "Jack", from http://jackit.sf.net, or GStreamer.
    
    
 Features:
    eXtace has several modes, 3D Wireframe FFT, 3D solid FFT, 2D Graphic
    Equalizer, Several scopes (dot, line, gradient), a 3D Spike FFT (high
-   resolution) and some 2D spectrograms, (horizontal and vertical scroll). 
+   resolution) and 2 2D spectrograms, (horizontal and vertical scroll). 
    All modes are fully configurable via the options panel.  Any of the 3D 
-   modes can be dragged around the screen by grabbing an end point with the 
-   mouse and moving it anywhere within the window.
+   modes can be dragged around the screen by grabbing an end with the 
+   mouse (drag using the left button) and moving it anywhere within the window.
 
    The direction panel will appear when the proper display is running.  This
    works similar to above. Just grab the end of the marker and drag it around 
    and the trace will travel off into space in the same direction as the 
-   pointer in the direction window. The farther you drag the line from the 
-   center of the window, the faster the display will scroll.
+   pointer in the direction window.
+
 
    Clicking your middle mouse button on any of the displays brings up a 
    colormap editor to change the colormap eXtace uses.  (For those of you with
    two button mice, try hitting both buttons at once to mimic the middle button)
+ 
+NOTE: Colormap editing does NOT work any longer. It is being redesigned as
+of 1/28/2003. Expect future revisions to have it working again.  NOTE you
+can always create your own maps as they are all text file "instructions"
+for eXtace to build the maps from.
    Clicking within the gradient on the left and then selecting a color on the
    right and clicking "OK" will update the window and the running display.
    Colormaps can be saved and loaded using the Load/Save buttons. An arbritrary
@@ -48,10 +52,11 @@ Features:
    is extremely simple (and somewhat inflexible), see the source for details.
 
 Compilation instructions:
-   You will need either ALSA or Esound installed and working and the FFTW 
+   You will need Esound and its devel libs installed and working and the FFTW 
    (Fastest FFT in the West) library to build and run eXtace.
-   The FFTW lib can be found on http://www.fftw.org/.  Source and Binary RPMS
+   The FFTW lib can be found on http://www.fftw.org/. Source and Binary RPMS
    are mirrored on http://extace.souceforge.net/
+
 
    Run "./configure" (no quotes). Then "make" and then "make install" as root.
    Every effort has been taken to try and address the various installation
@@ -60,30 +65,14 @@ Compilation instructions:
    me your config.log, the screen output from running ./configure and any 
    options you fed to configure to get it to fail.
 
-   The EsounD daemon 'esd' will need to be running as well, though NOT 
-   necessarily if you are using ALSA and have selected the proper card/device 
-   and subdevice in eXtace's options panel.  You can switch between Esound 
-   and ALSA if you are playing between them simultaneously. 
+
+   The EsounD daemon 'esd' will need to be running as well. Typically
+   the daemon autostarts when an app uses the esd routines. (xmms spawns
+   it whenyou select the Esound Output plugin)
 
    Currently there are no command line parameters.  An options panel
    is available to tune the speed, and 3D effects.
 
-   ALSA information:
-       ALSA has the concept of Card, Device and Subdevice:
-       A Card is just like it says, your Sound card, each one has a number 
-       usually starting with 0. (first one) the soundcard number is 
-       user configurable with module parameters in /etc/conf.modules. See ALSA
-       documentation for more details.
-       A Device is a PCM (Pulse Code Modulation), a.k.a. DAC device on the card.
-       Most cards only have one, others (AC97, SBlive and others can have more)
-       A subdevice (formerly known as subchannel) is if the card is a multi-
-       channel card. (i.e. a High end professional series card). The subdevice
-       also applies to ALSA's "share" card, which is a virtual sound card that
-       gives you the ability to use multiple apps that playback SIMULTANEOUSLY
-       This is pretty close to ESOUND, only the latency is lower, predictable,
-       and the format conversion is EXCELLENT, compared to Esounds' 
-       harsh sample rate conversions.  ALSA's share driver does NOT have sample
-       caching like Esound, or network support though...
 
 Performance:
    eXtace was tuned to try and use as little processor as possible. (I have
@@ -95,7 +84,12 @@ Performance:
    you can try turning on or off the backing pixmap option with the options 
    panel.  On Xfree 3.3.x Backing pixmap turned off gives me lower processor
    usage.  Though on Xfree 4.0.x I get MUCH lower processor use with backing
-   pixmap turned on.  Your mileage may vary.  NOTE: The more video RAM your 
+   pixmap turned on.  On my low end dev box (Dell Inspiron 7000 with a
+   mobile PII 366 and ATI Mach64 video running Gentoo 1.2 and XFree 4.2.1)
+   I can run two eXtace processes and xmms and barely get over 27% cpu usage
+   total (X, xmms, 2*eXtace)
+   
+   Your mileage may vary.  NOTE: The more video RAM your 
    card has, the better. (more ram = more space for pixmap caches and other
    off-screen stuff.)  With less memory backing pixmaps become slower as system
    memory has to be used and overhead increases.  Having backing pixmap cache
@@ -105,15 +99,11 @@ Testing:
    The sine.c is an example program to test extace with, just run
 
 	./sine | esdcat				<--- ESOUND
-	./sine | aplay -c0 -fs16l -s44100 -S	<--- ALSA 0.5.x
-change the -c0 to whatever soundcard number you have if you have more than
-one. The ALSA line is specific to Alsa 0.5.x series. ALSA 0.9.0 may have 
-different syntax when it is released.
 
    Turn down your volume though as it may be loud.. :)
-   This feeds a periodically decreasing sine wave into ALSA/Esound which 
-   you should hear, and see in eXtace.
-  
+   This feeds a sine wave stepped sweep into Esound which you should hear, 
+   and see in eXtace.
+
 Misc:
    The scope has an option in the panel to enable/disable the Trace Stabilizer.
    The stabilizer uses a mathematical routine (called a convolution) that 

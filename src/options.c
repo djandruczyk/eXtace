@@ -39,8 +39,6 @@ int setup_options()
 	GtkWidget *label;
 	GtkWidget *scale;
 	GtkWidget *box;
-	GtkWidget *table;
-	//    GtkWidget *buffer_area;
 	GtkObject *adj;
 	GSList *group;
 
@@ -105,7 +103,7 @@ int setup_options()
 	sub_vbox = gtk_vbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(frame), sub_vbox);
 
-	label = gtk_label_new("Choose ALSA Device and SubDevice");
+	label = gtk_label_new("Choose Sound Source ");
 	gtk_box_pack_start(GTK_BOX(sub_vbox),label,TRUE,TRUE,0);
 
 	button = gtk_radio_button_new_with_label(NULL, "Use Esound");
@@ -115,60 +113,11 @@ int setup_options()
 	gtk_signal_connect(GTK_OBJECT(button),"toggled",
 			GTK_SIGNAL_FUNC(button_handle),(gpointer)ESD);
 
-	table = gtk_table_new(2,6,FALSE);
-	gtk_box_pack_start(GTK_BOX(sub_vbox),table,FALSE,FALSE,0);
-
-	label = gtk_label_new("Card");
-	gtk_table_attach_defaults(GTK_TABLE(table),label,1,2,0,1);
-	label = gtk_label_new("Device");
-	gtk_table_attach_defaults(GTK_TABLE(table),label,2,3,0,1);
-	label = gtk_label_new("Subdevice");
-	gtk_table_attach_defaults(GTK_TABLE(table),label,3,4,0,1);
-
-	group = gtk_radio_button_group(GTK_RADIO_BUTTON(button));
-	button = gtk_radio_button_new_with_label(group, "Use ALSA Loopback");
-	if (sound_source == ALSA)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			GTK_SIGNAL_FUNC(button_handle),(gpointer)ALSA);
-	gtk_table_attach_defaults(GTK_TABLE(table),button,0,1,1,2);
-#ifndef HAVE_ALSA_05
-	gtk_widget_set_sensitive(button,FALSE);
-#endif
-
-	adj = gtk_adjustment_new(alsa_card, 0, 8, 1,7,8);
-	button = gtk_spin_button_new(GTK_ADJUSTMENT(adj),0.0,0);
-	gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(button),TRUE);
-	gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-			GTK_SIGNAL_FUNC(alsa_adjust), (gpointer)ALSA_CARD);
-	gtk_table_attach_defaults(GTK_TABLE(table),button,1,2,1,2);
-#ifndef HAVE_ALSA_05
-	gtk_widget_set_sensitive(button,FALSE);
-#endif
-
-	adj = gtk_adjustment_new(alsa_device, 0, 8, 1,7,8);
-	button = gtk_spin_button_new(GTK_ADJUSTMENT(adj),0.0,0);
-	gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(button),TRUE);
-	gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-			GTK_SIGNAL_FUNC(alsa_adjust), (gpointer)ALSA_DEVICE);
-	gtk_table_attach_defaults(GTK_TABLE(table),button,2,3,1,2);
-#ifndef HAVE_ALSA_05
-	gtk_widget_set_sensitive(button,FALSE);
-#endif
-
-	adj = gtk_adjustment_new(alsa_sub_dev, 0, 8, 1,7,8);
-	button = gtk_spin_button_new(GTK_ADJUSTMENT(adj),0.0,0);
-	gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(button),TRUE);
-	gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-			GTK_SIGNAL_FUNC(alsa_adjust), (gpointer)ALSA_SUB_DEV);
-	gtk_table_attach_defaults(GTK_TABLE(table),button,3,4,1,2);
-#ifndef HAVE_ALSA_05
-	gtk_widget_set_sensitive(button,FALSE);
-#endif
 	gtk_widget_show_all(vbox);
+	
+	/*  END of General Options Tab (Options Panel) */
 
-
-
+	/*  BEGINNING of Low Res. FFT Options Tab (Options Panel) */
 	box = gtk_hbox_new(FALSE,0);
 
 	label = gtk_label_new("Low Res. FFT's");
@@ -297,6 +246,8 @@ int setup_options()
 	gtk_widget_show_all(box);
 
 
+	/*  END of Low Res. FFT Options Tab (Options Panel) */
+	/*  BEGINNING of Scope Options Tab (Options Panel) */
 
 	vbox = gtk_vbox_new(FALSE,0);
 	main_scope_vbox = vbox;
@@ -391,6 +342,9 @@ int setup_options()
 
 	gtk_widget_show_all(main_scope_vbox);
 
+	/*  END of Scope Options Tab (Options Panel) */
+	/*  BEGINNING of High Res, FFT Options Tab (Options Panel) */
+
 	box = gtk_hbox_new(FALSE,0);
 
 	label = gtk_label_new("High Res. FFT's");
@@ -448,6 +402,9 @@ int setup_options()
 
 
 	gtk_widget_show_all(box);
+
+	/*  END of High Res, FFT Options Tab (Options Panel) */
+	/*  BEGINNING of FFT Options Tab (Options Panel) */
 
 	hbox = gtk_hbox_new(FALSE,0);
 
@@ -663,6 +620,9 @@ int setup_options()
 
 	gtk_widget_show_all(hbox);
 
+	/*  END of FFT Options Tab (Options Panel) */
+	/*  BEGINNING of Misc Options Tab (Options Panel) */
+
 	box = gtk_vbox_new(FALSE,0);
 
 	label = gtk_label_new("Misc Options");
@@ -736,14 +696,6 @@ int setup_options()
 
 	buffer_pixmap = gdk_pixmap_new(buffer_area->window,400,100,
 			gtk_widget_get_visual(buffer_area)->depth);
-	//    gdk_draw_rectangle( buffer_area->window,
-	//	    buffer_area->style->white_gc,
-	//	    TRUE, 0,0,
-	//	    100,50);
-	//   gdk_draw_rectangle( buffer_pixmap,
-	//	    buffer_area->style->white_gc,
-	//	    TRUE, 0,0,
-	//	    100,50);
 	gtk_signal_connect( GTK_OBJECT(buffer_area),"configure_event",
 			(GtkSignalFunc)configure_event, (gpointer)BUFFER_AREA);
 	gtk_signal_connect( GTK_OBJECT(buffer_area),"expose_event",
@@ -757,7 +709,7 @@ int setup_options()
 
 	gtk_widget_show_all(box);
 
-	//    gtk_widget_show_all(options);
+	/*  END of Misc Options Tab (Options Panel) */
 
 	return 0;
 }

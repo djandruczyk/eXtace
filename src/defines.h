@@ -43,16 +43,12 @@
 #define LOG		0x03
 #define LINEAR		0x04
 #define ESD		0x05
-#define ALSA		0x06
-#define ALSA_CARD	0x07
-#define ALSA_DEVICE	0x08
-#define ALSA_SUB_DEV    0x09
-#define BACK_PIXMAP	0x0a
-#define BUFFER_AREA	0x0b
-#define DIR_AREA	0x0c
-#define MAIN_DISPLAY	0x0d
-#define NOISE_FLOOR		0x0e
-#define PAUSE_DISP	0x0f
+#define BACK_PIXMAP	0x06
+#define BUFFER_AREA	0x07
+#define DIR_AREA	0x08
+#define MAIN_DISPLAY	0x09
+#define NOISE_FLOOR	0x0a
+#define PAUSE_DISP	0x0b
 
 
 /* Mode Specific definitions */

@@ -46,10 +46,6 @@ int GetFFT(void)
 
 	gdouble *data_win_ptr=NULL;
 	gdouble *audio_data_ptr=NULL;
-	gdouble *real_fft_out=NULL;
-	gdouble *imag_fft_out=NULL;
-	gdouble *fft_ptr=NULL;
-	gint nsamp_sqd=0;
 	gfloat cur_time=0;
 	gfloat audio_offset_lag=0;
 	gint audio_offset_delay=0;
@@ -60,7 +56,7 @@ int GetFFT(void)
 	 * as the FFT's give best visual/audio sync when the audio delay points
 	 * to the MIDDLE of the fft window. (point 2048 in a 4096 pt fft).
 	 * On large FFT sizes, this lag is considerable (over 50-100 msecs)
-	 * whic makes the scope look out of sync.
+	 * which makes the scope look out of sync.
 	 * Sooner or later I'll rewrite this section to get around that..
 	 */
 	//    printf("Current FFT lag is %i ms\n",fft_lag+lag);
@@ -350,11 +346,23 @@ int GetFFT(void)
 		return TRUE;
 	}
 
-	nsamp_sqd = nsamp*nsamp;
+	run_fft();
+
+	return TRUE;
+}
+
+void run_fft(void)
+{
+	int nsamp_sqd = nsamp*nsamp;
+	gdouble *real_fft_out=NULL;
+	gdouble *imag_fft_out=NULL;
+	gdouble *fft_ptr=NULL;
+	gint index1=0;
+
+
 	rfftw_one(plan, audio_data, raw_fft_out);
 	norm_fft[0] = (raw_fft_out[0]*raw_fft_out[0])/nsamp_sqd;
 	norm_fft[nsamp/2] = (raw_fft_out[nsamp/2]*raw_fft_out[nsamp/2])/nsamp_sqd;
-
 	/* This pointer will be INCREMENTED below... */
 	real_fft_out=raw_fft_out; /* Beginning of buffer*/
 
@@ -380,6 +388,7 @@ int GetFFT(void)
 		/* Phase Components ONLY */
 
 		// 	*fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*imag_fft_out * *imag_fft_out)))));
+
 		if (*fft_ptr < 0) 
 			*fft_ptr=0;
 		fft_ptr++;
@@ -387,6 +396,4 @@ int GetFFT(void)
 		imag_fft_out--;
 	}
 
-	return TRUE;
 }
-

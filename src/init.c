@@ -36,16 +36,10 @@ void init()
 	 * Initialize ALL variables, should be first functional called from main
 	 */
 
-#ifdef HAVE_ALSA
-	sound_source = ALSA;
-#else
 	sound_source = ESD;
-#endif
+
 	keep_reading = 1;
 	use_rtc = 0;
-	alsa_card = 0;		/* ALSA card, (physical card in the system */
-	alsa_device = 0;	/* DAC/ADC on above card */
-	alsa_sub_dev = 0;	/* Subdevice, i.e. multichannel cards */
 	refresh_rate = 29;	/* 25 frames per sec */
 	left_amplitude = 127.0/32768.0; /* Scaler for something */
 	right_amplitude = 127.0/32768.0; /* Scaler for something */
@@ -57,7 +51,6 @@ void init()
 	window_func = HAMMING;	/* Hamming window (see misc.c) */
 	winstyle = FULL;	/* use full window function, not cramped version */
 	nsamp = 2048;		/* number of samples per FFT/scope */
-	callback_buffer_size = nsamp;
 	bands = 128;		/* to start with, should be configurable */
 	bandwidth_change = 0;	/* FLAG, reset to default */
 	mode = LAND_3D;		/* default mode. (3D FFT) */
@@ -196,9 +189,6 @@ void read_config(void)
 		extace_cfg_read_int(cfgfile, "Global", "mode", &mode);
 		extace_cfg_read_float(cfgfile, "Global", "bandwidth", &bandwidth);
 		extace_cfg_read_int(cfgfile, "Global", "sound_source", &sound_source);
-		extace_cfg_read_int(cfgfile, "Global", "alsa_card", &alsa_card);
-		extace_cfg_read_int(cfgfile, "Global", "alsa_device", &alsa_device);
-		extace_cfg_read_int(cfgfile, "Global", "alsa_sub_dev", &alsa_sub_dev);
 		extace_cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
 		extace_cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
 		extace_cfg_read_int(cfgfile, "Global", "landflip", &landflip);
@@ -207,9 +197,8 @@ void read_config(void)
 		extace_cfg_read_int(cfgfile, "Global", "scope_sub_mode", &scope_sub_mode);
 		extace_cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
 		extace_cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
-		//	to_get = 4*nsamp;/* nsamp * 2 channels * 2( 16 bit samples)*/
+
 		to_get = nsamp;/* nsamp * 2 channels * 2( 16 bit samples)*/
-		callback_buffer_size = 4096;
 		/* fft_lag is an added delay because the fft looks most synced to
 		 * audio when viewing the "middle" of the datawindow. i.e. 
 		 * at 1/2 the number of samples in the window
@@ -294,9 +283,6 @@ void save_config(void)
 	extace_cfg_write_int(cfgfile, "Global", "mode", mode);
 	extace_cfg_write_float(cfgfile, "Global", "bandwidth", bandwidth);
 	extace_cfg_write_int(cfgfile, "Global", "sound_source", sound_source);
-	extace_cfg_write_int(cfgfile, "Global", "alsa_card", alsa_card);
-	extace_cfg_write_int(cfgfile, "Global", "alsa_device", alsa_device);
-	extace_cfg_write_int(cfgfile, "Global", "alsa_sub_dev", alsa_sub_dev);
 	extace_cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
 	extace_cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
 	extace_cfg_write_int(cfgfile, "Global", "landflip", landflip);
@@ -417,10 +403,9 @@ void mem_alloc()
 	audio_right = malloc(nsamp*sizeof(gshort));
 	audio_last_r = malloc(nsamp*sizeof(gshort));
 
-	/* incoming buf ONLY used for esd, as incoming data amount is unknown
-	 * when running unlinke ALSA 0.5.x callback
-	 */
+	/* incoming buf ONLY used for esd */
 	incoming_buf = malloc(nsamp*2*sizeof(gshort));
+
 	/* Display values of norm_fft, scaled for screen viewing ,
 	 * for low resolution fft's (LAND_3D) */
 	disp_val = malloc(nsamp*sizeof(gint));
@@ -511,10 +496,6 @@ void reinit_extace(int new_nsamp)
 	switch (sound_source)
 	{
 		case ESD:
-			audio_thread_stopper();
-			close_sound();
-			break;
-		case ALSA:
 			audio_thread_stopper();
 			close_sound();
 			break;

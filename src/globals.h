@@ -25,9 +25,6 @@
 #ifdef HAVE_LIBDRFFTW
 #include <drfftw.h>
 #endif
-#ifdef HAVE_ALSA
-#include <sys/asoundlib.h>
-#endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #else
@@ -73,7 +70,6 @@ gdouble		*datawindow;	/* pointer to window function array */
 gint		*pip_arr;	/* array of pip values for screen */
 gint		*disp_val;	/* Display level for screen */
 gint		keep_reading;	/* keeps audio loop running */
-gint		alsa_processor_running; /* FLAG when function is running */
 gint		esd_processor_running; /* FLAG when function is running */
 gint 		lag;		/* delay between getting audio and displaying */
 gint 		fft_lag;	/* delay between getting audio and displaying */
@@ -196,12 +192,9 @@ gint		color_loc;	/* pixel location in color gradient for color mapper */
 gint		cr[MAXBANDS],cg[MAXBANDS],cb[MAXBANDS];
 gint		scope_sub_mode;	/* Dot, line or gradient sub mode  */
 gint		sub_mode_3D;	/* sub mode for 3D modes */
-gint		sound_source;	/* ALSA or ESD (alsa is work in progress) */
+gint		sound_source;	/* ESD (work in progress) */
 gdouble		left_amplitude;	/* Scaler */
 gdouble		right_amplitude;/* Scaler */
-int		alsa_card;	/* Alsa Soundcard number */
-int		alsa_device;	/* Alsa PCM Device number */
-int		alsa_sub_dev;	/* Alsa PCM subdevice  (multichannel cards)*/
 int		last_buf_l[CONVOLVE_SMALL];/* Convolve buffer */
 short		cur_buf_l[CONVOLVE_BIG];/* Convolve buffer */
 int		last_buf_r[CONVOLVE_SMALL];/* Convolve buffer */
@@ -248,7 +241,6 @@ gint		spikeflip;	/* Invert Y axis on 3D modes */
 gint		fft_signal_source;/* Left right or both channels */
 gint		refresh_rate;	/* display refresh rate*/
 guint 		display_id;	/* display ID for gtk_timeout_* */
-gint 		callback_buffer_size;/* ALSA loopback callback buffer size */	
 gint		convolve_factor;	
 gshort 		*raw_ptr;
 gfloat		update_factor;

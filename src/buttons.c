@@ -40,10 +40,6 @@ void leave(GtkWidget *widget, gpointer *data)
 			audio_thread_stopper();
 			close_sound();
 			break;
-		case ALSA:
-			audio_thread_stopper();
-			close_sound();
-			break;
 	}
 
 	/* Free all buffers */
@@ -281,19 +277,6 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				//		usleep(2000);
 				close_sound();
 				sound_source = ESD;
-				ring_pos=0;
-				if (open_sound() >= 0)
-				{
-					keep_reading = 1;
-					audio_thread_starter();
-				}
-				break;
-			case ALSA:
-				keep_reading = 0;
-				audio_thread_stopper();
-				//		usleep(2000);
-				close_sound();
-				sound_source = ALSA;
 				ring_pos=0;
 				if (open_sound() >= 0)
 				{
