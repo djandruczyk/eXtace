@@ -42,7 +42,13 @@ void draw_spike_3d()
 	gdk_threads_enter();
 	if (use_back_pixmap)
 	{
-		gdk_window_copy_area(main_pixmap,gc,0,0,main_pixmap,xdet_scroll,zdet_scroll,width-xdet_scroll,height-zdet_scroll);
+		gdk_window_copy_area(main_pixmap,gc,
+				0,0,
+				main_pixmap,
+				xdet_scroll,
+				zdet_scroll,
+				width-xdet_scroll,
+				height-zdet_scroll);
 		if (xdet_scroll > 0)
 		{
 			gdk_draw_rectangle(main_pixmap,
@@ -75,7 +81,13 @@ void draw_spike_3d()
 	}
 	else
 	{
-		gdk_window_copy_area(main_display->window,gc,0,0,win,xdet_scroll,zdet_scroll,width-xdet_scroll,height-zdet_scroll);
+		gdk_window_copy_area(main_display->window,gc,
+				0,0,
+				win,
+				xdet_scroll,
+				zdet_scroll,
+				width-xdet_scroll,
+				height-zdet_scroll);
 		gdk_draw_rectangle(main_display->window,
 				main_display->style->black_gc,
 				TRUE, width-xdet_scroll,0,
@@ -96,37 +108,47 @@ void draw_spike_3d()
 	y_offset = (height-y_draw_height)/2;
 
 	/* Scroll/tilt */
-
-
-	dir_angle = (float)atan2((float)zdet_scroll, (float)xdet_scroll);
-	dir_angle_deg = dir_angle*90/M_PI_2;
 	if (xdet_start-xdet_end <= 0)
 		factor = -1;
 	else
 		factor = 1;
+	if (spiketilt == 0)
+	{
+		x_tilt=0;
+		y_tilt=0;
+		xaxis_tilt = 0;
+		yaxis_tilt = -1*factor;
+	}
+	else
+	{
+		dir_angle = (float)atan2((float)zdet_scroll,(float)xdet_scroll);
+		dir_angle_deg = dir_angle*90/M_PI_2;
 
-	if ((dir_angle_deg >= 45) && (dir_angle_deg <= 135))
-	{
-		/*              g_print("dir_angle between 45 and 135 degrees\n"); */
-		x_tilt = factor*cos(dir_angle);
+		if ((dir_angle_deg >= 45) && (dir_angle_deg <= 135))
+		{
+			/*g_print("dir_angle between 45 and 135 degrees\n"); */
+			x_tilt = factor*cos(dir_angle);
 
+		}
+		else if ((dir_angle_deg >= -45) && (dir_angle_deg <= 45))
+		{
+			/*g_print("dir_angle between -45 and +45 degrees\n"); */
+			x_tilt = factor*sin(dir_angle);
+		}
+		else if ((dir_angle_deg >= 135) || (dir_angle_deg <= -135))
+		{
+			/*g_print("dir_angle between 135 and -135\n"); */
+			x_tilt = -factor*sin(dir_angle);
+		}
+		else if  ((dir_angle_deg <= -45) && (dir_angle_deg >= -135))
+		{
+			/*g_print("dir_angle between -45 and -135 degrees\n");*/
+			x_tilt = -factor*cos(dir_angle);
+		}
+		/*g_print("dir_angle is %f degrees\n",dir_angle_deg); */
+		xaxis_tilt = sin(det_axis_angle);
+		yaxis_tilt = cos(det_axis_angle);
 	}
-	else if ((dir_angle_deg >= -45) && (dir_angle_deg <= 45))
-	{
-		/*              g_print("dir_angle between -45 and +45 degrees\n"); */
-		x_tilt = factor*sin(dir_angle);
-	}
-	else if ((dir_angle_deg >= 135) || (dir_angle_deg <= -135))
-	{
-		/*              g_print("dir_angle between 135 and -135\n"); */
-		x_tilt = -factor*sin(dir_angle);
-	}
-	else if  ((dir_angle_deg <= -45) && (dir_angle_deg >= -135))
-	{
-		/*              g_print("dir_angle between -45 and -135 degrees\n"); */
-		x_tilt = -factor*cos(dir_angle);
-	}
-	/*          g_print("dir_angle is %f degrees\n",dir_angle_deg); */
 
 	/* in pixels */
 	start_x = width-((x_draw_width)*(1.0-xdet_end))-x_offset;
@@ -153,23 +175,19 @@ void draw_spike_3d()
 	loc_bins_per_pip = ((float)nsamp/2.0)/(fabs(axis_length));
 
 	reducer(low_freq, high_freq, axis_length);
-	xaxis_tilt = sin(det_axis_angle);
-	yaxis_tilt = cos(det_axis_angle);
-	if (spiketilt == 0)
-	{
-		x_tilt=0;
-		y_tilt=0;
-		xaxis_tilt = 0;
-		yaxis_tilt = -1*factor;
-	}
-
 	gdk_threads_enter();
 	for( i=0; i < axis_length; i++ )
 	{
-		pt[0].x=width-(((i*x_draw_width)*(1-xdet_start))/(axis_length))-((((axis_length-i)*x_draw_width)*(1-xdet_end))/(axis_length))-x_offset;
-		pt[0].y=height-(((i*loc_bins_per_pip)*y_draw_height*ydet_start)/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
-		pt[1].x=pt[0].x-(gint)pip_arr[i]*x_tilt-(gint)pip_arr[i]*xaxis_tilt;
-		pt[1].y=pt[0].y-(gint)pip_arr[i]*y_tilt-(gint)pip_arr[i]*yaxis_tilt;
+		pt[0].x=width-(((i*x_draw_width)*(1-xdet_start))/axis_length)\
+				-((((axis_length-i)*x_draw_width)*(1-xdet_end))\
+				/(axis_length))-x_offset;
+		pt[0].y=height-(((i*loc_bins_per_pip)*y_draw_height*ydet_start)\
+				/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))\
+				*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
+		pt[1].x=pt[0].x-(gint)pip_arr[i]*x_tilt\
+				-(gint)pip_arr[i]*xaxis_tilt;
+		pt[1].y=pt[0].y-(gint)pip_arr[i]*y_tilt\
+				-(gint)pip_arr[i]*yaxis_tilt;
 		lvl=abs((gint)pip_arr[i]*4);
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
@@ -181,11 +199,19 @@ void draw_spike_3d()
 
 		if (use_back_pixmap)
 		{
-			gdk_draw_line(main_pixmap,gc,pt[0].x,pt[0].y,pt[1].x,pt[1].y);
+			gdk_draw_line(main_pixmap,gc,\
+					pt[0].x,\
+					pt[0].y,\
+					pt[1].x,\
+					pt[1].y);
 		}
 		else
 		{
-			gdk_draw_line(main_display->window,gc,pt[0].x,pt[0].y,pt[1].x,pt[1].y);
+			gdk_draw_line(main_display->window,gc,\
+					pt[0].x,\
+					pt[0].y,\
+					pt[1].x,\
+					pt[1].y);
 		}
 	}
 	if (use_back_pixmap)

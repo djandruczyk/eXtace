@@ -87,11 +87,11 @@ int audio_chewer(void)
 
 	//    printf("++Window DRAWER: current at %f, diff from LATEST audio %.2fms\n",cur_time,audio_offset_lag);
 
-	/* Set pointer to be offset from the beginning of the ring + the position 
-	 * of the audio reader thread + the buffer size - the time delay (lag
-	 * compensation)  This really should use gettimeofday as GTK's timeout 
-	 * functions are not guarranteed to go off at exactly when wanted
-	 * especially on a loaded system.
+	/* Set pointer to be offset from the beginning of the ring + the 
+	 * position of the audio reader thread + the buffer size - the 
+	 * time delay (lag compensation)  This really should use 
+	 * gettimeofday as GTK's timeout functions are not guarranteed 
+	 * to go off at exactly when wanted especially on a loaded system.
 	 */
 
 	/* Must add "BUFFER" to the ring value to make sure that raw_ptr

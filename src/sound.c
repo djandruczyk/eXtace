@@ -130,14 +130,17 @@ int audio_thread_starter()
 		printf("Error, reader already running!!\n");
 	else
 	{
-		switch (sound_source)
+		switch (sound_source)/* hopefully we'll have more than 1 soon*/
 		{
 			case ESD:
-				/* since we want to audio to NOT be read in the main gtk loop
-				 * we'll use the gtk input function as a helper. IT will awaken
-				 * our esound reader thread whenever data is ready. Save us 
-				 * from having to setup a poll loop by hand, as gdk/gtk does
-				 * it pretty well already */
+				/* since we want to audio to NOT be read in 
+				 * the main gtk loop we'll use the gtk 
+				 * input function as a helper. It will awaken
+				 * our esound reader thread whenever data 
+				 * is ready. Save us from having to setup 
+				 * a poll loop by hand, as gdk/gtk does 
+				 * it pretty well already 
+				 */
 				retcode = pthread_create(&esound_thread,
 						NULL, /*Thread attributes */
 						esd_starter_thread,
