@@ -113,10 +113,8 @@ int open_datasource(DataSource source)
 		case JACK:
 		case ALSA_LIB:
 		default:
-			fprintf(stderr,__FILE__":  This kind of input has not been "
-					"implemented, can't open.\n");
+			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't open.\n");
 			break;
-
 	}
 
 	if (handles[i].opened)
@@ -160,14 +158,14 @@ int input_thread_starter(int i)
 
 	if(i<0 || i>=MAX_HANDLES || !handles[i].opened)
 	{
-		fprintf(stderr,__FILE__": Invalid handle %i in input_thread_starter, "
-				" opened=%i\n",i,handles[i].opened);
+		fprintf(stderr,__FILE__": Invalid handle %i in input_thread_starter,  opened=%i\n",i,handles[i].opened);
+				
 		return -1;
 	}
 
 	if (handles[i].read_started)  /* This should not happen */
 	{
-		fprintf(stderr,"Error, reader already running!!\n");
+		fprintf(stderr,__FILE__"Error, reader already running!!\n");
 		return -1;
 	}
 
@@ -202,13 +200,13 @@ int input_thread_starter(int i)
 			/* do it again (this usually isn't needed) */
 			ret = comedi_command_test(handles[i].dev,&cmd);
 			if(ret != 0){
-				fprintf(stderr,__FILE__ ":  second COMEDI command_test returned %i"
-						"\n     See kernel system messages (dmesg)\n",ret);
+				fprintf(stderr,__FILE__ ":  second COMEDI command_test returned %i\n     See kernel system messages (dmesg)\n",ret);
+						
 			}
 			ret = comedi_command(handles[i].dev,&cmd);
 			if(ret<0){
-				fprintf(stderr,__FILE__":  comedi_command failed for handle %i."
-						"\n    ",i);
+				fprintf(stderr,__FILE__":  comedi_command failed for handle %i.\n    ",i);
+						
 				comedi_perror("comedi_command");
 				break;
 			}
@@ -225,8 +223,7 @@ int input_thread_starter(int i)
 					(void *) &(handles[i].esd) 
 					);
 			if (err)
-				fprintf(stderr,__FILE__":  Error attempting to create COMEDI "
-						"input thread\n");
+				fprintf(stderr,__FILE__":  Error attempting to create COMEDI input thread\n");
 			else
 				handles[i].read_started = 1;
 			break;
@@ -236,8 +233,8 @@ int input_thread_starter(int i)
 		case JACK:
 		case ALSA_LIB:
 		default:
-			fprintf(stderr,__FILE__":  This kind of input has not been implemented,"
-					" can't start thread.\n");
+			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't start thread.\n");
+					
 			break;
 
 	}
@@ -301,8 +298,8 @@ int input_thread_stopper(int i)
 		case JACK:
 		case ALSA_LIB:
 		default:
-			fprintf(stderr,__FILE__":  This kind of input has not been implemented,"
-					" can't stop thread.\n");
+			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't stop thread.\n");
+					
 			break;
 	}
 
@@ -347,8 +344,8 @@ int close_datasource(int i)
 		case JACK:
 		case ALSA_LIB:
 		default:
-			fprintf(stderr,__FILE__":  This kind of input has not been implemented, "
-					"can't close.\n");
+			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't close.\n");
+					
 			break;
 	}
 
@@ -407,8 +404,8 @@ read:
 			count = read(source,audio_ring + ring_pos,sizeof(*audio_ring)*to_read);
 			if( count <0 || count%sizeof(*audio_ring)>0 )
 			{
-				fprintf(stderr,__FILE__":  first read error, count=%i invalid."
-						"\n          ",count); 
+				fprintf(stderr,__FILE__":  first read error, count=%i invalid.\n          ",count);
+						
 				perror("esd_reader_thread");
 				exit (-3);
 			}
@@ -431,8 +428,8 @@ read:
 					sizeof(*audio_ring)*elements_to_get);
 			if( count <0 || count%sizeof(*audio_ring)>0 )
 			{
-				fprintf(stderr,__FILE__":  second read error, count=%i invalid."
-						"\n          ",count); 
+				fprintf(stderr,__FILE__":  second read error, count=%i invalid.\n          ",count); 
+						
 				perror("esd_reader_thread");
 				exit (-3);
 			}
@@ -616,8 +613,8 @@ read:
 
 void error_close_cb(GtkWidget *widget, gpointer *data)
 {
-	fprintf(stderr,__FILE__":  Cannot connect to sound source, "
-			"check options.\n");
+	fprintf(stderr,__FILE__":  Cannot connect to sound source, check options.\n");
+			
 	gtk_widget_destroy(errbox);
 }
 
