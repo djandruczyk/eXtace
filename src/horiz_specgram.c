@@ -29,19 +29,18 @@ static gint lvl;
 
 void draw_horiz_specgram()
 {
-	active_drawing_area = height-time_border;
+	active_drawing_area = height-(2*border);
 	gdk_threads_enter();
 	if (display_markers)
 	{
                 update_freq_markers();
                 clear_display = 0;
-                update_time_markers();
                 display_markers = 0;
 	}
 	gdk_window_copy_area(main_pixmap,gc,
-			0,0,
+			0,border,
 			main_pixmap,
-			tape_scroll,0,
+			tape_scroll,border,
 			width-horiz_spec_start,
 			active_drawing_area);
 
@@ -57,9 +56,9 @@ void draw_horiz_specgram()
 
 		gdk_draw_line(main_pixmap,gc,
 				width-horiz_spec_start-tape_scroll, 
-				active_drawing_area-i,
+				active_drawing_area-i+border,
 				width-horiz_spec_start,
-				active_drawing_area-i);
+				active_drawing_area-i+border);
 	}
 
 	gdk_window_clear(main_display->window);

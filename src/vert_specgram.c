@@ -31,13 +31,13 @@ static gint count=0;
 void draw_vert_specgram()
 {
 	count++;
-	active_drawing_area = width-time_border;
+	active_drawing_area = width-(border*2);
 	gdk_threads_enter();
 	if (display_markers)
 	{
 		update_freq_markers();
 		clear_display = 0;
-		update_time_markers();
+//		update_time_markers();
 		display_markers = 0;
 	}
 	if (count >= 30)
@@ -46,11 +46,12 @@ void draw_vert_specgram()
 		count=0;
 	}
 	gdk_window_copy_area(main_pixmap,gc,
-			0,0,
+			border,0,
 			main_pixmap,
-			0,tape_scroll,
+			border,tape_scroll,
 			active_drawing_area,
 			height-vert_spec_start);
+
 	gdk_draw_rectangle(main_pixmap,main_display->style->black_gc,
 			TRUE,
 			0,	
@@ -64,15 +65,15 @@ void draw_vert_specgram()
 	gdk_gc_set_foreground(gc,&cl);
 	gdk_draw_rectangle(main_pixmap,gc,
 			TRUE,
-			0,
+			border,
 			height-vert_spec_start-tape_scroll,
 			active_drawing_area,
 			tape_scroll);
 	gdk_draw_line(main_pixmap,gc,
 			0,
-			height-y_border,
-			active_drawing_area,
-			height-y_border);
+			height-border,
+			border+active_drawing_area,
+			height-border);
 
 	for (i=0; i < (active_drawing_area); i++)
 	{
@@ -85,16 +86,16 @@ void draw_vert_specgram()
 		gdk_gc_set_foreground(gc,&cl);
 
 		gdk_draw_line(main_pixmap,gc,
-				i,
+				i+border,
 				height-vert_spec_start-tape_scroll,
-				i,
+				i+border,
 				height-vert_spec_start);
 
 		gdk_draw_line(main_pixmap,gc,
-				i,
-				height-y_border,
-				i,
-				height-y_border-pip_arr[i]);
+				i+border,
+				height-border,
+				i+border,
+				height-border-pip_arr[i]);
 	}
 
 	gdk_window_clear(main_display->window);

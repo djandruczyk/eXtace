@@ -31,7 +31,7 @@ static gint prevlevel;
 
 void draw_2d_eq()
 {
-	gint xdraw_width = width-2*x_border;
+	gint xdraw_width = width-2*border;
 	gint lwidth = (int)(xdraw_width/bands);
 	gint line_width = 0;
 	gfloat count = 0;
@@ -39,7 +39,7 @@ void draw_2d_eq()
 	gfloat frag = ((float)xdraw_width/(float)bands) - (float)lwidth;
 	gint fragcount = 0;
 	gint bar_start=0;         /* start position for bars on graphic EQ */
-	gint pos = x_border;
+	gint pos = border;
 	gchar buff[20];
 
 	active_drawing_area = xdraw_width;
@@ -78,7 +78,7 @@ void draw_2d_eq()
 	if (prevlevel > maxlevel)
 		maxlevel = prevlevel;
 
-	maxlevel = ((maxlevel*(height))/128)+y_border+seg_height;
+	maxlevel = ((maxlevel*(height))/128)+border+seg_height;
 
 	gdk_threads_enter();
 
@@ -102,8 +102,8 @@ void draw_2d_eq()
 		}
 		cl.pixel=colortab[32][(int)(((float)pos)*((float)MAXBANDS/(float)width))];
 		gdk_gc_set_foreground(gc,&cl);
-		bar_start = height -y_border- (((gint)levels[i]*height)/128);
-		peak_spot = height -y_border- (((gint)trailers[i]*height)/128);
+		bar_start = height - border - (((gint)levels[i]*height)/128);
+		peak_spot = height - border - (((gint)trailers[i]*height)/128);
 		gdk_draw_rectangle(main_pixmap,gc,
 				TRUE,
 				pos,bar_start,
@@ -122,7 +122,7 @@ void draw_2d_eq()
 		pos += line_width;
 
 	}
-	for(i=y_border;i<maxlevel;i+=seg_height)
+	for(i=border;i<maxlevel;i+=seg_height)
 	{
 		gdk_draw_rectangle(main_pixmap,main_display->style->black_gc,
 				TRUE,

@@ -156,8 +156,8 @@ void draw_land3d_fft()
 	 */
 
 
-	x_draw_width = width - abs(x3d_scroll)-2*x_border;
-	y_draw_height = height - abs(z3d_scroll)-2*y_border;
+	x_draw_width = width - abs(x3d_scroll)-2*border;
+	y_draw_height = height - abs(z3d_scroll)-2*border;
 
 	x_shift = ((x_draw_width*(1-x3d_start))-(x_draw_width*(1-x3d_end)));
 	x_shift_per_block = x_shift/bands;

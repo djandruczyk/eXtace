@@ -80,11 +80,8 @@ gint		bar_decay;	/* bar_decay and decay are tied together */
 gint		bar_decay_speed;/* decay_speed ONLY works with bar_decay "on" (1) */
 gint		peak_decay_speed;/* decay_val ONLY works with peak_decay "on" (1) */
 gint		peak_hold_time;/* peak hold time ONLY works with peak_decay "on" (1) */
-gint		time_border;	/* border bottom of spectrogram */
-gint		x_border;	/* border on right side of display */
+gint		border;		/* border around displays */
 gint		x_offset;	/* 3D X axis offset for centering */
-
-gint		y_border;	/* border on right side of display */
 gint		y_offset;	/* 3D X axis offset for centering */
 float		scale;
 gint		recalc_scale;	/* its NOT fixed YET. (done dynamically) */

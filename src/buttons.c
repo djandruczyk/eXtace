@@ -101,7 +101,7 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 			break;
 		case TAPE_SCROLL:
 			tape_scroll = GTK_ADJUSTMENT(widget)->value;
-			update_time_markers();
+//			update_time_markers();
 			break;
 		case REFRESH_RATE:
 			refresh_rate = GTK_ADJUSTMENT(widget)->value;

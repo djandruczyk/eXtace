@@ -102,8 +102,8 @@ void draw_spike_3d()
 	gdk_threads_leave();
 
 	/* in pixels */
-	x_draw_width = width - abs(xdet_scroll)-2*x_border;
-	y_draw_height = height - abs(zdet_scroll)-2*y_border;
+	x_draw_width = width - abs(xdet_scroll)-2*border;
+	y_draw_height = height - abs(zdet_scroll)-2*border;
 
 	/* in pixels */
 	x_offset = (width-x_draw_width)/2;

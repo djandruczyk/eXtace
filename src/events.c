@@ -345,13 +345,13 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 	if (mode == EQ_2D)
 	{
 		int band_num =0;
-		int x_draw_width = width-2*x_border;
+		int x_draw_width = width-2*border;
 
-		if (x < x_border)
-			x = x_border;
-		if (x > width-x_border)
-			x = width-x_border;
-		band_num = (int)(((float)(x-x_border)/(float)(x_draw_width))*(float)bands);
+		if (x < border)
+			x = border;
+		if (x > width-border)
+			x = width-border;
+		band_num = (int)(((float)(x-border)/(float)(x_draw_width))*(float)bands);
 		if (band_num > bands-1)
 			band_num = bands-1;
 		freq_at_pointer = freqmark[band_num];
@@ -436,16 +436,16 @@ int test_if_close(int x_fed, int y_fed)
 	switch ((DisplayMode)mode)
 	{
 		case LAND_3D:
-			x_draw_width = width - abs(x3d_scroll)-2*x_border;
-			y_draw_height = height - abs(z3d_scroll)-2*y_border;
+			x_draw_width = width - abs(x3d_scroll)-2*border;
+			y_draw_height = height - abs(z3d_scroll)-2*border;
 			start.x = (x3d_start*x_draw_width);
 			start.y = ((1.0-y3d_start)*y_draw_height);
 			end.x = (x3d_end*x_draw_width);
 			end.y = ((1.0-y3d_end)*y_draw_height);
-			x_rel = x_fed - x_border - abs(x3d_scroll); 
+			x_rel = x_fed - border - abs(x3d_scroll); 
 			if (x3d_scroll < 0)
 				x_rel -= x3d_scroll;
-			y_rel = y_fed - 3*y_border - (abs(z3d_scroll)/2);
+			y_rel = y_fed - 3*border - (abs(z3d_scroll)/2);
 #ifdef DND_DEBUG
 			g_print("Mouse Position, %i,%i Axis-start %i,%i Axis-end %i,%i\n",x_rel,y_rel,start.x,start.y, end.x,end.y);
 #endif
@@ -469,16 +469,16 @@ int test_if_close(int x_fed, int y_fed)
 
 			break;
 		case SPIKE_3D:
-			x_draw_width = width - abs(xdet_scroll)-2*x_border;
-			y_draw_height = height - abs(zdet_scroll)-2*y_border;
+			x_draw_width = width - abs(xdet_scroll)-2*border;
+			y_draw_height = height - abs(zdet_scroll)-2*border;
 			start.x = (xdet_start*x_draw_width);
 			start.y = ((1.0-ydet_start)*y_draw_height);
 			end.x = xdet_end*x_draw_width;
 			end.y = (1.0-ydet_end)*y_draw_height;
-			x_rel = x_fed - x_border - xdet_scroll/2; 
+			x_rel = x_fed - border - xdet_scroll/2; 
 			if (xdet_scroll < 0)
 				x_rel += xdet_scroll;
-			y_rel = y_fed-3*y_border - abs((zdet_scroll/2));
+			y_rel = y_fed-3*border - abs((zdet_scroll/2));
 
 #ifdef DND_DEBUG
 			g_print("fed coords, %i,%i, end %i,%i start %i,%i\n",x_rel,y_rel,end.x,end.y, start.x,start.y);
@@ -546,18 +546,18 @@ void change_x_start(gint x_rel, gint y_rel)
 {
 	int x_draw_width = 0;
 	int y_draw_height = 0;
-	y_rel -= 3.5*y_border;
+	y_rel -= 3.5*border;
 	switch ((DisplayMode)mode)
 	{
 		case LAND_3D:
-			x_rel -= x_border + x3d_scroll/2;
-			x_draw_width = width - abs(x3d_scroll)-2*x_border;
-			y_draw_height = height - abs(z3d_scroll)-2*y_border;
+			x_rel -= border + x3d_scroll/2;
+			x_draw_width = width - abs(x3d_scroll)-2*border;
+			y_draw_height = height - abs(z3d_scroll)-2*border;
 			break;
 		case SPIKE_3D:
-			x_rel -= x_border;
-			x_draw_width = width - abs(xdet_scroll)-2*x_border;
-			y_draw_height = height - abs(zdet_scroll)-2*y_border;
+			x_rel -= border;
+			x_draw_width = width - abs(xdet_scroll)-2*border;
+			y_draw_height = height - abs(zdet_scroll)-2*border;
 			break;
 		default:
 			break;
@@ -591,18 +591,18 @@ void change_x_end(gint x_rel, gint y_rel)
 {
 	int x_draw_width = 0;
 	int y_draw_height = 0;
-	y_rel -= 3.5*y_border;
+	y_rel -= 3.5*border;
 	switch ((DisplayMode)mode)
 	{
 		case LAND_3D:
-			x_rel -= x_border + x3d_scroll/2;
-			x_draw_width = width - abs(x3d_scroll)-2*x_border;
-			y_draw_height = height - abs(z3d_scroll)-2*y_border;
+			x_rel -= border + x3d_scroll/2;
+			x_draw_width = width - abs(x3d_scroll)-2*border;
+			y_draw_height = height - abs(z3d_scroll)-2*border;
 			break;
 		case SPIKE_3D:
-			x_rel -= x_border;
-			x_draw_width = width - abs(xdet_scroll)-2*x_border;
-			y_draw_height = height - abs(zdet_scroll)-2*y_border;
+			x_rel -= border;
+			x_draw_width = width - abs(xdet_scroll)-2*border;
+			y_draw_height = height - abs(zdet_scroll)-2*border;
 			break;
 		default:
 			break;

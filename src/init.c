@@ -114,14 +114,12 @@ void init()
 	y3d_end = 0.13;		/* 3D fft Y end point of axis (percentage) */
 	x3d_scroll = 3;		/* 3D scroll in pixels x axis */
 	z3d_scroll = 6;		/* 3D scroll in pixels z axis */
-	time_border = 30;	/* border on bottom of spectrogram display */
-	x_border = 8;		/* border on right side of display */
+	border = 8;		/* border around most displays */
 	x_offset = 0;		/* 3D X axis offset for centering */
 	landtilt = 1;		/* Flag */
 	outlined = TRUE;	/* Outlined 3D Landform style */
 	spiketilt = 0;		/* Flag */
 
-	y_border = 8;		/* border on right side of display */
 	y_offset = 0;		/* 3D X axis offset for centering */
 	recalc_scale = 1;	/* its NOT fixed YET. (done dynamically) */
 	recalc_markers = 1;	/* its NOT fixed YET. (done dynamically) */

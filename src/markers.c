@@ -23,6 +23,7 @@
 #include <string.h>
 
 
+/*
 void update_time_markers()
 {
 	gint x=0;
@@ -76,6 +77,7 @@ void update_time_markers()
 	}
 	gdk_window_clear(main_display->window);
 }
+*/
 
 void buffer_area_update(void)
 {
@@ -117,12 +119,10 @@ void update_freq_markers()
 	int bord =0;
 	int l_length = 10;
 	int i = 0;
-	gchar buff[10];
-	gint less_markers = 0;
 	gint num_markers = 0;
 	gint x1,x2,y1,y2;
-	gint bandwidth = high_freq-low_freq;
-	const gint pixels_per_marker = 50;	/* constant */
+	const gint pixels_per_vmarker = 30;
+	const gint pixels_per_hmarker = 50;
 	extern gint ready;
 
 	if(!ready)
@@ -155,23 +155,19 @@ void update_freq_markers()
 					2*l_length+35,height);
 		}
 
-		if (height < 350)
-			less_markers = 1;
-		for (i = 1;i <= (int)(bandwidth/1000);i++) 
+		num_markers = (height-(border*2))/pixels_per_vmarker;
+		for (i=0;i<=num_markers;i++) 
 		{
-			if ((less_markers) && ((i+1)%2))
-			{
-				continue;
-			}
 			x1 = bord;
-			y1 = (height - time_border) - ((float)i/(bandwidth/1000.0) * (height-time_border));
+//			x1 = (((float)i/(float)num_markers)*active_drawing_area)+border;
+			y1 = (((float)i/(float)num_markers)*active_drawing_area)+border;
 			x2 = x1 + l_length;
 			y2 = y1;
 
 			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y1,x2,y2);
 
-			g_snprintf(buff,10,"%i kHz",i);
+/*			g_snprintf(buff,10,"%i kHz",i);
 			x2 += 3;
 			y2 += gdk_text_height(main_display->style->font,
 					buff,
@@ -181,6 +177,7 @@ void update_freq_markers()
 					x2,y2,
 					buff,
 					strlen(buff));
+*/
 		}
 	}
 	else if (mode == VERT_SPECGRAM)
@@ -201,10 +198,10 @@ void update_freq_markers()
 					TRUE,0,bord-5,
 					width,2*l_length+35);
 		}
-		num_markers = (width-time_border)/pixels_per_marker;
-		for (i=1; i<=num_markers;i++) 
+		num_markers = (width-(border*2))/pixels_per_hmarker;
+		for (i=0; i<=num_markers;i++) 
 		{
-			x1 = (((float)i/(float)num_markers)*(width-time_border));
+			x1 = (((float)i/(float)num_markers)*active_drawing_area)+border;
 			y1 = bord;
 			x2 = x1;
 			y2 = y1+l_length;
