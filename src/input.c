@@ -1,5 +1,4 @@
 /*
- *
  * input.c extace source file
  * 
  * esd (Esound) sound monitor program
