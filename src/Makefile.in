@@ -151,7 +151,7 @@ LIBS = -lpthread
 
 COMMON_FLAGS = @PFLAGS@ @DFLAGS@ 
 
-CLEANFILES = *~ core* .deps/* gmon.out nohup.out -r .deps
+CLEANFILES = *~ core* gmon.out nohup.out 
 
 EXTRA_DIST = extace.desktop Colormap-format
 

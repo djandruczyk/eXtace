@@ -34,10 +34,8 @@ AC_CHECK_HEADERS(asm/errno.h drfftw.h esd.h fcntl.h math.h pthread.h  rfftw.h st
 
 
 dnl 
-dnl check for GTK 1.2
+dnl check for gtk, imlibgdk, gthread
 dnl
-#AM_PATH_GTK(1.2.0, , AC_MSG_ERROR([** GTK 1.2.0 not installed or broken **]),gthread)
-#AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR([** GLIB 1.2.0 not installed or broken **]),gthread)
 
 pkg_modules="gtk+ imlibgdk gthread"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])

@@ -8084,8 +8084,6 @@ done
 
 
 
-#AM_PATH_GTK(1.2.0, , AC_MSG_ERROR([** GTK 1.2.0 not installed or broken **]),gthread)
-#AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR([** GLIB 1.2.0 not installed or broken **]),gthread)
 
 pkg_modules="gtk+ imlibgdk gthread"
 

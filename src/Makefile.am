@@ -52,7 +52,7 @@ COMMON_FLAGS = @PFLAGS@ @DFLAGS@
 
 CFLAGS += $(COMMON_FLAGS) -Wall 
 
-CLEANFILES = *~ core* .deps/* gmon.out nohup.out -r .deps
+CLEANFILES = *~ core* gmon.out nohup.out 
 
 EXTRA_DIST = extace.desktop Colormap-format
 
