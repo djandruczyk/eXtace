@@ -7,6 +7,9 @@
 %define descr    %{title} - An Extace Waveform Viewer
 %define summalsa %{descr} with ALSA support
 %define summoss  %{descr} without ALSA support
+%define descrfr    %{title} - Un visualisateur de forme d'onde
+%define summalsafr %{descr} avec le support ALSA
+%define summossfr  %{descr} sans le support ALSA
 %define group    Sound
 %define section  Multimedia/%{group}
 
@@ -22,6 +25,7 @@
 %define menudir_ %{_menudir}
 
 Summary:         %{summoss}
+Summary(fr):     %{summossfr}
 Name:            %{name}
 Version:         %{version}
 Release:         %{release}
@@ -44,8 +48,19 @@ configurable, even the axis placement.
 
 This version is for users who don't use ALSA.
 
+%description -l fr
+eXtace est un program d'analyse/affichage de son pour l'environnement
+GNOME. Il nécessite ESD ou ALSA pour fonctionner. Il inclus différentes
+transformations de Fourier des données audio en temps réel. L'affichage
+inclus des vues en 3D, un égaliseur graphique 16-256 canaux, et un
+spectrogramme. Tous les aspects de l'affichage sont complètement 
+configurable, même la position des axes.
+ 
+Cette version est pour les utilisateurs qui n'utilisent pas ALSA.
+
 %package alsa
 Summary:         %{summalsa}
+Summary(fr):     %{summalsafr}
 Group:           %{group}
 Requires:        gnome-libs >= 1.0.11, fftw, alsa
 Obsoletes:       %{mainname}
@@ -60,6 +75,16 @@ flying landscape, and a Spectragram. All aspects of the display are fully
 configurable, even the axis placement. 
 
 This version is for users who use ALSA.
+
+%description -l fr
+eXtace est un program d'analyse/affichage de son pour l'environnement
+GNOME. Il nécessite ESD ou ALSA pour fonctionner. Il inclus différentes
+transformations de Fourier des données audio en temps réel. L'affichage
+inclus des vues en 3D, un égaliseur graphique 16-256 canaux, et un
+spectrogramme. Tous les aspects de l'affichage sont complètement 
+configurable, même la position des axes.
+ 
+Cette version est pour les utilisateurs qui utilisent ALSA.
 
 %prep
 # remove build directories.  better do it by hand as I later on move
@@ -176,6 +201,9 @@ rm -fr $RPM_BUILD_DIR/%{name}-%{version} $RPM_BUILD_DIR/%{alsaname}
 #% {menudir_}/%{alsaname}
 
 %changelog
+* Wed Nov 21 2001 Eric Lassauge <lassauge@mail.dotcom.fr>
+- Added french translations
+
 * Sun Oct 22 2000 Dave Andruczyk <djandruczyk@yahoo.com> 1.3.9-1
 - minor tweaks for eXtace 1.3.9
 

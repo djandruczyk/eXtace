@@ -1,12 +1,11 @@
 /*
  * sound.c extace source file
  * 
- * /GDK/GNOME sound (esd) system output display program
+ * esd (Esound)/ALSA 0.5.x sound monitor program
  * 
  * Copyright (C) 1999 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
- *  
  * 
  * This software comes under the GPL (GNU Public License)
  * You may freely copy,distribute etc. this as long as the source code
@@ -60,6 +59,7 @@ pthread_t alsa_thread;
 int open_sound(void)
 {
     int handle = -1;
+    int esd_latency = 0;
 #ifdef HAVE_ALSA_05
     int err = 0;
     format = malloc(sizeof(snd_pcm_format_t));
@@ -150,12 +150,12 @@ void close_sound(void)
     switch(sound_source)
     {
 	case ESD:
-/*	    printf("closing esd_handle\n");  */
+	    /*	    printf("closing esd_handle\n");  */
 	    esd_close(esd_handle);
 	    break;
 #ifdef HAVE_ALSA_05
 	case ALSA:
-/*	    printf("closing alsa_handle\n");  */
+	    /*	    printf("closing alsa_handle\n");  */
 	    snd_pcm_loopback_close(alsa_handle);
 	    break;
 #endif

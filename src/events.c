@@ -34,26 +34,31 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 
     if (widget->window)  // Make sure window exists
     {
-	if ((int)data == BUFFER_AREA)
+	switch ((gint)data)
 	{
-//	    printf("Selected BUFFER_AREA pixmap\n");
-	    w = buffer_area_width;
-	    h = buffer_area_height;
-	    pixmap = buffer_pixmap;
-	}
-	else if ((int)data == MAIN_DISPLAY)
-	{
-//	    printf("Selected MAIN_DISPLAY pixmap\n");
-	    w = width;
-	    h = height;
-	    pixmap = main_pixmap;
-	}
-	else if ((int)data == DIR_AREA)
-	{
-//	    printf("Selected DIR_AREA pixmap\n");
-	    w = dir_width;
-	    h = dir_height;
-	    pixmap = dir_pixmap;
+	    case BUFFER_AREA:
+		//	    printf("Selected BUFFER_AREA pixmap\n");
+		w = buffer_area_width;
+		h = buffer_area_height;
+		pixmap = buffer_pixmap;
+		break;
+
+	    case DIR_AREA:
+		//	    printf("Selected DIR_AREA pixmap\n");
+		w = dir_width;
+		h = dir_height;
+		pixmap = dir_pixmap;
+		break;
+
+	    case MAIN_DISPLAY:
+		//	    printf("Selected MAIN_DISPLAY pixmap\n");
+		w = width;
+		h = height;
+		pixmap = main_pixmap;
+		break;
+
+	    default:
+		break;
 	}
 
 	//	printf("w=%i, event_w=%i ,h=%i ,event_h=%i\n",w,event->width,h,event->height);
@@ -77,56 +82,61 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 	    gdk_window_set_back_pixmap(widget->window,pixmap,0);
 	}
 
-	if ((int)data == BUFFER_AREA)
+	switch ((gint)data)
 	{
-	    buffer_pixmap = pixmap;
-	    buffer_area_width = w;
-	    buffer_area_height = h;
-	    buffer_area_update();
-	}
-	else if ((int)data == DIR_AREA)
-	{
-	    dir_pixmap = pixmap;
-	    dir_width = w;
-	    dir_height = h;
-	    setup_dircontrol(widget);
-	    dir_axis_update();
-	    update_pointer();
-	}
-	else if ((int)data == MAIN_DISPLAY)
-	{
-	    width = w;
-	    height = h;
-	    main_pixmap = pixmap;
+	    case BUFFER_AREA:
+		buffer_pixmap = pixmap;
+		buffer_area_width = w;
+		buffer_area_height = h;
+		buffer_area_update();
+		break;
 
-	    switch (mode)
-	    {
-		case (HORIZ_SPECGRAM):
-		    if (horiz_spec_start < 55)
-			horiz_spec_start = 55;
-		    if (horiz_spec_start > width)
-			horiz_spec_start = width-10;
-		    display_markers = 1;
-		    clear_display = 1;
-		    break;
-		case (VERT_SPECGRAM):
-		    if (vert_spec_start < 120)
-			vert_spec_start = 120;
-		    if (vert_spec_start > height)
-			vert_spec_start = height-10;
-		    display_markers = 1;
-		    clear_display = 1;
-		    break;
-		case (SPIKE_3D):
-		    update_dircontrol(dir_area);
-		    break;
+	    case DIR_AREA:
+		dir_pixmap = pixmap;
+		dir_width = w;
+		dir_height = h;
+		setup_dircontrol(widget);
+		dir_axis_update();
+		update_pointer();
+		break;
 
-		default:
-		    break;
-	    }
-	    convolve_factor = floor(nsamp/width) < 3 ? floor(nsamp/width) : 3 ;
-	    if (convolve_factor == 0)
-		convolve_factor = 1;
+	    case MAIN_DISPLAY:
+		width = w;
+		height = h;
+		main_pixmap = pixmap;
+
+		switch (mode)
+		{
+		    case (HORIZ_SPECGRAM):
+			if (horiz_spec_start < 55)
+			    horiz_spec_start = 55;
+			if (horiz_spec_start > width)
+			    horiz_spec_start = width-10;
+			display_markers = 1;
+			clear_display = 1;
+			break;
+		    case (VERT_SPECGRAM):
+			if (vert_spec_start < 120)
+			    vert_spec_start = 120;
+			if (vert_spec_start > height)
+			    vert_spec_start = height-10;
+			display_markers = 1;
+			clear_display = 1;
+			break;
+		    case (SPIKE_3D):
+			update_dircontrol(dir_area);
+			break;
+
+		    default:
+			break;
+		}
+		convolve_factor = floor(nsamp/width) < 3 ? floor(nsamp/width) : 3 ;
+		if (convolve_factor == 0)
+		    convolve_factor = 1;
+		break;
+
+	    default:
+		break;
 
 	}
 
@@ -139,21 +149,26 @@ gint expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
     GdkPixmap *pixmap = NULL;
 
-	if ((int)data == BUFFER_AREA)
-	{
-//	    printf("Selected BUFFER_AREA EXPOSE pixmap\n");
+    switch ((gint)data)
+    {
+	case BUFFER_AREA:
+	    //	    printf("Selected BUFFER_AREA EXPOSE pixmap\n");
 	    pixmap = buffer_pixmap;
-	}
-	else if ((int)data == MAIN_DISPLAY)
-	{
-//	    printf("Selected MAIN_DISPLAY EXPOSE pixmap\n");
-	    pixmap = main_pixmap;
-	}
-	else if ((int)data == DIR_AREA)
-	{
-//	    printf("Selected DIR_AREA EXPOSE pixmap\n");
+	    break;
+
+	case DIR_AREA:
+	    //	    printf("Selected DIR_AREA EXPOSE pixmap\n");
 	    pixmap = dir_pixmap;
-	}
+
+	case MAIN_DISPLAY:
+	    //	    printf("Selected MAIN_DISPLAY EXPOSE pixmap\n");
+	    pixmap = main_pixmap;
+	    break;
+
+	default:
+	    break;
+
+    }
     gdk_draw_pixmap(widget->window,
 	    widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
 	    pixmap,
@@ -288,17 +303,21 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 				     * This place is where the images is being
 				     * drawn "from". (i.e. start of spectrogram)
 				     */
-	if (result == OFF_THE_LINE)
+	switch ((gint)result)
 	{
+	    case OFF_THE_LINE:
 #ifdef DND_DEBUG
-	    g_print("We didn't find the line !! \n");
+		g_print("We didn't find the line !! \n");
 #endif
-	}
-	else if (result == ON_THE_LINE)
-	{
+		break;
+	    case ON_THE_LINE:
 #ifdef DND_DEBUG
-	    g_print("We did find the line !! \n");
+		g_print("We did find the line !! \n");
 #endif
+		break;
+	    default:
+		break;
+
 	}
     }
 
@@ -503,21 +522,26 @@ int test_if_close(int x_fed, int y_fed)
 
 void change_spec_start(gint new_pos)
 {
-    if (mode == HORIZ_SPECGRAM)
+    switch ((gint)mode)
     {
-	horiz_spec_start = width-new_pos;
-	if (horiz_spec_start < 55)
-	    horiz_spec_start = 55;
-	if (horiz_spec_start > width)
-	    horiz_spec_start = width-10;
-    }
-    else if (mode == VERT_SPECGRAM)
-    {
-	vert_spec_start = height-new_pos+45;
-	if (vert_spec_start < 120)
-	    vert_spec_start = 120;
-	if (vert_spec_start > height)
-	    vert_spec_start = height-10;
+	case HORIZ_SPECGRAM:
+	    horiz_spec_start = width-new_pos;
+	    if (horiz_spec_start < 55)
+		horiz_spec_start = 55;
+	    if (horiz_spec_start > width)
+		horiz_spec_start = width-10;
+	    break;
+
+	case VERT_SPECGRAM:
+	    vert_spec_start = height-new_pos+45;
+	    if (vert_spec_start < 120)
+		vert_spec_start = 120;
+	    if (vert_spec_start > height)
+		vert_spec_start = height-10;
+	    break;
+
+	default:
+	    break;
     }
     display_markers = 1;
     clear_display = 1;
