@@ -97,38 +97,33 @@ void draw_land3d_fft()
 
 		dir_angle = (float)atan2((float)z3d_scroll, -(float)x3d_scroll);
 		dir_angle_deg = dir_angle*90/M_PI_2;
-//		if (x3d_start-x3d_end <= 0)
-			factor = 1;
-//		else
-//			factor = -1;
 
-		printf ("dir_angle_deg = %f\n",dir_angle_deg);
+		//printf ("dir_angle_deg = %f\n",dir_angle_deg);
 		if ((dir_angle_deg >= -45.0) && (dir_angle_deg <= 45.0))
 		{
-			printf("dir_angle between -45 and 45 (QUADRANT 1-4)\n");
-			x_tilt = factor*sin(dir_angle);
-			y_tilt = factor*cos(dir_angle);
+			//printf("dir_angle between -45 and 45 (QUADRANT 1-4)\n");
+			x_tilt = sin(dir_angle);
+			y_tilt = cos(dir_angle);
 		}
 		else if ((dir_angle_deg >= 45.0) && (dir_angle_deg <= 135.0))
 		{
-			printf("dir_angle between 45 and 135 (QUADRANT 1-2)\n");
-			x_tilt = factor*cos(dir_angle);
-			y_tilt = factor*sin(dir_angle);
+			//printf("dir_angle between 45 and 135 (QUADRANT 1-2)\n");
+			x_tilt = cos(dir_angle);
+			y_tilt = sin(dir_angle);
 		}
 		else if  ((dir_angle_deg <= -135.0) || (dir_angle_deg >= 135.0))
 		{
-			printf("dir_angle between -135 and 135 (QUADRANT 2-3)\n");
-			x_tilt = -factor*sin(dir_angle);
-			y_tilt = -factor*cos(dir_angle);
+			//printf("dir_angle between -135 and 135 (QUADRANT 2-3)\n");
+			x_tilt = -sin(dir_angle);
+			y_tilt = -cos(dir_angle);
 		}
 		else if ((dir_angle_deg >= -135.0) && (dir_angle_deg <= -45.0))
 		{
-			printf("dir_angle between -135 and -45 (QUADRANT 3-4)\n");
-			x_tilt = -factor*cos(dir_angle);
-			y_tilt = -factor*sin(dir_angle);
+			//printf("dir_angle between -135 and -45 (QUADRANT 3-4)\n");
+			x_tilt = -cos(dir_angle);
+			y_tilt = -sin(dir_angle);
 		}
 	}
-	//y_tilt = 1.0;
 
 	/*
 	 * pixel shift for scalability
@@ -158,7 +153,7 @@ void draw_land3d_fft()
 	xaxis_tilt = sin(land_axis_angle);
 	yaxis_tilt = cos(land_axis_angle);
 
-	printf("xaxis_tilt = %f, yaxis_tilt = %f\n",xaxis_tilt,yaxis_tilt);
+	//printf("xaxis_tilt = %f, yaxis_tilt = %f\n",xaxis_tilt,yaxis_tilt);
 	gdk_threads_enter();
 
 	if (((x3d_scroll > 0) && (x_fudge == 1)) || ((x3d_scroll < 0) && (x_fudge == -1)))
@@ -176,9 +171,9 @@ void draw_land3d_fft()
 
 void draw_land3d_forward()
 {
-	printf("land3d forward\n");
-	printf("x_tilt %f, y_tilt %f\n",x_tilt,y_tilt);
-	printf("x_offset %i, y_offset %i\n",x_offset,y_offset);
+	//printf("land3d forward\n");
+	//printf("x_tilt %f, y_tilt %f\n",x_tilt,y_tilt);
+	//printf("x_offset %i, y_offset %i\n",x_offset,y_offset);
 	for( i=0; i < bands; i++)
 	{
 		if (i==0)
@@ -411,9 +406,9 @@ void draw_land3d_forward()
 
 void draw_land3d_reverse()
 {
-	printf("land3d reverse\n");
-	printf("x_tilt %f, y_tilt %f\n",x_tilt,y_tilt);
-	printf("x_offset %i, y_offset %i\n",x_offset,y_offset);
+	//printf("land3d reverse\n");
+	//printf("x_tilt %f, y_tilt %f\n",x_tilt,y_tilt);
+	//printf("x_offset %i, y_offset %i\n",x_offset,y_offset);
 	for(i=bands-1; i >= 0; i--)
 	{
 		pt[0].x=width-(((i*x_draw_width)*(1-x3d_start))/bands)\
