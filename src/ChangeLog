@@ -1,3 +1,22 @@
+2003-04-19 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	Modified the audio_processing function to update the buffer window
+	with a rectangle showing the amount of data processed. This shows
+	when you overstep the buffer with decimation.
+	
+2003-04-16 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	Nearly complete rewrite again of the audio_processing functions. 
+	The last incarnation was significantly slower due to a lot of 
+	memcpy()'s so I incorporated the best of both the oldest and newer
+	implementations, giving decimation ability and decent processor
+	usage with no memcpy() calls.  Also fixed a bug in the sound.c
+	input where it failed to fill the audio_ring before looping
+	when the size of the fft was larger than 4096. Added decimation
+	factors of 6-8 and increased the global audio ringbuffer to 2 seconds
+	from the previous 1 second length.
+	Known bugs:
+	 - markers are still screwed when using decimation. 
+	 - no over-wrap check on decimation, bounds-checking IS in place 
+	and functional.
 2003-04-14 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	Major rewrite of the audio_processing functions to accomodate 
 	decimation (used to get better low-freq resolution). Seems to be 

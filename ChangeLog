@@ -1,3 +1,8 @@
+2003-04-19 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	Modified the audio_processing function to update the buffer window
+	with a rectangle showing the amount of data processed. This shows
+	when you overstep the buffer with decimation.
+	
 2003-04-16 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	Nearly complete rewrite again of the audio_processing functions. 
 	The last incarnation was significantly slower due to a lot of 

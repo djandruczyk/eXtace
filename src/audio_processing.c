@@ -34,7 +34,8 @@
 
 
 static gint delay;
-static gint last;
+static gint last_start;
+static gint last_end;
 
 void run_fft(void)
 {
@@ -87,7 +88,6 @@ void run_fft(void)
 
 int audio_chewer(void)
 {
-//	copy_to_centered_buffer();
 	split_and_decimate();
 	if (mode != SCOPE)
 		run_fft();
@@ -118,6 +118,9 @@ void split_and_decimate()
 	gfloat audio_offset_lag=0;
 	gint audio_offset_delay=0;
 	gint index2 = 0;
+	gint wrap = 0;
+	gint length = 0;
+	gint tmp = 0;
 
 
 	/* REWRITE IN PROGRESS 04/14/03
@@ -211,28 +214,6 @@ void split_and_decimate()
         {
                 raw_ptr -=BUFFER;
         }
-	if (gdk_window_is_visible(buffer_area->window))
-	{
-		// Only draw it if its visible.  Why waste CPU time ??? 
-		gdk_threads_enter();
-
-		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
-				TRUE,
-				last, 65,
-				2,15);
-
-		gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-				TRUE,
-				(float)buffer_area->allocation.width\
-				*((float)(raw_ptr-audio_ring)/(float)ring_end), 65,
-				2,15);
-
-		last = (float)buffer_area->allocation.width\
-			*((float)(raw_ptr-audio_ring)/(float)ring_end);
-
-		gdk_window_clear(buffer_area->window);
-		gdk_threads_leave();
-	}
 	/* convert to real number offset from "0" (beginning of buffer)
 	 * instead of a pointer address, (easier to deal with)
 	 */
@@ -314,6 +295,56 @@ void split_and_decimate()
 	while (end_offset > ring_end)	
 	{
 		end_offset -= BUFFER;
+	}
+	if (gdk_window_is_visible(buffer_area->window))
+	{
+		tmp = (float)buffer_area->allocation.width\
+                                *((float)start_offset/(float)ring_end);
+		if (end_offset < start_offset)	/* wrap condition*/
+		{
+			length = buffer_area->allocation.width-tmp;
+			wrap = 1;
+		}
+		else
+		{
+			length = (float)buffer_area->allocation.width\
+                                *((float)end_offset/(float)ring_end)-tmp;
+			wrap = 0;	
+		}
+		// Only draw it if its visible.  Why waste CPU time ??? 
+		gdk_threads_enter();
+
+		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,\
+				TRUE,\
+				0,\
+				65,\
+				buffer_area->allocation.width,\
+				16);
+
+		gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,\
+				FALSE,\
+				tmp,\
+				65,\
+				length,\
+				15);
+		if (wrap)
+		{
+			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,\
+					FALSE,\
+					0,\
+					65,\
+					(float)buffer_area->allocation.width\
+					*((float)end_offset/(float)ring_end),\
+					15);
+		}
+
+		last_start = (float)buffer_area->allocation.width\
+			*((float)start_offset/(float)ring_end);
+		last_end = (float)buffer_area->allocation.width\
+			*((float)end_offset/(float)ring_end);
+
+		gdk_window_clear(buffer_area->window);
+		gdk_threads_leave();
 	}
 
 	data_win_ptr = datawindow;

@@ -130,32 +130,35 @@ gint change_fftlen(GtkWidget *widget, gpointer *data)
 {
 	int temp_nsamp = 0;
 
-	switch ((gint)data)
+	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		case 256:
-			temp_nsamp=(gint)data;
-			break;
-		case 512:
-			temp_nsamp=(gint)data;
-			break;
-		case 1024:
-			temp_nsamp=(gint)data;
-			break;
-		case 2048:
-			temp_nsamp=(gint)data;
-			break;
-		case 4096:
-			temp_nsamp=(gint)data;
-			break;
-		case 8192:
-			temp_nsamp=(gint)data;
-			break;
-		case 16384:
-			temp_nsamp=(gint)data;
-			break;
-		case 32768:
-			temp_nsamp=(gint)data;
-			break;
+		switch ((gint)data)
+		{
+			case 256:
+				temp_nsamp=(gint)data;
+				break;
+			case 512:
+				temp_nsamp=(gint)data;
+				break;
+			case 1024:
+				temp_nsamp=(gint)data;
+				break;
+			case 2048:
+				temp_nsamp=(gint)data;
+				break;
+			case 4096:
+				temp_nsamp=(gint)data;
+				break;
+			case 8192:
+				temp_nsamp=(gint)data;
+				break;
+			case 16384:
+				temp_nsamp=(gint)data;
+				break;
+			case 32768:
+				temp_nsamp=(gint)data;
+				break;
+		}
 	}
 	return 0;
 }
