@@ -1,5 +1,5 @@
 /*
- * BUTTONS.C extace source file
+ * buttons.c extace source file
  * 
  /GDK/GNOME sound (esd) system output display program
  * 
@@ -28,6 +28,8 @@
 #include "logo.xpm"
 #include "convolve.h"
 
+
+extern GtkWidget *stars; /* from stars.c */
 
 void leave(GtkWidget *widget, gpointer *data)
 {
@@ -153,8 +155,6 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 			case BACK_PIXMAP:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
 						"Backing Pixmap Enabled");
-				use_back_pixmap = 1;
-				drawable = main_pixmap;
 				gdk_draw_rectangle(main_display->window,
 						main_display->style->black_gc,
 						TRUE, 0,0,
@@ -386,8 +386,6 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 			case BACK_PIXMAP:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
 						"Backing Pixmap Disabled");
-				use_back_pixmap = 0;
-				drawable = main_display->window;;
 				gdk_draw_rectangle(main_display->window,
 						main_display->style->black_gc,
 						TRUE, 0,0,
@@ -469,8 +467,8 @@ gint change_display(GtkWidget *widget, gpointer *data)
 			break;
 		case HORIZ_SPECGRAM:
 			mode = HORIZ_SPECGRAM;
-			if (horiz_spec_start < 55)
-				horiz_spec_start = 55;
+			if (horiz_spec_start < 60)
+				horiz_spec_start = 60;
 			if (horiz_spec_start > width)
 				horiz_spec_start = width-10;
 			enable_dir_win = 0;
@@ -554,10 +552,6 @@ gint scope_mode(GtkWidget *widget, gpointer *data)
 	if (mode == SCOPE)
 	{
 		gdk_draw_rectangle(main_pixmap,
-				main_display->style->black_gc,
-				TRUE, 0,0,
-				width,height);
-		gdk_draw_rectangle(main_display->window,
 				main_display->style->black_gc,
 				TRUE, 0,0,
 				width,height);

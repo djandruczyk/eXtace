@@ -40,23 +40,23 @@ static gint y_draw_height = 0;
 void draw_spike_3d()
 {
 	gdk_threads_enter();
-	gdk_window_copy_area(drawable,gc,
+	gdk_window_copy_area(main_pixmap,gc,
 			0,0,
-			drawable,
+			main_pixmap,
 			xdet_scroll,
 			zdet_scroll,
 			width-xdet_scroll,
 			height-zdet_scroll);
 	if (xdet_scroll > 0)
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, width-xdet_scroll,0,
 				xdet_scroll,height);
 	}
 	else
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,0,
 				abs(xdet_scroll),height);
@@ -64,14 +64,14 @@ void draw_spike_3d()
 
 	if (zdet_scroll > 0)
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,height-zdet_scroll,
 				width,zdet_scroll);
 	}
 	else
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,0,
 				width,abs(zdet_scroll));
@@ -176,15 +176,13 @@ void draw_spike_3d()
 		cl.pixel=colortab[16][lvl];
 		gdk_gc_set_foreground(gc,&cl);
 
-		gdk_draw_line(drawable,gc,\
+		gdk_draw_line(main_pixmap,gc,\
 				pt[0].x,\
 				pt[0].y,\
 				pt[1].x,\
 				pt[1].y);
 	}
-	if (use_back_pixmap)
-	{
-		gdk_window_clear(main_display->window);
-	}
+	gdk_window_clear(main_display->window);
+
 	gdk_threads_leave();
 }

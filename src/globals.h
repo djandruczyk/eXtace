@@ -12,12 +12,15 @@
  * 
  * No warranty is made or implied. You use this program at your own risk.
  */
+#ifndef _GLOBALS_H_
+#define _GLOBALS_H_ 1
+
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
 #include <gdk_imlib.h>
 #include <sys/time.h>
 #include "convolve.h"
-#include "config.h"
+#include <config.h>
 #include "defines.h"
 #ifdef HAVE_LIBRFFTW
 #include <rfftw.h>
@@ -35,7 +38,6 @@
 gint		nsamp;		/* number of samples */
 gint		bands;		/* to start with, should be configurable */
 GdkPixmap	*dir_pixmap;	/* directional window pixmap pointer*/
-GdkDrawable	*drawable;	/* where we are drawing to */
 GdkPixmap	*grad_pixmap;	/* color gradient window pixmap pointer*/
 GdkPixmap	*main_pixmap;	/* MAIN window backing pixmap pointer */
 GdkPixmap	*buffer_pixmap;	/* Buffer window backing pixmap pointer */
@@ -45,15 +47,11 @@ GtkWidget	*optionsbut;	/* Options button pointer */
 GtkWidget	*dir_win;	/* Direction window pointer */
 GtkWidget	*dir_area;	/* directional window area */
 GtkWidget	*buffer_area;	/* Buffer latency display window area */
-GtkWidget	*grad_disp;	/* Gradient display pointer */
-GtkWidget	*window_function;/* window functions */
-//GtkWidget	*options;	/* pointer specific to that button */
-GtkWidget	*stars;		/* pointer specific to that button */
 GdkGC		*gc;		/* Main graphics context */
 GdkGC		*graticule_gc;	/* Graphics context for graticule in scope */
 GdkGC		*arc_gc;	/* Graphics context for Arc in dircontrol */
+GdkGC		*trace_gc;	/* Graphics context for Trace in scope */
 GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
-GdkImlibImage	*im;		/* Image for colormap */
 gint		ring_pos;	/* place safe to write in ringbuffer */
 gint		ring_end;	/* end of ringbuffer in ELEMENTS */
 gint		elements_to_get;	/* amount to read in ELEMENTS */
@@ -70,15 +68,10 @@ gint		*pip_arr;	/* array of pip values for screen */
 gint		*disp_val;	/* Display level for screen */
 gint		keep_reading;	/* keeps audio loop running */
 gint 		decimation_factor; /* for sub hertz resolution */
-gint		esd_processor_running; /* FLAG when function is running */
 gint 		lag;		/* delay between getting audio and displaying */
 gint 		fft_lag;	/* delay between getting audio and displaying */
 gint   		width;		/* Main window width */
 gint   		height;		/* Main window height */
-gint   		buffer_area_width;/* buffer_area window width */
-gint   		buffer_area_height;/* buffer_area window height */
-gint   		dir_width;	/* Direction control width */
-gint   		dir_height;	/* Direction control height */
 gint  		colortab[MAXBANDS][MAXBANDS];/* ugly, statically allocated to up to MAXBANDS bands */
 gint 		colortab_ready;	/* flag */
 gint		mode;		/* What display mode are we in */
@@ -173,7 +166,6 @@ double		ptrailers[MAXBANDS];/* Levels for "trailers" in 2D EQ */
 gfloat		freqmark[MAXBANDS];/* Frequency markers for 2D EQ */
 gfloat		freq_at_pointer;/* Frequency at mouse pointer */
 gint		pt_lock;	/* Lock variable for DND code */
-gint		one_to_fix;	/* DND helper variable (which axis to modify) */
 gint		window_func;	/* Which window function r we using? */
 gint		axis_type;	/* Linear or LOG (NOT SPIKE or SPECT modes) */
 gint		main_x_origin;	/* Coords of main window on screen */
@@ -213,7 +205,6 @@ gint		sync_to_right;	/* Scope displayt to sync on left channel */
 gint		sync_independant;/* Each channel self synchronizes.. */
 gint		r_count;
 gint		show_graticule;	/* show scope graticule */
-gint		use_back_pixmap;/* Use backing pixmap or not? */
 glong		frame_cnt;	/* Frame count */
 struct		timeval cur_time, last_time;
 struct		timeval audio_arrival, audio_display, latency;
@@ -257,3 +248,5 @@ gint		high_freq;
 gfloat		bandwidth;
 gint 		bandwidth_change; /* Flag */
 gint 		clear_display;
+
+#endif

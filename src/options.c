@@ -14,8 +14,8 @@
  */
 
 #include <config.h>
-#include <defaults.h>
 #include <globals.h>
+#include <defaults.h>
 #include <protos.h>
 #include <gtk/gtk.h>
 
@@ -168,13 +168,6 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)PAUSE_DISP);
-
-	button = gtk_toggle_button_new_with_label("Backing Pixmap Disabled");
-	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)BACK_PIXMAP);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), use_back_pixmap);
-
 
 	frame = gtk_frame_new("Sound Source");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);

@@ -38,18 +38,18 @@ void draw_land3d_fft()
 {
 	gdk_threads_enter();
 	/* Scroll the window */
-	gdk_window_copy_area(drawable,gc,0,0,drawable,
+	gdk_window_copy_area(main_pixmap,gc,0,0,main_pixmap,
 			x3d_scroll,z3d_scroll,width-x3d_scroll,height-z3d_scroll);
 	if (x3d_scroll > 0)
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, width-x3d_scroll,0,
 				x3d_scroll,height);
 	}
 	else
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,0,
 				abs(x3d_scroll),height);
@@ -57,14 +57,14 @@ void draw_land3d_fft()
 
 	if (z3d_scroll > 0)
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,height-z3d_scroll,
 				width,z3d_scroll);
 	}
 	else
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,0,
 				width,abs(z3d_scroll));
@@ -138,8 +138,7 @@ void draw_land3d_fft()
 		draw_land3d_forward();
 	else
 		draw_land3d_reverse();
-	if (use_back_pixmap)
-		gdk_window_clear(main_display->window);
+	gdk_window_clear(main_display->window);
 	gdk_threads_leave();
 
 
@@ -303,18 +302,18 @@ void draw_land3d_forward()
 			case FILL_3D:
 				if (i == 0) /* cap */
 				{
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							gc,TRUE,\
 							cap_pt,4);
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							main_display->\
 							style->\
 							black_gc,\
 							FALSE,cap_pt,4);
 				}
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						gc,TRUE,pt,4);
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						main_display->style->\
 						black_gc,FALSE,pt,4);
 				break;
@@ -322,19 +321,19 @@ void draw_land3d_forward()
 
 				if (i == 0) /* cap */
 				{
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							main_display->\
 							style->\
 							black_gc,\
 							TRUE,cap_pt,4);
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							gc,FALSE,\
 							cap_pt,4);
 				}
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						main_display->style->black_gc,\
 						TRUE,pt,4);
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						gc,FALSE,pt,4);
 				break;
 		}
@@ -345,9 +344,9 @@ void draw_land3d_forward()
 			switch (sub_mode_3D)
 			{
 				case FILL_3D:
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							gc,TRUE,lpt,4);
-					gdk_draw_line(drawable,\
+					gdk_draw_line(main_pixmap,\
 							main_display->style->\
 							black_gc,\
 							lpt[2].x,\
@@ -357,7 +356,7 @@ void draw_land3d_forward()
 
 					break;
 				case WIRE_3D:
-					gdk_draw_line(drawable,gc,\
+					gdk_draw_line(main_pixmap,gc,\
 							lpt[2].x,\
 							lpt[2].y,\
 							lpt[3].x,\
@@ -485,18 +484,18 @@ void draw_land3d_reverse()
 		switch (sub_mode_3D)
 		{
 			case FILL_3D:
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						gc,TRUE,pt,4);
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						main_display->\
 						style->black_gc,\
 						FALSE,pt,4);
 				if (i == 0) /* cap */
 				{
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							gc,TRUE,\
 							cap_pt,4);
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							main_display->\
 							style->\
 							black_gc,\
@@ -504,20 +503,20 @@ void draw_land3d_reverse()
 				}
 				break;
 			case WIRE_3D:
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						main_display->\
 						style->black_gc,\
 						TRUE,pt,4);
-				gdk_draw_polygon(drawable,\
+				gdk_draw_polygon(main_pixmap,\
 						gc,FALSE,pt,4);
 				if (i == 0) /* cap */
 				{
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							main_display->\
 							style->\
 							black_gc,TRUE,\
 							cap_pt,4);
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							gc,\
 							FALSE,cap_pt,4);
 				}
@@ -531,9 +530,9 @@ void draw_land3d_reverse()
 			switch (sub_mode_3D)
 			{
 				case FILL_3D:
-					gdk_draw_polygon(drawable,\
+					gdk_draw_polygon(main_pixmap,\
 							gc,TRUE,lpt,4);
-					gdk_draw_line(drawable,\
+					gdk_draw_line(main_pixmap,\
 							main_display->\
 							style->\
 							black_gc,\
@@ -543,7 +542,7 @@ void draw_land3d_reverse()
 							lpt[1].y);
 					break;
 				case WIRE_3D:
-					gdk_draw_line(drawable,\
+					gdk_draw_line(main_pixmap,\
 							gc,lpt[2].x,\
 							lpt[2].y,\
 							lpt[3].x,\

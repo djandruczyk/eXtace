@@ -30,6 +30,8 @@ int main(int argc, char **argv)
 	GtkWidget *main_window;
 	GtkWidget *button;
 	GtkTooltips *tip;
+	extern gint dir_width;
+	extern gint dir_height;
 
 	g_thread_init(NULL);
 	gtk_init(&argc, &argv);
@@ -243,10 +245,6 @@ int main(int argc, char **argv)
 	}
 	if (mode == STARS)/* gotta emit it by hand due to config file */
 		gtk_signal_emit_by_name(GTK_OBJECT(about_but_ptr),"clicked");
-	if (use_back_pixmap)
-		drawable = main_pixmap;
-	else
-		drawable = main_display->window;
 	ready = 1;		/* All set */
 	gdk_threads_enter();
 	gtk_main();

@@ -13,6 +13,9 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#ifndef _PROTOS_H_
+#define _PROTOS_H_ 1
+
 #include <config.h>
 #include <enums.h>
 #include <gtk/gtk.h>
@@ -156,3 +159,5 @@ void run_fft(void);
 int audio_chewer(void);
 void split_and_decimate(void);
 /* audio_processing.c */
+
+#endif

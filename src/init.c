@@ -31,6 +31,10 @@ gint micro_ver;
 
 void init()
 {
+	extern gint buffer_area_width;
+	extern gint buffer_area_height;
+	extern gint dir_width;
+	extern gint dir_height;
 	/* Should actualy get these to/from a text file instead so settings 
 	 * persist between sessions.. :|  Ohh, how to do it..... :)
 	 * Initialize ALL variables, should be first functional called from main
@@ -103,7 +107,6 @@ void init()
 	/* WON'T max out when you resize */
 	dir_win_present = 1;	/* Direction control window */
 	grad_win_present = 0;	/* Color picker window */
-	one_to_fix = 0;		/* which end of trace to fix up */
 	elements_to_get = nsamp/2;	/* how many samples to read at a time */
 	height = 480;		/* Self explanitory */
 	width  = 640;		/* Self explanitory */
@@ -118,12 +121,11 @@ void init()
 	grad_x_origin = width + 0;
 	grad_y_origin = dir_y_origin + dir_height;
 	tape_scroll = 2;
-	horiz_spec_start = 55;	/* 55 from right edge of screen */
+	horiz_spec_start = 60;	/* 60 from right edge of screen */
 	vert_spec_start = 120;	/* 120 from BOTTOM of the screen, unconventional */
 	sync_to_left = 1;	/* default to sync to left channel */
 	sync_to_right = 0; 	/* sync to right channel */
 	sync_independant = 0;	/* independtant sync */
-	use_back_pixmap = 1;	/* Backing pixmap enabled */
 	colortab_ready = 0;	/* NOT READY */
 	paused = 0;		/* display running */
 	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
@@ -217,7 +219,6 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "bands", &bands);
 		cfg_read_int(cfgfile, "Global", "lag", &lag);
 		cfg_read_float(cfgfile, "Global", "noise_floor", &noise_floor);
-		cfg_read_int(cfgfile, "Global", "use_back_pixmap", &use_back_pixmap);
 		cfg_read_int(cfgfile, "Global", "seg_height", &seg_height);
 		cfg_read_int(cfgfile, "Global", "seg_space", &seg_space);
 		cfg_read_int(cfgfile, "Global", "bar_decay", &bar_decay);
@@ -251,8 +252,8 @@ void read_config(void)
 			horiz_spec_start = width-10; 
 		if (vert_spec_start > height)
 			vert_spec_start = height-10;
-		if (horiz_spec_start < 55)
-			horiz_spec_start = 55; 
+		if (horiz_spec_start < 60)
+			horiz_spec_start = 60; 
 		if (vert_spec_start < 120)
 			vert_spec_start = 120;
 
@@ -301,7 +302,6 @@ void save_config(void)
 	cfg_write_int(cfgfile, "Global", "bands", bands);
 	cfg_write_int(cfgfile, "Global", "lag", lag);
 	cfg_write_float(cfgfile, "Global", "noise_floor", noise_floor);
-	cfg_write_int(cfgfile, "Global", "use_back_pixmap", use_back_pixmap);
 	cfg_write_int(cfgfile, "Global", "seg_height", seg_height);
 	cfg_write_int(cfgfile, "Global", "seg_space", seg_space);
 	cfg_write_int(cfgfile, "Global", "bar_decay", bar_decay);

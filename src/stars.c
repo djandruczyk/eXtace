@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define STARS_NUM 640
 
+GtkWidget *stars;
+
 static void
 kt_stars_rotate_point(gfloat *px, gfloat *py, gfloat *pz,
 		      gfloat ax, gfloat ay, gfloat az)

@@ -25,6 +25,8 @@
 
 
 /* See globals.h for variable declarations and DEFINES */
+GtkWidget *grad_disp;
+GdkImlibImage *im;
 
 gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {

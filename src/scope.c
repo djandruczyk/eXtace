@@ -59,7 +59,7 @@ void draw_scope()
 		if (bottom > height);
 		bottom = height;
 
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,top,
 				width,bottom);
@@ -70,22 +70,22 @@ void draw_scope()
 		for (i=0;i<=max;i+=32)
 		{
 
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					0,\
 					height-height_per_scope+i,\
 					lo_width,\
 					height-height_per_scope+i);
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					0,\
 					height-height_per_scope-i,\
 					lo_width,\
 					height-height_per_scope-i);
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					0,\
 					height_per_scope+i,\
 					lo_width,\
 					height_per_scope+i);
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					0,\
 					height_per_scope-i,\
 					lo_width,\
@@ -95,22 +95,22 @@ void draw_scope()
 
 		for (j=0;j<lo_width/2;j+=32)
 		{
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					lo_width/2+j,\
 					height_per_scope-i,\
 					lo_width/2+j,\
 					height_per_scope+i);
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					lo_width/2-j,\
 					height_per_scope-i,\
 					lo_width/2-j,\
 					height_per_scope+i);
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					lo_width/2+j,\
 					height-height_per_scope-i,\
 					lo_width/2+j,\
 					height-height_per_scope+i);
-			gdk_draw_line(drawable,graticule_gc,\
+			gdk_draw_line(main_pixmap,graticule_gc,\
 					lo_width/2-j,\
 					height-height_per_scope-i,\
 					lo_width/2-j,\
@@ -203,76 +203,27 @@ void draw_scope()
 	switch (scope_sub_mode)
 	{
 		case DOT_SCOPE:
-			if (!use_back_pixmap)
-			{
-				/* since we are NOT using a backing
-				 * pixmap, to minimize flicker I use
-				 * a trick by writing OVER the last
-				 * trace with the background color
-				 * and then draw the new trace
-				 * this precents an expensive display
-				 * pixmap copy, at the expense of 
-				 * drawing two blocks of lines/dots 
-				 * instead of one.
-				 */
-				/* Left Chanel */
-				gdk_draw_points(drawable,\
-						main_display->style->\
-						black_gc,\
-						l_scope_points_last,\
-						lo_width);
-				/* Right Channel */
-				gdk_draw_points(drawable,\
-						main_display->style->\
-						black_gc,\
-						r_scope_points_last,\
-						lo_width);
-			}
 			/* Left Channel */
-			gdk_draw_points(drawable,\
-					main_display->style->\
-					white_gc,\
+			gdk_draw_points(main_pixmap,\
+					trace_gc,\
 					l_scope_points,\
 					lo_width);
 			/* Right Channel */
-			gdk_draw_points(drawable,\
-					main_display->style->\
-					white_gc,\
+			gdk_draw_points(main_pixmap,\
+					trace_gc,\
 					r_scope_points,\
 					lo_width);
 			break;
 
 		case LINE_SCOPE:
-			if (!use_back_pixmap)
-			{
-
-				/* clears the last one (NO backing pixmap
-				 * see comment above for info
-				 */
-				/* Left Channel */
-				gdk_draw_lines(drawable,\
-						main_display->style->\
-						black_gc,\
-						l_scope_points_last,\
-						lo_width);
-				/* RIGHT Channel scope */
-				gdk_draw_lines(drawable,\
-						main_display->style->\
-						black_gc,\
-						r_scope_points_last,\
-						lo_width);
-			}
-
 			/* Left Channel */
-			gdk_draw_lines(drawable,\
-					main_display->style->\
-					white_gc,\
+			gdk_draw_lines(main_pixmap,\
+					trace_gc,\
 					l_scope_points,\
 					lo_width);
 			/* RIGHT Channel scope */
-			gdk_draw_lines(drawable,\
-					main_display->style->\
-					white_gc,\
+			gdk_draw_lines(main_pixmap,\
+					trace_gc,\
 					r_scope_points,\
 					lo_width);
 			break;
@@ -293,82 +244,42 @@ void draw_scope()
 				left_val++;
 			if (right_val == 0)
 				right_val++;
-			if (use_back_pixmap)
+			if (left_val < 0) /* Negative signal */
 			{
-				if (left_val < 0) /* Negative signal */
-				{
-					gdk_draw_pixmap(drawable,gc,\
-							grad[left_val+127],\
-							0,0,\
-							i,l_scope_points[i].y,\
-							1,-left_val);
-				}
-				else	/* Positive Signal (left channel)*/
-				{
-					gdk_draw_pixmap(drawable,gc,\
-							grad[left_val+127],\
-							0,0,\
-							i,height_per_scope,\
-							1,left_val);
-				}
-
-				if (right_val < 0) /*Negative Signal */
-				{
-					gdk_draw_pixmap(drawable,gc,\
-							grad[right_val+127],\
-							0,0,\
-							i,right_scope_pos\
-							+right_val,\
-							1,\
-							-right_val);
-				}
-				else /* Positive Signal */
-				{
-					gdk_draw_pixmap(drawable,gc,\
-							grad[right_val+127],\
-							0,0,\
-							i,right_scope_pos,\
-							1,right_val);
-				}
-
+				gdk_draw_pixmap(main_pixmap,gc,\
+						grad[left_val+127],\
+						0,0,\
+						i,l_scope_points[i].y,\
+						1,-left_val);
 			}
-			else	 /* NO Backing Pixmap */
+			else	/* Positive Signal (left channel)*/
 			{
-				if (left_val < 0) /* Negative Signal */
-				{
-					gdk_draw_pixmap(drawable,gc,\
-							grad[left_val+127],\
-							0,0,\
-							i,height_per_scope\
-							+left_val,\
-							1,-left_val);
-				}
-				else	/* Posiive Signal */
-				{
-					gdk_draw_pixmap(drawable,\
-							gc,grad[left_val+127],\
-							0,0,\
-							i,height_per_scope,\
-							1,left_val);
-				}
-				if (right_val < 0) /* Negative Signal */
-				{
-					gdk_draw_pixmap(drawable,\
-							gc,grad[right_val+127],\
-							0,0,\
-							i,right_scope_pos\
-							+right_val,\
-							1,-right_val);
-				}
-				else	/* Posiive Signal */
-				{
-					gdk_draw_pixmap(drawable,\
-							gc,grad[right_val+127],\
-							0,0,\
-							i,right_scope_pos,\
-							1,right_val);
-				}
+				gdk_draw_pixmap(main_pixmap,gc,\
+						grad[left_val+127],\
+						0,0,\
+						i,height_per_scope,\
+						1,left_val);
 			}
+
+			if (right_val < 0) /*Negative Signal */
+			{
+				gdk_draw_pixmap(main_pixmap,gc,\
+						grad[right_val+127],\
+						0,0,\
+						i,right_scope_pos\
+						+right_val,\
+						1,\
+						-right_val);
+			}
+			else /* Positive Signal */
+			{
+				gdk_draw_pixmap(main_pixmap,gc,\
+						grad[right_val+127],\
+						0,0,\
+						i,right_scope_pos,\
+						1,right_val);
+			}
+
 		}
 	}
 	for (i=0;i<nsamp;i++)
@@ -384,10 +295,7 @@ void draw_scope()
 		last_buf_r[i] = (last_buf_r[i]>>1) + cur_buf_r[(i)+scope_begin_r/convolve_factor];
 	}
 
-	if (use_back_pixmap)
-	{
-		gdk_window_clear(main_display->window);
-	}
+	gdk_window_clear(main_display->window);
 
 	gdk_threads_leave();
 

@@ -18,11 +18,8 @@
 #include <globals.h>
 #include <protos.h>
 #include <math.h>
+#include <defines.h>
 #include <gtk/gtk.h>
-
-#define RASTER_COLOR_RED 	80
-#define RASTER_COLOR_GREEN	20
-#define RASTER_COLOR_BLUE	10	
 
 void init_gc(GtkWidget *widget)
 {
@@ -30,6 +27,7 @@ void init_gc(GtkWidget *widget)
 	GdkGCValues values;
 	GdkColor arc_color;
 	GdkColor graticule_color;
+	GdkColor trace_color;
 	GdkColor latency_monitor;
 
 	cmap = gtk_widget_get_colormap(main_win_ptr);
@@ -43,6 +41,19 @@ void init_gc(GtkWidget *widget)
 	/*    values.function = GDK_XOR; */
 
 	graticule_gc = gdk_gc_new_with_values(widget->window,
+			&values,
+			GDK_GC_FOREGROUND);
+
+
+	trace_color.red = TRACE_COLOR_RED << 8;
+	trace_color.green = TRACE_COLOR_GREEN << 8;
+	trace_color.blue = TRACE_COLOR_BLUE << 8;
+	gdk_color_alloc(cmap, &trace_color);
+
+	values.foreground = trace_color;
+	/*    values.function = GDK_XOR; */
+
+	trace_gc = gdk_gc_new_with_values(widget->window,
 			&values,
 			GDK_GC_FOREGROUND);
 

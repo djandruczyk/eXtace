@@ -35,18 +35,18 @@ void update_time_markers()
 		if (nsamp < 4096)
 			space = space/2.0;
 
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,height-time_border,
 				width-horiz_spec_start,time_border);
 
 		for (x=start; x > 0; x-= space)
 		{
-			gdk_draw_line(drawable,main_display->style->white_gc,
+			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x,height-time_border+3,x,height-time_border/2);
 			for (y=1; y < 10;y++)
 			{
-				gdk_draw_line(drawable,main_display->style->white_gc,
+				gdk_draw_line(main_pixmap,main_display->style->white_gc,
 						x-(y*space/10),height-time_border+2,x-(y*space/10),height-time_border+6);
 			}
 		}
@@ -57,24 +57,23 @@ void update_time_markers()
 		space = (gint)((((float)(RATE)/(float)nsamp))*2.0*(float)tape_scroll);
 		if (nsamp < 4096)
 			space = space/2.0;
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, width-time_border,0,
 				time_border,height-vert_spec_start);
 
 		for (y=start; y > 0; y-= space)
 		{
-			gdk_draw_line(drawable,main_display->style->white_gc,
+			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					width-time_border+3,y,width-time_border/2,y);
 			for (x=1; x < 10;x++)
 			{
-				gdk_draw_line(drawable,main_display->style->white_gc,
+				gdk_draw_line(main_pixmap,main_display->style->white_gc,
 						width-time_border+2,y-(x*space/10),width-time_border+6,y-(x*space/10));
 			}
 		}
 	}
-	if(use_back_pixmap)
-		gdk_window_clear(main_display->window);
+	gdk_window_clear(main_display->window);
 }
 
 void buffer_area_update(void)
@@ -125,7 +124,7 @@ void update_freq_markers()
 		return;
 	if (clear_display == 1)
 	{
-		gdk_draw_rectangle(drawable,
+		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,0,
 				width,height);
@@ -145,7 +144,7 @@ void update_freq_markers()
 
 		if (!clear_display)
 		{
-			gdk_draw_rectangle(drawable,
+			gdk_draw_rectangle(main_pixmap,
 					main_display->style->black_gc,
 					TRUE,bord-5,0,
 					2*l_length+35,height);
@@ -164,7 +163,7 @@ void update_freq_markers()
 			x2 = x1 + l_length;
 			y2 = y1;
 
-			gdk_draw_line(drawable,main_display->style->white_gc,
+			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y1,x2,y2);
 
 			g_snprintf(buff,10,"%i kHz",i);
@@ -172,7 +171,7 @@ void update_freq_markers()
 			y2 += gdk_text_height(main_display->style->font,
 					buff,
 					strlen(buff))/2;
-			gdk_draw_text(drawable,main_display->style->font,
+			gdk_draw_text(main_pixmap,main_display->style->font,
 					main_display->style->white_gc,
 					x2,y2,
 					buff,
@@ -192,7 +191,7 @@ void update_freq_markers()
 		}
 		if (!clear_display)
 		{
-			gdk_draw_rectangle(drawable,
+			gdk_draw_rectangle(main_pixmap,
 					main_display->style->black_gc,
 					TRUE,0,bord-5,
 					width,2*l_length+35);
@@ -216,7 +215,7 @@ void update_freq_markers()
 			x2 = x1;
 			y2 = y1+l_length;
 
-			gdk_draw_line(drawable,main_display->\
+			gdk_draw_line(main_pixmap,main_display->\
 					style->white_gc,\
 					x1,y1,x2,y2);
 
@@ -226,18 +225,17 @@ void update_freq_markers()
 					style->font,
 					buff,
 					strlen(buff));
-			gdk_draw_text(drawable,main_display->style->font,
+			gdk_draw_text(main_pixmap,main_display->style->font,
 					main_display->style->white_gc,
 					x2,y2,
 					buff,
 					strlen(buff));
 			y2 += gdk_text_height(main_display->style->font,
 					buff,strlen(buff));
-			gdk_draw_line(drawable,main_display->style->white_gc,
+			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y2,x1,y2+l_length);
 
 		}
 	}
-	if (use_back_pixmap)
-		gdk_window_clear(main_display->window);
+	gdk_window_clear(main_display->window);
 }

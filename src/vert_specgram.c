@@ -33,9 +33,9 @@ void draw_vert_specgram()
 	gdk_threads_enter();
 	if (display_markers)
 	{
+		update_freq_markers();
 		clear_display = 0;
 		update_time_markers();
-		update_freq_markers();
 		display_markers = 0;
 	}
 	if (count >= 30)
@@ -43,13 +43,13 @@ void draw_vert_specgram()
 		display_markers=1;
 		count=0;
 	}
-	gdk_window_copy_area(drawable,gc,
+	gdk_window_copy_area(main_pixmap,gc,
 			0,0,
-			drawable,
+			main_pixmap,
 			0,tape_scroll,
 			active_drawing_area,
 			height-vert_spec_start);
-	gdk_draw_rectangle(drawable,main_display->style->black_gc,
+	gdk_draw_rectangle(main_pixmap,main_display->style->black_gc,
 			TRUE,
 			0,	
 			height-vert_spec_start+50,	
@@ -60,13 +60,13 @@ void draw_vert_specgram()
 
 	cl.pixel=colortab[16][0];
 	gdk_gc_set_foreground(gc,&cl);
-	gdk_draw_rectangle(drawable,gc,
+	gdk_draw_rectangle(main_pixmap,gc,
 			TRUE,
 			0,
 			height-vert_spec_start-tape_scroll,
 			active_drawing_area,
 			tape_scroll);
-	gdk_draw_line(drawable,gc,
+	gdk_draw_line(main_pixmap,gc,
 			0,
 			height-y_border,
 			active_drawing_area,
@@ -82,21 +82,20 @@ void draw_vert_specgram()
 
 		gdk_gc_set_foreground(gc,&cl);
 
-		gdk_draw_line(drawable,gc,
+		gdk_draw_line(main_pixmap,gc,
 				i,
 				height-vert_spec_start-tape_scroll,
 				i,
 				height-vert_spec_start);
 
-		gdk_draw_line(drawable,gc,
+		gdk_draw_line(main_pixmap,gc,
 				i,
 				height-y_border,
 				i,
 				height-y_border-pip_arr[i]);
 	}
 
-	if (use_back_pixmap)
-		gdk_window_clear(main_display->window);
+	gdk_window_clear(main_display->window);
 
 	gdk_threads_leave();
 }

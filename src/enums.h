@@ -13,6 +13,9 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#ifndef _ENUMS_H_
+#define _ENUMS_H_ 1
+
 typedef enum
 {
 	HAMMING		= 1 << 1,
@@ -25,3 +28,4 @@ typedef enum
 	RECTANGULAR	= 1 << 8
 }WindowFunction;
 
+#endif

@@ -13,6 +13,8 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#ifndef _DEFAULTS_H_
+#define _DEFAULTS_H_ 1
 
 const float	lag_min = 1.00;		/* Minimum lag allowed */
 const float	noise_floor_min = -100.0;
@@ -25,3 +27,4 @@ const float	peak_decay_max = 20.0;
 const float	refresh_max = 101.0;
 const float	tape_scroll_max = 12.0;
 
+#endif

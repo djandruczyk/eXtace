@@ -16,7 +16,7 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 #ifndef EXTACE_CONFIGFILE_H
-#define EXTACE_CONFIGFILE_H
+#define EXTACE_CONFIGFILE_H 1
 
 #include <glib.h>
 

@@ -18,7 +18,7 @@
  */
 
 #ifndef CONVOLVE_H
-#define CONVOLVE_H
+#define CONVOLVE_H 1
 
 #ifdef __cplusplus
 extern "C" {

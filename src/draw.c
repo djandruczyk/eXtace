@@ -34,6 +34,8 @@
  * gfloat elapsed_time_usec;
  * gfloat elapsed;
 */
+
+extern GtkWidget *stars; /* From stars.c */
  
 void draw_start()
 {
