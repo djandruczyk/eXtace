@@ -1,0 +1,15 @@
+
+If  a pointer is declared as a short *
+then incrementing it by one actually moves forward in the buffer by
+16 bits (1 short)
+
+When malloc'ing a buffer it doesn't matter how you allocate it, you just
+have to do it in  bytes,  so make sure you are using the necessary conversions
+if you like to think of your data in anything but bytes.  Beware that when
+referencing your buffer via a pointer that is not a char *, that each increment
+or decrement will move in the buffer by that size of that pointerss TYPE.
+if the pointer is a char * you move by 8 bits, if its a short * you move by
+16 bits, if its an int * you move by 32 bits. above that varies by platform
+ (definitions of long and long long are not the same on intel/alpha/sparce in
+ all cases..)
+
