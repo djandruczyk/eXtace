@@ -202,12 +202,26 @@ int setup_options()
 			GTK_SIGNAL_FUNC(set_data_source),(gpointer)ESD);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	hbox = gtk_hbox_new(FALSE,0);
 	button = gtk_radio_button_new_with_label(group, "Use COMEDI");
-	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	if (data_source == COMEDI)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+#ifndef HAVE_COMEDI
+	gtk_widget_set_sensitive(button,FALSE);
+#endif
 	gtk_signal_connect(GTK_OBJECT(button),"toggled",
 			GTK_SIGNAL_FUNC(set_data_source),(gpointer)COMEDI);
+	if(comedi_window_open)
+		comedi_button = gtk_toggle_button_new_with_label("Close control window");
+	else
+		comedi_button = gtk_toggle_button_new_with_label("Open control window");
+
+	gtk_widget_set_sensitive(comedi_button,data_source == COMEDI);
+	gtk_box_pack_start(GTK_BOX(hbox),comedi_button,TRUE,TRUE,0);
+	gtk_signal_connect(GTK_OBJECT(comedi_button),"toggled",
+			GTK_SIGNAL_FUNC(comedi_control_window_toggle),NULL);
+	gtk_container_add(GTK_CONTAINER(sub_vbox), hbox);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group, "Use ARTS");

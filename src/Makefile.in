@@ -105,7 +105,7 @@ sweep_LDADD = -lm
 
 bin_PROGRAMS = extace
 
-extace_SOURCES =  	Makefile 	logo.xpm 	2d_eq.c 	buttons.c 	color_win.c 	configfile.c 	convolve.c 	dir.c 	draw.c 	events.c 	gc_maker.c 	horiz_specgram.c 	init.c 	input.c 	input_processing.c 	land3d.c 	main.c 	markers.c 	options.c 	reducer.c 	scope.c 	spike_3d.c 	stars.c 	vert_specgram.c 	win_func.c
+extace_SOURCES =  	Makefile 	logo.xpm 	2d_eq.c 	buttons.c 	color_win.c 	comedi_input.c 	configfile.c 	convolve.c 	dir.c 	draw.c 	events.c 	gc_maker.c 	horiz_specgram.c 	init.c 	input.c 	input_processing.c 	land3d.c 	main.c 	markers.c 	options.c 	reducer.c 	scope.c 	spike_3d.c 	stars.c 	vert_specgram.c 	win_func.c
 
 
 extace_LDADD = @EFENCE@ @GTK_LIBS@ @ESD_LIBS@ @EXTRA_LIBS@ @ALSA_LIBS@ -lgdk_imlib 
@@ -133,12 +133,13 @@ DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 extace_OBJECTS =  2d_eq.$(OBJEXT) buttons.$(OBJEXT) color_win.$(OBJEXT) \
-configfile.$(OBJEXT) convolve.$(OBJEXT) dir.$(OBJEXT) draw.$(OBJEXT) \
-events.$(OBJEXT) gc_maker.$(OBJEXT) horiz_specgram.$(OBJEXT) \
-init.$(OBJEXT) input.$(OBJEXT) input_processing.$(OBJEXT) \
-land3d.$(OBJEXT) main.$(OBJEXT) markers.$(OBJEXT) options.$(OBJEXT) \
-reducer.$(OBJEXT) scope.$(OBJEXT) spike_3d.$(OBJEXT) stars.$(OBJEXT) \
-vert_specgram.$(OBJEXT) win_func.$(OBJEXT)
+comedi_input.$(OBJEXT) configfile.$(OBJEXT) convolve.$(OBJEXT) \
+dir.$(OBJEXT) draw.$(OBJEXT) events.$(OBJEXT) gc_maker.$(OBJEXT) \
+horiz_specgram.$(OBJEXT) init.$(OBJEXT) input.$(OBJEXT) \
+input_processing.$(OBJEXT) land3d.$(OBJEXT) main.$(OBJEXT) \
+markers.$(OBJEXT) options.$(OBJEXT) reducer.$(OBJEXT) scope.$(OBJEXT) \
+spike_3d.$(OBJEXT) stars.$(OBJEXT) vert_specgram.$(OBJEXT) \
+win_func.$(OBJEXT)
 extace_DEPENDENCIES = 
 extace_LDFLAGS = 
 sweep_SOURCES = sweep.c
@@ -159,12 +160,12 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 TAR = tar
 GZIP_ENV = --best
 DEP_FILES =  .deps/2d_eq.P .deps/buttons.P .deps/color_win.P \
-.deps/configfile.P .deps/convolve.P .deps/dir.P .deps/draw.P \
-.deps/events.P .deps/gc_maker.P .deps/horiz_specgram.P .deps/init.P \
-.deps/input.P .deps/input_processing.P .deps/land3d.P .deps/main.P \
-.deps/markers.P .deps/options.P .deps/reducer.P .deps/scope.P \
-.deps/spike_3d.P .deps/stars.P .deps/sweep.P .deps/vert_specgram.P \
-.deps/win_func.P
+.deps/comedi_input.P .deps/configfile.P .deps/convolve.P .deps/dir.P \
+.deps/draw.P .deps/events.P .deps/gc_maker.P .deps/horiz_specgram.P \
+.deps/init.P .deps/input.P .deps/input_processing.P .deps/land3d.P \
+.deps/main.P .deps/markers.P .deps/options.P .deps/reducer.P \
+.deps/scope.P .deps/spike_3d.P .deps/stars.P .deps/sweep.P \
+.deps/vert_specgram.P .deps/win_func.P
 SOURCES = $(extace_SOURCES) sweep.c
 OBJECTS = $(extace_OBJECTS) sweep.$(OBJEXT)
 

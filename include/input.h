@@ -14,9 +14,29 @@
 #ifndef __INPUT_H__
 #define __INPUT_H__
 
-#include <gtk/gtk.h>
+#include <config.h>
+#include <enums.h>
+#include <fcntl.h>
+#include <gtk/gtk.h>  /* needed for error window */
+#ifdef HAVE_ESD
+#include <esd.h>
+#endif
+#ifdef HAVE_COMEDI
+#include <comedilib.h>
+#endif
+#ifdef HAVE_PTHREAD_H
+#include <pthread.h>
+#endif
 
-typedef gshort ring_type;
+/* 
+   Input data type.  Assume that it is a 2 byte integer.
+   Since COMEDI gives samples of type sampl_t = unsigned short,
+   we need a type conversion for ringbuffer
+*/
+
+typedef short ring_type;
+#define INPUT_RING(A) (input_unsigned?((unsigned short *) ringbuffer)[A]: \
+                      ((signed short *) ringbuffer)[A])
 
 /* 
    Data ring buffer is shared globally,
@@ -29,15 +49,16 @@ typedef gshort ring_type;
 */
 
 ring_type *ringbuffer; /* Array of raw audio data from input source */
+int input_unsigned;    /* Flag whether input data is unsigned vs. signed */
 int ring_end;          /* size of ring buffer in total samples */
 int ring_pos;          /* offset of the most recent sample in ringbuffer */
 int ring_remainder;    /* if partial sample has been read, leftover bytes */
-int ring_ptr_size;     /* size, in bytes, of a sample */ 
 int ring_channels;     /* number of channels being read into input ring 
 			  This should be set with update_ring_channels(...); */
 float ring_rate;       /* samples read per second in each channel */
                        /* eventually, this should take over the functionality
 		       of RATE */
+
 
 /* Prototypes */
 int input_thread_starter(int );
@@ -47,14 +68,14 @@ int open_datasource(DataSource );
 int close_datasource(int );
 int update_ring_channels(int );
 void error_close_cb(GtkWidget *, gpointer * );
-
-int comedi_device_control_open(int handle_number);
-int comedi_device_control_close(GtkWidget *widget, gpointer *handle);
+#ifdef HAVE_COMEDI
+comedi_t *comedi_dev(int handle);
+int *comedi_subdevice(int handle);
+#endif
 /* Prototypes */
 
-
-
 #endif
+
 
 
 

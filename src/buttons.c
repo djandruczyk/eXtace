@@ -27,6 +27,7 @@
 #include <logo.xpm>
 #include <markers.h>
 #include <input.h>
+#include <comedi_input.h>
 #include <stars.h>
 #include <unistd.h>
 
@@ -163,6 +164,8 @@ gint set_data_source(GtkWidget *widget, gpointer *data)
   
   if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
     draw_stop();
+    if(data_source == COMEDI && comedi_window_open)
+	    comedi_device_control_close(widget,NULL);
     input_thread_stopper(data_handle);
     close_datasource(data_handle);
     data_source = (DataSource) data;
@@ -173,8 +176,34 @@ gint set_data_source(GtkWidget *widget, gpointer *data)
 	input_thread_starter(data_handle);
 	draw_start();
       }
+    gtk_widget_set_sensitive(comedi_button,data_source == COMEDI);
+    if(data_source == COMEDI)
+	    gtk_toggle_button_set_active(
+		    GTK_TOGGLE_BUTTON(comedi_button),
+		    comedi_window_open);
+    ring_rate_changed();
   }
   return TRUE;
+}
+
+gint comedi_control_window_toggle(GtkWidget *widget, gpointer *data)
+{ 
+	static GtkWidget *window;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) /* its pressed */
+	{
+		window=comedi_device_control_open(data_handle);
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(widget)->child),
+						"Close control window");
+		comedi_window_open = TRUE;
+	}
+	else
+	{
+		comedi_device_control_close(widget,NULL);
+		gtk_label_set_text(GTK_LABEL(GTK_BIN(widget)->child),
+						"Open control window");
+		comedi_window_open = FALSE;
+	}
+	return TRUE;
 }
 
 gint set_window_width(GtkWidget *widget, gpointer *data)
@@ -331,6 +360,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 						"Resume Display");
 				paused = TRUE;
 				draw_stop();
+				input_thread_stopper(data_handle);
 				break;
 
 			default:
@@ -420,7 +450,11 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 						(widget)->child),
 						"Pause Display");
 				paused = FALSE;
-				draw_start();
+				if (data_handle >= 0)
+				{
+					input_thread_starter(data_handle);
+					draw_start();
+				}
 				break;
 			default:
 				break;

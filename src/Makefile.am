@@ -21,6 +21,7 @@ extace_SOURCES = \
 	2d_eq.c \
 	buttons.c \
 	color_win.c \
+	comedi_input.c \
 	configfile.c \
 	convolve.c \
 	dir.c \
@@ -51,7 +52,7 @@ LIBS= -lpthread
 COMMON_FLAGS = @PFLAGS@ @DFLAGS@ 
 
 CFLAGS += $(COMMON_FLAGS) -Wall 
-	
+
 CLEANFILES = *~ core* .deps/* gmon.out nohup.out -r .deps
 
 EXTRA_DIST = extace.desktop Colormap-format

@@ -107,13 +107,7 @@ void split_and_decimate()
 	gint end_offset=0;
 	gint count;
 	gint j = 0;
-	/* 
-	   Position of center of new data set.
-	   It is possible that ring_end is not a multiple of
-	   ring_channels.
-	   We need the old value so that channels are not shifted.
-	 */
-	static gint virtual_centerpoint=0;
+	gint virtual_centerpoint;
 	gint i,k;
 	gfloat cur_time=0;
 	gfloat input_offset_lag=0;
@@ -148,15 +142,11 @@ void split_and_decimate()
 	 */
 
 	/* 
-	   Deley in number of samples.
+	   Delay in number of samples.
 	   Lag is in milliseconds from the options panel.
 	   Need to add another nsamp/2 so that we don't read
 	   past the newest points in the ring buffer.
 	 */
-
-#if 0
-	printf("nsamp=%i, ring_rate=%g, lag=%i\n",nsamp,ring_rate,lag);
-#endif
 	delay = nsamp/2+ring_rate*((float) lag)/1000.0;
 
 	draw_win_time_last = draw_win_time;
@@ -178,7 +168,6 @@ void split_and_decimate()
 				+(draw_win_time.tv_usec/1000000.0))
 			-(input_arrival.tv_sec
 				+(input_arrival.tv_usec/1000000.0)))*1000;
-
 
 	/* Need this in samples not in milliseconds.... */
 	input_offset_delay = ring_rate*((float) input_offset_lag)/1000.0;
@@ -204,8 +193,6 @@ void split_and_decimate()
 	/* this assumes ring_end is a multiple of ring_channels */
 	virtual_centerpoint -= virtual_centerpoint%ring_channels;
 
-
-
 #if 0  /* debug print */
 	printf("delay=%i, input_offset_delay=%i,"
 			" ring position %i centerpoint=%i\n",
@@ -224,20 +211,17 @@ void split_and_decimate()
 			ring_channels*(nsamp*decimation_factor/2);
 	} 
 	else
-	{
 		fprintf(stderr,__FILE__":  invalid decimation_factor=%i\n",
 				decimation_factor);
-	}
+
 	/* Handle the condition of reverse loop around */
 	while (start_offset < 0)	
-	{
 		start_offset += ring_end;
-	}
+
 	/* handle condtion of endpoint being past end of buffer, loop around */
 	while (end_offset > ring_end)	
-	{
 		end_offset -= ring_end;
-	}
+
 	/* copy to buffers section 
 	 * we find our position in the ring to copy from above, and 
 	 * copy the data to the audio_left and right buffers as requested
@@ -263,11 +247,11 @@ void split_and_decimate()
 					   number of scope channels */
 					/* for scope left channel */
 					if(k==0)
-						audio_left[count]=ringbuffer[i+k];
+						audio_left[count] = INPUT_RING(i+k);
 
 					/* for scope right channel */
 					if(k==1)
-						audio_right[count]=ringbuffer[i+k];
+						audio_right[count] = INPUT_RING(i+k);
 				}
 				i += ring_channels*decimation_factor;
 				while(i > ring_end)
@@ -284,7 +268,7 @@ void split_and_decimate()
 					for(count=0, i=start_offset; count<nsamp; count++)
 					{
 						raw_fft_in[count] = datawindow[count]*
-							(double) (ringbuffer[i] - ringbuffer[i+1])/2.0;
+							(INPUT_RING(i) - INPUT_RING(i+1))/2.0;
 						i += ring_channels*decimation_factor; 
 						while(i>ring_end) i -= ring_end;
 					}
@@ -293,8 +277,9 @@ void split_and_decimate()
 					if(ring_channels<2)break;  /* Fix! error condition */
 					for(count=0, i=start_offset; count<nsamp; count++)
 					{
+						/* no need for (double) type cast */
 						raw_fft_in[count] = datawindow[count]*
-							(double) (ringbuffer[i] + ringbuffer[i+1])/2.0;
+						  (INPUT_RING(i) + INPUT_RING(i+1))/2.0;
 						i += ring_channels*decimation_factor; 
 						while(i > ring_end) 
 							i -= ring_end;
@@ -305,7 +290,7 @@ void split_and_decimate()
 					for(count=0, i=start_offset; count<nsamp; count++)
 					{
 						raw_fft_in[count] = datawindow[count]*
-							ringbuffer[i];
+							INPUT_RING(i);
 						i += ring_channels*decimation_factor; 
 						while(i > ring_end)
 							i -= ring_end;
@@ -316,7 +301,7 @@ void split_and_decimate()
 					for(count=0, i=start_offset; count<nsamp; count++)
 					{
 						raw_fft_in[count] = datawindow[count]*
-							ringbuffer[i+1];
+							INPUT_RING(i+1);
 						i += ring_channels*decimation_factor; 
 						while(i > ring_end)
 							i -= ring_end;
@@ -451,9 +436,3 @@ void split_and_decimate()
 	}
 
 }
-
-
-
-
-
-

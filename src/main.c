@@ -248,11 +248,15 @@ int main(int argc, char **argv)
 		update_pointer();
 	}
 
-	if ((data_handle=open_datasource(data_source)) != -1)
+	if ((data_handle=open_datasource(data_source)) >= 0)
 	  {
 	    input_thread_starter(data_handle);
 	    draw_start();
 	  }
+	if(data_source == COMEDI)
+		gtk_toggle_button_set_active(
+			GTK_TOGGLE_BUTTON(comedi_button), 
+			comedi_window_open);
 	if (mode == STARS)/* gotta emit it by hand due to config file */
 		gtk_signal_emit_by_name(GTK_OBJECT(about_button),"clicked");
 	ready = 1;		/* All set */

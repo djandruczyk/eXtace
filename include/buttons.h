@@ -17,8 +17,10 @@
 #include <gtk/gtk.h>
 #include <enums.h>
 
-DataSource	data_source;	/* input source of data */
-int             data_handle;    /* handle for particular data_source */
+DataSource	data_source;  /* input source of data */
+int             data_handle;  /* handle for particular data_source */
+int      comedi_window_open;  /* flag for comedi control window open */
+GtkWidget    *comedi_button;  /* button to open comedi control window */
 
 /* Prototypes */
 void leave(GtkWidget *, gpointer *);
@@ -28,6 +30,7 @@ gint close_options(GtkWidget *, gpointer *);
 gint scope_sync_source_set(GtkWidget *, gpointer *);
 gint change_display_mode(GtkWidget *, gpointer *);
 gint set_data_source(GtkWidget *, gpointer *);
+gint comedi_control_window_toggle(GtkWidget *, gpointer *);
 gint set_window_width(GtkWidget *, gpointer *);
 gint set_fft_data_to_display(GtkWidget *, gpointer *);
 gint set_fft_size(GtkWidget *, gpointer *);

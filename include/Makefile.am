@@ -3,6 +3,7 @@ headers = \
 	2d_eq.h \
 	buttons.h \
 	color_win.h \
+	comedi_input.h \
 	configfile.h \
 	convolve.h \
 	datawindow.h \
