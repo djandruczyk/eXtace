@@ -16,14 +16,18 @@
 
 
 #include <config.h>
-#include <globals.h>
-#include <protos.h>
 #include <configfile.h>
+#include <datawindow.h>
+#include <draw.h>
+#include <enums.h>
+#include <fcntl.h>
+#include <globals.h>
+#include <init.h>
 #include <math.h>
+#include <sound.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
 
 gint major_ver;
 gint minor_ver;

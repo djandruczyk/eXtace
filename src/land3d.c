@@ -14,9 +14,9 @@
 
 #include <config.h>
 #include <globals.h>
-#include <protos.h>
-#include <math.h>
 #include <gtk/gtk.h>
+#include <land_3d.h>
+#include <math.h>
 
 
 /* See globals.h for variable declarations and DEFINES */

@@ -15,8 +15,8 @@
 
 #include <config.h>
 #include <globals.h>
-#include <protos.h>
 #include <math.h>
+#include <reducer.h>
 
 
 /* See globals.h for variable declarations and DEFINES */

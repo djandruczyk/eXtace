@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <math.h>
+#include <stars.h>
 #include <stdlib.h>
 #include <time.h>
-#include <protos.h>
 
 #define STARS_NUM 640
 

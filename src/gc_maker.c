@@ -15,11 +15,11 @@
 
 
 #include <config.h> 
-#include <globals.h>
-#include <protos.h>
-#include <math.h>
 #include <defines.h>
+#include <globals.h>
+#include <gc_maker.h>
 #include <gtk/gtk.h>
+#include <math.h>
 
 void init_gc(GtkWidget *widget)
 {

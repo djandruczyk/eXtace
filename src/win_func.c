@@ -16,11 +16,12 @@
  */
 
 #include <config.h>
-#include <globals.h>
-#include <protos.h>
-#include <math.h>
-#include <gtk/gtk.h>
+#include <datawindow.h>
+#include <enums.h>
 #include <esd.h>
+#include <globals.h>
+#include <gtk/gtk.h>
+#include <math.h>
 
 void setup_datawindow(GtkWidget *widget, WindowFunction function)
 {

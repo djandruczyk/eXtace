@@ -14,19 +14,27 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#include <buttons.h>
 #include <config.h>
+#include <convolve.h>
+#include <datawindow.h>
+#include <dir.h>
+#include <draw.h>
 #include <globals.h>
-#include <protos.h>
-#include <unistd.h>
 #include <gtk/gtk.h>
+#include <init.h>
+#include <logo.xpm>
+#include <markers.h>
+#include <sound.h>
+#include <stars.h>
+#include <unistd.h>
+
 #ifdef HAVE_LIBRFFTW
 #include <rfftw.h>
 #endif
 #ifdef HAVE_LIBDRFFTW
 #include <drfftw.h>
 #endif
-#include "logo.xpm"
-#include "convolve.h"
 
 
 extern GtkWidget *stars; /* from stars.c */

@@ -12,11 +12,11 @@
  * No warranty is made or implied. You may use this program at your own risk.
  */
 
+#include <2d_eq.h>
 #include <config.h>
 #include <globals.h>
-#include <protos.h>
-#include <math.h>
 #include <gtk/gtk.h>
+#include <math.h>
 #include <string.h>
 
 

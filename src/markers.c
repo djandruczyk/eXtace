@@ -17,8 +17,8 @@
 
 #include <config.h>
 #include <globals.h>
-#include <protos.h>
 #include <gtk/gtk.h>
+#include <markers.h>
 #include <string.h>
 
 

@@ -19,9 +19,9 @@
 #include <gdk/gdkx.h>
 #include <gdk_imlib.h>
 #include <sys/time.h>
-#include "convolve.h"
+#include <convolve.h>
 #include <config.h>
-#include "defines.h"
+#include <defines.h>
 #ifdef HAVE_LIBRFFTW
 #include <rfftw.h>
 #endif
@@ -155,9 +155,6 @@ fftw_plan	plan;		/* fft plan for fftw library */
 gint		landtilt;	/* flag */
 gint		spiketilt;	/* flag */
 gint		tag;		/* Used by gdk_input_* */
-#ifdef HAVE_PTHREAD_H
-/* Temporarily depreciated.  may be needed in the future */
-#endif
 gint		landflip;	/* Invert Y axis on 3D modes */
 gint		spikeflip;	/* Invert Y axis on 3D modes */
 gint		outlined;	/* Outlined 3D landform flag */

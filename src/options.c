@@ -13,11 +13,15 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#include <buttons.h>
 #include <config.h>
-#include <globals.h>
+#include <datawindow.h>
 #include <defaults.h>
-#include <protos.h>
+#include <enums.h>
+#include <events.h>
+#include <globals.h>
 #include <gtk/gtk.h>
+#include <options.h>
 
 /* See globals.h for variable declarations and DEFINES */
 

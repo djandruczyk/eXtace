@@ -14,16 +14,17 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#include <asm/errno.h>
 #include <config.h>
+#include <esd.h>
+#include <fcntl.h>
 #include <globals.h>
-#include <protos.h>
+#include <gtk/gtk.h>
+#include <sound.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <gtk/gtk.h>
-#include <esd.h>
-#include <asm/errno.h>
+
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif

@@ -15,13 +15,13 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
-#include <config.h>
-#include <globals.h>
-#include <protos.h>
-#include <math.h>
-#include <gtk/gtk.h>
 #include <asm/errno.h>
-#include "convolve.h"
+#include <audio_processing.h>
+#include <config.h>
+#include <convolve.h>
+#include <globals.h>
+#include <gtk/gtk.h>
+#include <math.h>
 #ifdef HAVE_LIBRFFTW
 #include <rfftw.h>
 #endif 

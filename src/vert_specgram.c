@@ -14,9 +14,11 @@
 
 #include <config.h>
 #include <globals.h>
-#include <protos.h>
-#include <math.h>
 #include <gtk/gtk.h>
+#include <math.h>
+#include <markers.h>
+#include <reducer.h>
+#include <vert_specgram.h>
 
 
 /* See globals.h for variable declarations and DEFINES */

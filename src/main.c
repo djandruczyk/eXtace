@@ -13,12 +13,21 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#include <buttons.h>
+#include <color_win.h>
 #include <config.h>
+#include <datawindow.h>
+#include <dir.h>
+#include <draw.h>
+#include <enums.h>
+#include <events.h>
+#include <gc_maker.h>
 #include <globals.h>
-#include <protos.h>
-#include <math.h>
-#include <esd.h>
+#include <init.h>
 #include <gtk/gtk.h>
+#include <options.h>
+#include <sound.h>
+//#include <math.h>
 
 /* See globals.h for variable declarations and DEFINES */
 gint ready = 0;

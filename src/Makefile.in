@@ -105,7 +105,7 @@ sweep_LDADD = -lm
 
 bin_PROGRAMS = extace
 
-extace_SOURCES =  	Makefile 	logo.xpm    	stars.c 	init.c 	main.c 	draw.c 	land3d.c 	gc_maker.c 	dir.c 	audio_processing.c 	events.c 	configfile.c 	buttons.c 	color_win.c 	reducer.c 	convolve.c 	win_func.c 	2d_eq.c 	scope.c 	markers.c 	spike_3d.c 	sound.c 	vert_specgram.c 	horiz_specgram.c  	options.c 
+extace_SOURCES =  	Makefile 	logo.xpm 	2d_eq.c 	audio_processing.c 	buttons.c 	color_win.c 	configfile.c 	convolve.c 	dir.c 	draw.c 	events.c 	gc_maker.c 	horiz_specgram.c 	init.c 	land3d.c 	main.c 	markers.c 	options.c 	reducer.c 	scope.c 	sound.c 	spike_3d.c 	stars.c 	vert_specgram.c 	win_func.c
 
 
 extace_LDADD = @EFENCE@ @GTK_LIBS@ @ESD_LIBS@ @EXTRA_LIBS@ @ALSA_LIBS@ -lgdk_imlib 
@@ -132,13 +132,13 @@ PROGRAMS =  $(bin_PROGRAMS) $(noinst_PROGRAMS)
 DEFS = @DEFS@ -I. -I$(srcdir) -I..
 CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
-extace_OBJECTS =  stars.$(OBJEXT) init.$(OBJEXT) main.$(OBJEXT) \
-draw.$(OBJEXT) land3d.$(OBJEXT) gc_maker.$(OBJEXT) dir.$(OBJEXT) \
-audio_processing.$(OBJEXT) events.$(OBJEXT) configfile.$(OBJEXT) \
-buttons.$(OBJEXT) color_win.$(OBJEXT) reducer.$(OBJEXT) \
-convolve.$(OBJEXT) win_func.$(OBJEXT) 2d_eq.$(OBJEXT) scope.$(OBJEXT) \
-markers.$(OBJEXT) spike_3d.$(OBJEXT) sound.$(OBJEXT) \
-vert_specgram.$(OBJEXT) horiz_specgram.$(OBJEXT) options.$(OBJEXT)
+extace_OBJECTS =  2d_eq.$(OBJEXT) audio_processing.$(OBJEXT) \
+buttons.$(OBJEXT) color_win.$(OBJEXT) configfile.$(OBJEXT) \
+convolve.$(OBJEXT) dir.$(OBJEXT) draw.$(OBJEXT) events.$(OBJEXT) \
+gc_maker.$(OBJEXT) horiz_specgram.$(OBJEXT) init.$(OBJEXT) \
+land3d.$(OBJEXT) main.$(OBJEXT) markers.$(OBJEXT) options.$(OBJEXT) \
+reducer.$(OBJEXT) scope.$(OBJEXT) sound.$(OBJEXT) spike_3d.$(OBJEXT) \
+stars.$(OBJEXT) vert_specgram.$(OBJEXT) win_func.$(OBJEXT)
 extace_DEPENDENCIES = 
 extace_LDFLAGS = 
 sweep_SOURCES = sweep.c

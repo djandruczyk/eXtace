@@ -13,10 +13,10 @@
  */
 
 #include <config.h>
+#include <dir.h>
 #include <globals.h>
-#include <protos.h>
-#include <math.h>
 #include <gtk/gtk.h>
+#include <math.h>
 
 /* See globals.h for variable declarations and DEFINES */
 gfloat x_disp;         /* X displacement */

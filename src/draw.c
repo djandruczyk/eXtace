@@ -12,16 +12,25 @@
  * No warranty is made or implied. You may use this program at your own risk.
  */
 
+#include <2d_eq.h>
+#include <audio_processing.h>
 #include <config.h>
+#include <draw.h>
+#include <errno.h>
+#include <fcntl.h>
 #include <globals.h>
-#include <protos.h>
+#include <horiz_specgram.h>
+#include <land_3d.h>
 #include <math.h>
+#include <scope.h>
+#include <spike_3d.h>
+#include <stars.h>
 #include <sys/ioctl.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <fcntl.h>
 #include <unistd.h>
-#include <errno.h>
+#include <vert_specgram.h>
+
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif

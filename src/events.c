@@ -16,11 +16,14 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#include <color_win.h>
 #include <config.h>
+#include <dir.h>
+#include <events.h>
 #include <globals.h>
-#include <protos.h>
-#include <math.h>
 #include <gtk/gtk.h>
+#include <math.h>
+#include <markers.h>
 
 
 gint lock_x_at;

@@ -16,10 +16,12 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#include <buttons.h>
+#include <color_win.h>
 #include <config.h>
-#include <globals.h>
-#include <protos.h>
 #include <configfile.h>
+#include <events.h>
+#include <globals.h>
 #include <gtk/gtk.h>
 #include <string.h>
 

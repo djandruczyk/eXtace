@@ -18,29 +18,29 @@ bin_PROGRAMS = extace
 extace_SOURCES = \
 	Makefile \
 	logo.xpm \
-   	stars.c \
-	init.c \
-	main.c \
-	draw.c \
-	land3d.c \
-	gc_maker.c \
-	dir.c \
+	2d_eq.c \
 	audio_processing.c \
-	events.c \
-	configfile.c \
 	buttons.c \
 	color_win.c \
-	reducer.c \
+	configfile.c \
 	convolve.c \
-	win_func.c \
-	2d_eq.c \
-	scope.c \
+	dir.c \
+	draw.c \
+	events.c \
+	gc_maker.c \
+	horiz_specgram.c \
+	init.c \
+	land3d.c \
+	main.c \
 	markers.c \
-	spike_3d.c \
+	options.c \
+	reducer.c \
+	scope.c \
 	sound.c \
+	spike_3d.c \
+	stars.c \
 	vert_specgram.c \
-	horiz_specgram.c  \
-	options.c 
+	win_func.c
 
 extace_LDADD = @EFENCE@ @GTK_LIBS@ @ESD_LIBS@ @EXTRA_LIBS@ @ALSA_LIBS@ -lgdk_imlib 
 
