@@ -78,6 +78,7 @@ void kt_stars_update_func(GtkWidget *area)
 	gfloat           a1, a2, a3;
 	GdkPixmap       *lp, *lm;
 
+	gdk_threads_enter();
 	pmap = (GdkPixmap *)gtk_object_get_data(GTK_OBJECT(area), "main_pixmap");
 	gdk_window_get_size(pmap, &w, &h);
 	gdk_window_get_size(area->window, &ww, &hh);
@@ -115,8 +116,10 @@ void kt_stars_update_func(GtkWidget *area)
 		}      
 		gtk_object_set_data(GTK_OBJECT(area), "reset", NULL);
 	}
+	gdk_threads_leave();
 	if (!gc)
 	{
+		gdk_threads_enter();
 		cmap = gtk_widget_get_colormap(area);
 		gc = gdk_gc_new(pmap);
 		black.red   = 0;
@@ -136,6 +139,7 @@ void kt_stars_update_func(GtkWidget *area)
 			cols[i].blue = cols[0].blue + (i * (cols[7].blue  - cols[0].blue) / 7);
 			gdk_color_alloc(cmap, &(cols[i]));
 		}
+		gdk_threads_leave();
 		/* random generation */
 		if (rand()%2)
 		{
@@ -160,10 +164,12 @@ void kt_stars_update_func(GtkWidget *area)
 			}
 		}
 	}
+	gdk_threads_enter();
 	gdk_window_get_size(area->window, &w, &h);
 	gdk_gc_set_foreground(gc, &black);
 	gdk_draw_rectangle(pmap, gc, 1, 0, 0, w, h);
 
+	gdk_threads_leave();
 	a1 = (sin(angle)) / 20;
 	a2 = (sin(angle * 2)) / 15;
 	a3 = (cos(angle * 3)) / 10;
@@ -171,17 +177,19 @@ void kt_stars_update_func(GtkWidget *area)
 	{
 		kt_stars_rotate_point(&(stars[i][0]), &(stars[i][1]), &(stars[i][2]),
 				a1, a2 ,a3);
-		/*
+#if  0
 		   sx = (w / 2) + (gint)(stars[i][0] / ((stars[i][2] + 600)/ 400));
 		   sy = (h / 2) + (gint)(stars[i][1] / ((stars[i][2] + 600)/ 400));
-		 */
+#else
 		sx = (w / 2) + (gint)(((gfloat)w / 256) * stars[i][0] +((stars[i][2] + 600)/ 400));
 		sy = (h / 2) + (gint)(((gfloat)w / 256) * stars[i][1] +((stars[i][2] + 600)/ 400));
+#endif
 		br = (gint)(stars[i][2] + 64) / 16;
 		if (br < 0) 
 			br = 0;
 		else if (br > 7)
 			br = 7;
+		gdk_threads_enter();
 		gdk_gc_set_foreground(gc, &(cols[7 - br]));
 		gdk_draw_line(pmap, gc, 
 				sstars[0][i][0], sstars[0][i][1], 
@@ -194,6 +202,7 @@ void kt_stars_update_func(GtkWidget *area)
 		gdk_draw_line(pmap, gc, 
 				sstars[2][i][0], sstars[2][i][1], 
 				sstars[1][i][0], sstars[1][i][1]);
+		gdk_threads_leave();
 		sstars[2][i][0] = sstars[1][i][0];
 		sstars[2][i][1] = sstars[1][i][1];
 		sstars[1][i][0] = sstars[0][i][0];
@@ -201,8 +210,10 @@ void kt_stars_update_func(GtkWidget *area)
 		sstars[0][i][0] = sx;
 		sstars[0][i][1] = sy;
 	}  
+	gdk_threads_enter();
 	lp = (GdkPixmap *)gtk_object_get_data(GTK_OBJECT(area), "logo_pmap");
 	lm = (GdkPixmap *)gtk_object_get_data(GTK_OBJECT(area), "logo_mask");
+	gdk_threads_leave();
 
 	if ((lp) && (lm))
 	{
@@ -214,7 +225,6 @@ void kt_stars_update_func(GtkWidget *area)
 		gdk_draw_pixmap(pmap, gc, lp, 0, 0, x, y, ww, hh);
 		gdk_gc_set_clip_mask(gc, NULL);
 	}
-
 	angle += 0.02;
 	gdk_window_clear(area->window);
 }
