@@ -34,7 +34,7 @@ gint buffer_area_height;
 gint dir_width;
 gint dir_height;
 gint one_to_fix = 0;
-gint pt_lock = 0;
+gboolean pt_lock = FALSE;
 
 extern gfloat xdet_start;
 extern gfloat xdet_end;
@@ -131,16 +131,16 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 							horiz_spec_start = 60;
 						if (horiz_spec_start > width)
 							horiz_spec_start = width-10;
-						display_markers = 1;
-						clear_display = 1;
+						display_markers = TRUE;
+						clear_display = TRUE;
 						break;
 					case VERT_SPECGRAM:
 						if (vert_spec_start < 120)
 							vert_spec_start = 120;
 						if (vert_spec_start > height)
 							vert_spec_start = height-10;
-						display_markers = 1;
-						clear_display = 1;
+						display_markers = TRUE;
+						clear_display = TRUE;
 						break;
 					case (SPIKE_3D):
 						update_dircontrol(dir_area);
@@ -209,7 +209,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	/* Button one released */
 	if(event->state & (GDK_BUTTON1_MASK))
 	{
-		pt_lock = 0;
+		pt_lock = FALSE;
 		one_to_fix = 0;
 #ifdef DND_DEBUG
 		g_print("BUTTON 1 RELEASED!! releasing lock\n");
@@ -259,7 +259,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 #endif
 				lock_x_at = x;	// Remember where we grabbed on.
 				lock_y_at = y;	// Remember where we grabbed on.
-				pt_lock = 1;
+				pt_lock = TRUE;
 				one_to_fix = result;
 
 			}
@@ -269,7 +269,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 				g_print("mouse is NOT close enough to an endpoint\n");
 				g_print("releasing lock\n");
 #endif
-				pt_lock = 0;
+				pt_lock = FALSE;
 				one_to_fix = 0;
 			}
 		}
@@ -538,8 +538,8 @@ void change_spec_start(gint new_pos)
 		default:
 			break;
 	}
-	display_markers = 1;
-	clear_display = 1;
+	display_markers = TRUE;
+	clear_display = TRUE;
 }
 
 void change_x_start(gint x_rel, gint y_rel)

@@ -38,10 +38,10 @@
 static gint delay;
 static gint last_start;
 static gint last_end;
+static int nsamp_sqd = nsamp*nsamp;
 
 void run_fft(void)
 {
-	int nsamp_sqd = nsamp*nsamp;
 	gdouble *real_fft_out=NULL;
 	gdouble *imag_fft_out=NULL;
 	gdouble *fft_ptr=NULL;

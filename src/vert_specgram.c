@@ -36,7 +36,7 @@ void draw_vert_specgram()
 	if (display_markers)
 	{
 		update_freq_markers();
-		clear_display = 0;
+		clear_display = FALSE;
 		display_markers = FALSE;
 	}
 	if (count >= 30)

@@ -87,7 +87,6 @@ void init()
 	nsamp = 2048;		/* number of samples per FFT/scope */
 	bands = 128;		/* to start with, should be configurable */
 	
-	bandwidth_change = 0;	/* FLAG, reset to default */
 	mode = LAND_3D;		/* default mode. (3D FFT) */
 	sub_mode_3D = FILL_3D;	/* default 3D mode */
 	scope_sub_mode = LINE_SCOPE;/* default Scope mode */
@@ -127,8 +126,8 @@ void init()
 	multiplier = 26.0;	/* Level multiplier, fft amplitude adj */
 	noise_floor = -80;	/* FFT noise floor position. (NEEDS WORK!!!) */
 	/* WON'T max out when you resize */
-	dir_win_present = 1;	/* Direction control window */
-	grad_win_present = 0;	/* Color picker window */
+	dir_win_present = TRUE;	/* Direction control window */
+	grad_win_present = FALSE;	/* Color picker window */
 	height = 480;		/* Self explanitory */
 	width  = 640;		/* Self explanitory */
 	buffer_area_height = 100;	/* Self explanitory */
@@ -146,11 +145,11 @@ void init()
 	vert_spec_start = 120;	/* 120 from BOTTOM of the screen, unconventional */
 	sync_to_left = 1;	/* default to sync to left channel */
 	sync_to_right = 0; 	/* sync to right channel */
-	sync_independant = 0;	 /* independtant sync */
-	paused = FALSE;		 /* display running */
-	low_freq = 0;		 /* Low frequency cutoff in hi-res displays */
-	high_freq = 22050;		 /* Low frequency cutoff in hi-res displays */
-	clear_display = 0;	/* Flag for markers */
+	sync_independant = 0;	/* independtant sync */
+	paused = FALSE;		/* display running */
+	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
+	high_freq = 22050;	/* Low frequency cutoff in hi-res displays */
+	clear_display = FALSE;	/* Flag for markers */
 
 	/*	Color presets (default colormap) */
 
@@ -221,7 +220,7 @@ void read_config(void)
 		cfg_read_boolean(cfgfile, "Global", "outlined", &outlined);
 		cfg_read_int(cfgfile, "Global", "sub_mode_3D", &sub_mode_3D);
 		cfg_read_int(cfgfile, "Global", "scope_sub_mode", &scope_sub_mode);
-		cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
+		cfg_read_boolean(cfgfile, "Global", "dir_win_present", &dir_win_present);
 		cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 
 		cfg_read_int(cfgfile, "Global", "window_func", &window_func);
@@ -305,7 +304,7 @@ void save_config(GtkWidget *widget)
 	cfg_write_boolean(cfgfile, "Global", "outlined", outlined);
 	cfg_write_int(cfgfile, "Global", "sub_mode_3D", sub_mode_3D);
 	cfg_write_int(cfgfile, "Global", "scope_sub_mode", scope_sub_mode);
-	cfg_write_int(cfgfile, "Global", "dir_win_present", dir_win_present);
+	cfg_write_boolean(cfgfile, "Global", "dir_win_present", dir_win_present);
 	cfg_write_int(cfgfile, "Global", "nsamp", nsamp);
 	cfg_write_int(cfgfile, "Global", "window_func", window_func);
 	cfg_write_int(cfgfile, "Global", "win_width", win_width);
@@ -351,7 +350,7 @@ void save_config(GtkWidget *widget)
 	gdk_window_get_root_origin(widget->window, &x, &y);
 	cfg_write_int(cfgfile, "Window", "main_x_origin", x);
 	cfg_write_int(cfgfile, "Window", "main_y_origin", y);
-	//    cfg_write_int(cfgfile, "Window", "grad_win_present", grad_win_present);
+	//    cfg_write_boolean(cfgfile, "Window", "grad_win_present", grad_win_present);
 	if (grad_win_present)
 	{
 		gdk_window_get_root_origin((gpointer) grad_win_ptr->window, &x, &y);

@@ -51,7 +51,7 @@ gint close_dir_win(GtkWidget *widget, gpointer *data)
 	if (dir_win_present)
 	{
 		gtk_widget_hide(dir_win);
-		dir_win_present = 0;
+		dir_win_present = FALSE;
 	}
 	return TRUE;
 }
@@ -61,7 +61,7 @@ gint close_grad_win(GtkWidget *widget, gpointer *data)
 	if (grad_win_present)
 	{
 		gtk_widget_hide(grad_win_ptr);
-		grad_win_present = 0;
+		grad_win_present = FALSE;
 	}
 	return TRUE;
 }
@@ -544,7 +544,7 @@ gint change_display_mode(GtkWidget *widget, gpointer *data)
 			gtk_widget_show(dir_win);
 			gtk_widget_set_uposition(dir_win,
 					dir_x_origin,dir_y_origin);
-			dir_win_present = 1;
+			dir_win_present = TRUE;
 		}
 		update_dircontrol(dir_area);
 	}
@@ -553,7 +553,7 @@ gint change_display_mode(GtkWidget *widget, gpointer *data)
 		if (dir_win_present)
 		{
 			gtk_widget_hide(dir_win);
-			dir_win_present = 0;
+			dir_win_present = FALSE;
 		}
 	}
 	draw_start();

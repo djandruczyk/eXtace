@@ -74,7 +74,7 @@ void update_freq_markers()
 
 	if(!ready)
 		return;
-	if (clear_display == 1)
+	if (clear_display)
 	{
 		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
@@ -84,15 +84,7 @@ void update_freq_markers()
 
 	if (mode == HORIZ_SPECGRAM)
 	{
-		if (bandwidth_change)
-		{
-			bord = width-horiz_spec_start + 5;
-			bandwidth_change = 0;
-		}
-		else
-		{
-			bord = width-horiz_spec_start + 5;
-		}
+		bord = width-horiz_spec_start + 5;
 
 		if (!clear_display)
 		{
@@ -112,7 +104,7 @@ void update_freq_markers()
 
 			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y1,x2,y2);
-			freq_mark = (((float)(num_markers-i)/(float)num_markers)*((high_freq-low_freq)/1))+(low_freq/1);
+			freq_mark = (((float)(num_markers-i)/(float)num_markers)*(high_freq-low_freq))+(low_freq/1);
 
 			if (freq_mark > 1000)
 				g_snprintf(buff,10,"%.1f Khz",freq_mark/1000.0);
@@ -133,15 +125,7 @@ void update_freq_markers()
 	}
 	else if (mode == VERT_SPECGRAM)
 	{
-		if (bandwidth_change)
-		{
-			bord = height-vert_spec_start + 5;
-			bandwidth_change = 0;
-		}
-		else
-		{
-			bord = height-vert_spec_start + 5;
-		}
+		bord = height-vert_spec_start + 5;
 		if (!clear_display)
 		{
 			gdk_draw_rectangle(main_pixmap,
@@ -161,7 +145,7 @@ void update_freq_markers()
 					style->white_gc,\
 					x1,y1,x2,y2);
 
-			freq_mark = (((float)i/(float)num_markers)*((high_freq-low_freq)/1))+low_freq;
+			freq_mark = (((float)i/(float)num_markers)*(high_freq-low_freq))+low_freq;
 			if (freq_mark > 1000)
 				g_snprintf(buff,10,"%.1f Khz",freq_mark/1000.0);
 			else
