@@ -498,36 +498,30 @@ void *esd_starter_thread(void *esd_handle)
  */
 void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 {
-  static gint last;
-  int count = 0;
-   
- read:
-  if (elements_to_get + ring_pos > ring_end)
-    {
-      /* avoid reading past end of buffer */
-      int to_read = ring_end - ring_pos;
-      /*  maybe use mmap() instead? It may be faster */
-      count = read(source,audio_ring + ring_pos,sizeof(*audio_ring)*to_read);
-      if( count <0 || count%sizeof(*audio_ring)>0 )
-	{
-		/*	printf("WRAP section, two part read\n"); */
-		/* Need to read in two parts */
-		bytes_to_read = (ring_end - ring_pos)*2;
-		count = read(source,audio_ring + ring_pos,bytes_to_read);
-		/* printf("requesting %i bytes,  Read %i bytes\n",bytes_to_read,count);  */
+	static gint last;
+	int count = 0;
+	gint bytes_to_read = 0;
+	gint ring_ptr_size = sizeof(*audio_ring);
 
+read:
+	if (elements_to_get + ring_pos > ring_end)
+	{
+		/* avoid reading past end of buffer */
+		int bytes_to_read = (ring_end - ring_pos)*ring_ptr_size;
+		/*  maybe use mmap() instead? It may be faster */
+		count = read(source,audio_ring + ring_pos,bytes_to_read);
 		if (count < bytes_to_read)
 		{
 			/* printf("Short read, %i bytes\n",count); */
 			/* printf("bytes_to_read= %i\n",bytes_to_read); */
-			elements_to_get  -= (count/2);
-			ring_pos += (count/2);	/*ELEMENTS not bytes */
+			elements_to_get  -= (count/ring_ptr_size);
+			ring_pos += (count/ring_ptr_size);	/*ELEMENTS not bytes */
 			goto read;
 		}
 		else if (count == bytes_to_read)
 		{
 			/* printf("Clean fill to end of Ring, wrapping\n"); */
-			elements_to_get -= (count/2);
+			elements_to_get -= (count/ring_ptr_size);
 			ring_pos = 0; /* WRAP */
 			/* printf("read in %i bytes to fill ring \n",count); */
 		}
@@ -536,24 +530,24 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 			printf("read overrun past end of ring, FAULT!!!\b\n"); 
 			exit (-3);
 		}
-		bytes_to_read = elements_to_get*2;
+		bytes_to_read = elements_to_get*ring_ptr_size;
 		count = read(source,audio_ring,bytes_to_read);
 		/* printf("requesting %i bytes,  Read %i bytes\n",bytes_to_read,count); */
-		ring_pos = (count/2);	/*ELEMENTS not bytes */
-		elements_to_get = nsamp/2;
+		ring_pos = (count/ring_ptr_size);	/*ELEMENTS not bytes */
+		elements_to_get = nsamp/ring_ptr_size;
 		/* printf("Wrap complete, read in %i more bytes\n",count); */
 	}
-      count /= sizeof(*audio_ring);
-      if (count == to_read) /* Clean fill to end of Ring, wrapping */
+	else 	/*normal read, no risk of wrapping the buffer */
 	{
-		bytes_to_read = elements_to_get*2;
+		bytes_to_read = elements_to_get*ring_ptr_size;
+		/* printf("Requesting %i bytes\n",bytes_to_read); */
 		count = read(source,audio_ring + ring_pos,bytes_to_read);
-		/* printf("requesting %i bytes,  Read %i bytes\n",bytes_to_read,count); */
+		/* printf("NORM read %i bytes to ring_position %i\n",count,ring_pos); */
 		if (count == bytes_to_read)
 		{
 			/* printf("Full good read\n"); */
-			ring_pos += (count/2);	/*ELEMENTS not bytes */
-			elements_to_get = nsamp/2;
+			ring_pos += (count/ring_ptr_size);	/*ELEMENTS not bytes */
+			elements_to_get = nsamp/ring_ptr_size;
 			/* printf("Normal read complete, read in %i more bytes\n",count); */
 		}
 		else if (count > bytes_to_read)
@@ -564,81 +558,41 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		else
 		{
 			/* printf("Partial good read\n"); */
-			ring_pos += (count/2);	/*ELEMENTS not bytes */
-			elements_to_get = nsamp/2;
+			ring_pos += (count/ring_ptr_size);	/*ELEMENTS not bytes */
+			elements_to_get = nsamp/ring_ptr_size ;
 			/* printf("Partial read complete, read in %i more bytes\n",count); */
 		}
 	}
-			
+
 	audio_arrival_last = audio_arrival;
 	gettimeofday(&audio_arrival, NULL);
 	//    printf("Moved %i bytes of input data\n",count);
 
-	/*printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000); */
+	//    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
 
 	if (gdk_window_is_visible(buffer_area->window))
 	{
-	  elements_to_get  -= count;
-	  ring_pos += count;
-	}
-    }
-  else 	/*normal read, no risk of wrapping the buffer */
-    {
-      count = read(source,audio_ring + ring_pos,
-		   sizeof(*audio_ring)*elements_to_get);
-      if( count <0 || count%sizeof(*audio_ring)>0 )
-	{
-	  fprintf(stderr,__FILE__":  second read error, count=%i invalid."
-		  "\n          ",count); 
-	  perror("esd_reader_thread");
-	  exit (-3);
-	}
-      count /= sizeof(*audio_ring);
-      elements_to_get  -= count;
-      ring_pos += count;
-    }
+		// Only draw it if its visible.  Why waste CPU time ???
+		gdk_threads_enter();
 
-  /* 
-     Performance question:  do I always read until I have the 
-     requested number of elements or do I just read until the buffer is empty?
-  */
-#if 1
-  if(elements_to_get>0) goto read;
-#endif
+		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
+				TRUE,
+				last, 20,
+				2,15);
 
-  elements_to_get = nsamp/2;   /* reset to default value */
-  
-  audio_arrival_last = audio_arrival;
-  gettimeofday(&audio_arrival, NULL);
-#if 0  /* debug prints */
-  printf("Moved %i elements of input data\n",count);
-  printf("-- Audio READER: current at %.6f, diff %.2fms\n", 
-	 audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,
-	 ((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-
-	  (audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
-#endif
-  if (gdk_window_is_visible(buffer_area->window))
-    {
-      // Only draw it if its visible.  Why waste CPU time ??? 
-      gdk_threads_enter();
-      
-      gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
-			 TRUE,
-			 last, 20,
-			 2,15);
-      
-      gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-			 TRUE,
-			 (float)buffer_area->allocation.width\
-			 *((float)ring_pos/(float)ring_end), 20,
-			 2,15);
-      
-      last = (float)buffer_area->allocation.width\
-	*((float)ring_pos/(float)ring_end);
-      
-      gdk_window_clear(buffer_area->window);
-      gdk_threads_leave();
-    }
+		gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
+				TRUE,
+				(float)buffer_area->allocation.width\
+				*((float)ring_pos/(float)ring_end), 20,
+				2,15);
+
+		last = (float)buffer_area->allocation.width\
+			*((float)ring_pos/(float)ring_end);
+
+		gdk_window_clear(buffer_area->window);
+		gdk_threads_leave();
+	}
+	/* unset predicate */
 }
 
 #endif
