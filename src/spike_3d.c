@@ -31,7 +31,6 @@ static gfloat y_tilt_weight = 0.0;
 static gfloat x_amplitude = 0.0;
 static gfloat y_amplitude = 0.0;
 static gfloat loc_bins_per_pip=0;
-static gfloat tmpf = 0.0;
 static gint start_x = 0;
 static gint end_x = 0;
 static gint start_y = 0;
