@@ -1,6 +1,21 @@
+2001-10-14 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Fixed numerous bugs in reducer.c so that it no longer craps out
+	  when bins_per_pip=1.0000.  Also fixed the bug of half data missing
+	  when bins_per_pip=0.5000.  Changed lag control to actually be in 
+	  milliseconds.  will make it easier when I add the proper lag
+	  compensation code later. (to allow auto-display stop when the
+	  audio stops.  (saves CPU, among other things..))  Changed the audio
+	  ring-buffer to be of a fixed size. (4 seconds of audio). Fixed
+	  the lag compensator s othat it adjusts properly when changing
+	  the FFT length, so the fft display stays in sync with the audio.
+2001-10-07 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Added variable bandwidth for hi-res displays as per users' requests.
+	  Did some rework on the reducer algoritm and the marker functions.
+	  Lots of other little fixes here and there.  Too many to mention.
+	    Released 1.6.3
 2001-09-11 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	  Incorporated all of Rolf Muellers Colormaps that he sent over. 
-	  (Thanks again...) So now everyone else can enjor them too.  Began
+	  Thanks again... So now everyone else can enjoy them too.  Began
 	  the workings of the new colormap file format.  eXtace currently
 	  understands both formats (the new format is not complete yet)
 	  Don't try to use the new format yet, until I get it written. (unless

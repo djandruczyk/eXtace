@@ -110,14 +110,17 @@ int GetFFT(void)
     index1 = (((audio_ring+ring_end - raw_ptr)/2) < nsamp) ? ((audio_ring+ring_end - raw_ptr)/2): nsamp ;
     if (index1 < nsamp)
     {
+	/* buffer loop condition */
 	index2 = nsamp - index1;
 	end = 1;
+/*	printf("Buffer looping,  index1=%i, index2=%i\n",index1,index2); */
     }
     else
 	end=0;
-//    printf("begining of ring %p, raw_ptr, %p, end %p, length %i\n",audio_ring,raw_ptr,ring_end,ring_end-audio_ring);
-//    printf("begining of ring %i, raw_ptr, %i, end %i, length %i\n",audio_ring-audio_ring,raw_ptr-audio_ring,ring_end-audio_ring,ring_end-audio_ring);
-//    printf("index1 %i, index2 %i raw_ptr %p, endpt %p\n",index1,index2,raw_ptr,ring_end);
+/*    printf("begining of ring %p, raw_ptr, %p, end %p, length %i\n",audio_ring,raw_ptr,ring_end,ring_end-audio_ring);
+ *    printf("begining of ring %i, raw_ptr, %i, end %i, length %i\n",audio_ring-audio_ring,raw_ptr-audio_ring,ring_end-audio_ring,ring_end-audio_ring);
+ *    printf("index1 %i, index2 %i raw_ptr %p, endpt %p\n",index1,index2,raw_ptr,ring_end);
+ */
 
     switch (fft_signal_source)
     {
@@ -258,7 +261,7 @@ int GetFFT(void)
 	    }
 	    break;
 	default:
-	    printf("This shouldn't happen!!!, fft_signal_source is NOT set, BUG DETECTED\n");
+	    printf("This shouldn't happen!!!, fft_signal_source is NOT set, BUG DETECTED, contact author with this information\n");
 	    break;
     }
 

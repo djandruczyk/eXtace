@@ -113,7 +113,9 @@ void create_initial_colormaps(void)
     gfloat tmp=0;
     gint temp_array[] = { \
 	/* 5 RGB triplets deterimine the color gradient */
-	/*  steps R1  G1  B1  R2  G2  B2  R3  G3  B3  R4  G4  B4  R5  G5  B5  */
+	/* more points could be used, but functions below assume only 5
+	 * so be carefull
+	 *  steps R1  G1  B1  R2  G2  B2  R3  G3  B3  R4  G4  B4  R5  G5  B5  */
 /*AuthFav*/  5,   19, 17, 18,160, 40,140,210,130, 20,240,200, 20,255,240, 80, \
 /*Autumn*/   5,  255,  0,  0,255, 64,  0,255,128,  0,255,191,  0,255,255,  0, \
 /*B&W*/	     5,    1,  1,  1, 65, 63, 65,118,113,116,182,182,188,240,241,246, \
@@ -161,6 +163,7 @@ void create_initial_colormaps(void)
 	}
 	extace_cfg_write_int(cfgfile, "General", "steps", temp_array[x++]);
 
+	/* This assumes only 5 points in above table.  be carefull */
 	for (j=1;j<=5;j++)
 	{
 	    sprintf(val,"step_%i",j);
@@ -177,8 +180,6 @@ void create_initial_colormaps(void)
 	extace_cfg_free(cfgfile);
 
 	g_free(filename);
-
-
 	i++;
     }
 }

@@ -387,6 +387,7 @@ void mem_alloc()
     pt3 = malloc(nsamp*sizeof(GdkColor));
     pt4 = malloc(nsamp*sizeof(GdkColor));
     end = malloc(nsamp*sizeof(GdkColor));
+
     /* Audio block in time domain currently being processed, size of nsamp */
     audio_data = malloc(nsamp*sizeof(gdouble));
     /* Audio block in frequency domain being processed, size of nsamp */
@@ -395,14 +396,17 @@ void mem_alloc()
     datawindow = malloc(nsamp*sizeof(gdouble));
     /* FFT after scaling/massaging, size of (nsamp+1)/2 */
     norm_fft = malloc(nsamp*sizeof(gdouble));
-    /* Main audio ringbuffer, of data after reading interleaved stereo 
-     * 16 stereo blocks worth of data.(16 bit) */
+    /* Main audio ringbuffer of data after reading interleaved stereo */
     audio_ring = malloc(BUFFER*sizeof(gshort));
-    /* Double size cause it hold left and RIGHT channels of audio interleaved*/
+
     audio_left = malloc(nsamp*sizeof(gshort));
     audio_last_l = malloc(nsamp*sizeof(gshort));
     audio_right = malloc(nsamp*sizeof(gshort));
     audio_last_r = malloc(nsamp*sizeof(gshort));
+
+    /* incoming buf ONLY used for esd, as incoming data amount is unknown
+     * when running unlinke ALSA 0.5.x callback
+     */
     incoming_buf = malloc(nsamp*8*sizeof(gshort));
     /* Display values of norm_fft, scaled for screen viewing ,
      * for low resolution fft's (LAND_3D) */
