@@ -111,22 +111,9 @@ void split_and_decimate()
 	   It is possible that ring_end is not a multiple of
 	   ring_channels.
 	   We need the old value so that channels are not shifted.
-	*/
+	 */
 	static gint virtual_centerpoint=0;
-#define NEW 1  /* try out some rewritten code */
-#if NEW /* newcode */
 	gint i,k;
-#else
-	gint endpoint_1 = 0;
-	gint endpoint_2 = 0;
-	gint looparound = 0;
-	gint index;
-	gint index2 = 0;
-	gshort *audio_left_ptr = NULL;
-	gshort *audio_right_ptr = NULL;
-	gdouble *data_win_ptr = NULL;
-	gdouble *raw_fft_in_ptr = NULL;
-#endif
 	gfloat cur_time=0;
 	gfloat audio_offset_lag=0;
 	gint audio_offset_delay=0;
@@ -163,8 +150,8 @@ void split_and_decimate()
 	   Deley in number of samples.
 	   Lag is in milliseconds from the options panel.
 	   Need to add another nsamp/2 so that we don't read
-           past the newest points in the ring buffer.
-	*/
+	   past the newest points in the ring buffer.
+	 */
 
 #if 0
 	printf("nsamp=%i, ring_rate=%g, lag=%i\n",nsamp,ring_rate,lag);
@@ -197,12 +184,12 @@ void split_and_decimate()
 
 	/* 
 	   virtual_centerpoint represents the "center" of the fft 
-           that we want to run.
+	   that we want to run.
 
 	   Set pointer to be offset from the beginning of the ring + the 
 	   position of the audio reader thread + the buffer size - the 
 	   time delay (lag compensation).  
-	*/
+	 */
 
 	virtual_centerpoint = ring_pos-(delay-audio_offset_delay)*ring_channels;
 	/* If the pointer is out of bounds, i.e. below ringbuffer, or after
@@ -219,10 +206,10 @@ void split_and_decimate()
 
 
 #if 0  /* debug print */
-	  printf("delay=%i, audio_offset_delay=%i,"
-		 " ring position %i centerpoint=%i\n",
-		 delay,audio_offset_delay,ring_pos,
-		 virtual_centerpoint);  
+	printf("delay=%i, audio_offset_delay=%i,"
+			" ring position %i centerpoint=%i\n",
+			delay,audio_offset_delay,ring_pos,
+			virtual_centerpoint);  
 #endif
 
 	if (decimation_factor < 1)
@@ -238,7 +225,7 @@ void split_and_decimate()
 	else
 	{
 		fprintf(stderr,__FILE__":  invalid decimation_factor=%i\n",
-			decimation_factor);
+				decimation_factor);
 	}
 	/* Handle the condition of reverse loop around */
 	while (start_offset < 0)	
@@ -250,36 +237,6 @@ void split_and_decimate()
 	{
 		end_offset -= ring_end;
 	}
-#if !NEW
-	data_win_ptr = datawindow;
-	raw_fft_in_ptr = raw_fft_in;
-	audio_left_ptr = audio_left;
-	audio_right_ptr = audio_right;
-
-	/* EASIEST case, no loop handling necessary */
-	if (start_offset < end_offset)
-	{
-		index = start_offset;	/* Start at the right location */
-		endpoint_1 = end_offset;
-		looparound = 0;		/* don't need to loop around */
-	}
-	else
-	{	/* we need to loop around, handle it properly */
-		index = start_offset;
-		endpoint_1 = ring_end;
-		/* since we may end short of the end of the buffer, we
-		 * need to offset properly after the wraparound, otherwaise
-		 * we'll get one too many samples, and segfault. 
-		 */
-		if ((endpoint_1-start_offset)%(ring_channels*decimation_factor))
-		{
-			index2 = (ring_channels*decimation_factor)\
-				- (endpoint_1-start_offset)%(ring_channels*decimation_factor);
-		}
-		endpoint_2 = end_offset;
-		looparound = 1;
-	}
-#endif
 	/* copy to buffers section 
 	 * we find our position in the ring to copy from above, and 
 	 * copy the data to the audio_left and right buffers as requested
@@ -288,238 +245,90 @@ void split_and_decimate()
 	 * pure speed, and allows us to use a convolution on any size
 	 * of datablocks, unless latency is set extremely low
 	 * we increment our index by "ring_channels*decimation_factor",  
-         * because the data is interleaved, the ring_channels makes sure we 
-	 don't swap channels 
-	 by accident and the decimation_factor acts to essentially change 
-	 the scope's effective sweeep rate, even though it updates at a 
-	 constant speed. (decimation acts like resampling)
+	 * because the data is interleaved, the ring_channels makes sure we 
+	 * don't swap channels by accident and the decimation_factor acts 
+	 * to essentially change the scope's effective sweeep rate, even 
+	 * though it updates at a constant speed. (decimation acts like 
+	 * resampling)
 	 */
 
 	switch(mode){
-	case SCOPE:
-#if NEW   /* newcode; for numerical stuff, fortran style is better :-) */
-		for(i=start_offset, count=0; count<nsamp; count++)
-		{
-			for(k=0; k<ring_channels; k++)
+		case SCOPE:
+			for(i=start_offset, count=0; count<nsamp; count++)
 			{
-				
-				/* This will change if we generalize 
-				   number of scope channels */
-				/* for scope left channel */
-				if(k==0)
-					audio_left[count]=ringbuffer[i+k];
-				
-				/* for scope right channel */
-				if(k==1)
-					audio_right[count]=ringbuffer[i+k];
-			}
-			i += ring_channels*decimation_factor;
-			while(i>ring_end)i -= ring_end;
-		}
-	
-#else  /* oldcode */
-		while (index < endpoint_1)
-		{
-			/* for scope left channel */
-			if(ring_channels>0)
-			{
-				*audio_left_ptr=((short)*(ringbuffer\
-							  +index));
-				audio_left_ptr++;
-			}
-			
-			/* for scope right channel */
-			if(ring_channels>1)
-			{
-				*audio_right_ptr=((short)*(ringbuffer\
-							   +index+1));
-				audio_right_ptr++;
-			}
-			
-			index += ring_channels*decimation_factor; 
-			count++;
-		}
-		if (looparound)
-		{	
-			while (index2 < endpoint_2)
-			{
-				/* for scope left channel */
-				if(ring_channels>0)
+				for(k=0; k<ring_channels; k++)
 				{
-					*audio_left_ptr=((short)*(ringbuffer\
-								  +index2));
-					audio_left_ptr++;
-				}
-				
-				/* for scope right channel */
-				if(ring_channels>1)
-				{
-					*audio_right_ptr=((short)*(ringbuffer\
-								   +index2+1));
-					audio_right_ptr++;
-				}
-				
-				index2 += ring_channels*decimation_factor; 
-				count++;
-			}
-		}
-#endif
-		break;
-	case STARS:
-		break;
-	default:
-		switch ((FftDataPacking)fft_signal_source)
-		{
-		case LEFT_MINUS_RIGHT:
-#if NEW
-			if(ring_channels<2)break;  /* Fix! error condition */
-			for(count=0, i=start_offset; count<nsamp; count++)
-			{
-				raw_fft_in[count] = datawindow[count]*
-					(double) (ringbuffer[i] - ringbuffer[i+1])/2.0;
-				i += ring_channels*decimation_factor; 
-				while(i>ring_end) i -= ring_end;
-			}
-#else
-				while (index < endpoint_1)
-				{
-					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index) - (double)*(ringbuffer+index + 1))/2.0);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-					index += ring_channels*decimation_factor; 
-					count++;
+					/* This will change if we generalize 
+					   number of scope channels */
+					/* for scope left channel */
+					if(k==0)
+						audio_left[count]=ringbuffer[i+k];
 
+					/* for scope right channel */
+					if(k==1)
+						audio_right[count]=ringbuffer[i+k];
 				}
-				if (looparound)
-				{	
-					while (index2 < endpoint_2)
-					{
-						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index2) - (double)*(ringbuffer+index2 + 1))/2.0);
-						data_win_ptr++;
-						raw_fft_in_ptr++;
-						index2 += ring_channels*decimation_factor; 
-						count++;
-
-					}
-				}
-#endif
-				break;
-			case LEFT_PLUS_RIGHT:
-#if NEW
-			if(ring_channels<2)break;  /* Fix! error condition */
-			for(count=0, i=start_offset; count<nsamp; count++)
-			{
-				raw_fft_in[count] = datawindow[count]*
-					(double) (ringbuffer[i] - ringbuffer[i+1])/2.0;
-				i += ring_channels*decimation_factor; 
-				while(i>ring_end) i -= ring_end;
+				i += ring_channels*decimation_factor;
+				while(i > ring_end)
+					i -= ring_end;
 			}
-#else
-				while (index < endpoint_1)
-				{
-					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index) + (double)*(ringbuffer+index + 1))/2.0);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-					index += ring_channels*decimation_factor;
-					count++;
-
-				}
-				if (looparound)
-				{
-					while (index2 < endpoint_2)
-					{
-						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index2) + (double)*(ringbuffer+index2 + 1))/2.0);
-						data_win_ptr++;
-						raw_fft_in_ptr++;
-						index2 += ring_channels*decimation_factor;
-						count++;
-					}
-				}
-#endif
-				break;
-			case LEFT:
-#if NEW
-			if(ring_channels<1)break;  /* Fix! error condition */
-			for(count=0, i=start_offset; count<nsamp; count++)
+			break;
+		case STARS:
+			break;
+		default:
+			switch ((FftDataPacking)fft_signal_source)
 			{
-				raw_fft_in[count] = datawindow[count]*
-					ringbuffer[i];
-				i += ring_channels*decimation_factor; 
-				while(i>ring_end)i-=ring_end;
-			}
-#else
-				while (index < endpoint_1)
-				{
-					*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(ringbuffer+index);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-					index += ring_channels*decimation_factor;
-					count++;
-				}
-				if (looparound)
-				{
-					while(index2 < endpoint_2)
+				case LEFT_MINUS_RIGHT:
+					if(ring_channels < 2)break;  /* Fix! error condition */
+					for(count=0, i=start_offset; count<nsamp; count++)
 					{
-						*raw_fft_in_ptr=(*data_win_ptr)\
-							* *(ringbuffer+index2);
-						data_win_ptr++;
-						raw_fft_in_ptr++;
-						index2 += ring_channels*decimation_factor;
-						count++;
+						raw_fft_in[count] = datawindow[count]*
+							(double) (ringbuffer[i] - ringbuffer[i+1])/2.0;
+						i += ring_channels*decimation_factor; 
+						while(i>ring_end) i -= ring_end;
 					}
-				}
-#endif
-				break;
-			case RIGHT:
-#if NEW
-			if(ring_channels<2)break;  /* Fix! error condition */
-			for(count=0, i=start_offset; count<nsamp; count++)
-			{
-				raw_fft_in[count] = datawindow[count]*
-					ringbuffer[i+1];
-				i += ring_channels*decimation_factor; 
-				while(i>ring_end)i-=ring_end;
-			}
-#else
-				while (index < endpoint_1)
-				{
-					*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(ringbuffer+index+1);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-					index += ring_channels*decimation_factor;
-					count++;
-				}
-				if (looparound)
-				{
-					while (index2 < endpoint_2)
+					break;
+				case LEFT_PLUS_RIGHT:
+					if(ring_channels<2)break;  /* Fix! error condition */
+					for(count=0, i=start_offset; count<nsamp; count++)
 					{
-						*raw_fft_in_ptr=(*data_win_ptr)\
-							* *(ringbuffer+index2+1);
-						data_win_ptr++;
-						raw_fft_in_ptr++;
-						index2 += ring_channels*decimation_factor;
-						count++;
+						raw_fft_in[count] = datawindow[count]*
+							(double) (ringbuffer[i] + ringbuffer[i+1])/2.0;
+						i += ring_channels*decimation_factor; 
+						while(i > ring_end) 
+							i -= ring_end;
 					}
-				}
-#endif
-				break;
-			default:
-				fprintf(stderr,__FILE__":  This shouldn't happen!!!,"
-					" fft_signal_source is NOT set, BUG DETECTED, contact author with this information\n");
-				break;
-		}
+					break;
+				case LEFT:
+					if(ring_channels<1)break;  /* Fix! error condition */
+					for(count=0, i=start_offset; count<nsamp; count++)
+					{
+						raw_fft_in[count] = datawindow[count]*
+							ringbuffer[i];
+						i += ring_channels*decimation_factor; 
+						while(i > ring_end)
+							i -= ring_end;
+					}
+					break;
+				case RIGHT:
+					if(ring_channels < 2)break;  /* Fix! error condition */
+					for(count=0, i=start_offset; count<nsamp; count++)
+					{
+						raw_fft_in[count] = datawindow[count]*
+							ringbuffer[i+1];
+						i += ring_channels*decimation_factor; 
+						while(i > ring_end)
+							i -= ring_end;
+					}
+					break;
+				default:
+					fprintf(stderr,__FILE__":  This shouldn't happen!!!,"
+							" fft_signal_source is NOT set, BUG DETECTED, contact author with this information\n");
+					break;
+			}
 
 	}
 
-#if !NEW && defined(DEBUG)
-	if (count != nsamp)
-	{	
-		printf("buffer overrun, original startpoint %i, endpoint_1: %i, endpoint_2:%i\n",start_offset,endpoint_1,endpoint_2);
-		exit (-1);
-	}
-#endif
 	/* Buffer Latency Monitor update */
 
 	if (gdk_window_is_visible(buffer_area->window))
