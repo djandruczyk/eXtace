@@ -54,7 +54,6 @@ GdkGC		*trace_gc;	/* Graphics context for Trace in scope */
 GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
 gint		ring_pos;	/* place safe to write in ringbuffer */
 gint		ring_end;	/* end of ringbuffer in ELEMENTS */
-gint		elements_to_get;	/* amount to read in ELEMENTS */
 gshort		*audio_ring;	/* Array raw  audio data from input source */
 gshort		*audio_left;	/* left channel (scope??) */
 gshort		*audio_last_l;	/* last one of above, left channel (scope??) */
@@ -162,7 +161,6 @@ guint 		display_id;	/* display ID for gtk_timeout_* */
 gint		convolve_factor;	
 gshort 		*raw_ptr;
 gshort 		copywindow;	/* size of intermediate buffer for processing */
-gint 		copy_window;	/* intermediate buffer size */
 gfloat		update_factor;
 gint 		draw_running;
 gint 		win_width;	/* window function options */	

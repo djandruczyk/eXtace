@@ -22,16 +22,13 @@
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <input.h>
+#include <poll.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
-
-
-/* Temporary flag to switch between old gtk thread and pthread */
-#define OLD_THREAD 0 /* use gtk thread */
 
 #ifdef HAVE_ESD
 #include <esd.h>
@@ -47,11 +44,6 @@ int subdevice=0;  /* subdevice on comedi card */
 unsigned int chanlist[N_CHANS];  /* this list must be non-volitile */
 /* Lame initialization function */
 int prepare_cmd_lib(comedi_t *dev,int subdevice,comedi_cmd *cmd);
-#endif
-
-/*--- globals to this file */
-#if OLD_THREAD
-void esd_reader_thread(gpointer , gint , GdkInputCondition );
 #endif
 
 #define MAX_HANDLES 4
@@ -183,7 +175,7 @@ int input_thread_starter(int i)
 		case ESD:
 			err = pthread_create(&(handles[i].input_thread),
 					NULL, /*Thread attributes */
-					esd_starter_thread,
+					input_reader_thread,
 					(void *) &handles[i].esd /*args passed to thread */
 					);
 			if (err)
@@ -218,7 +210,7 @@ int input_thread_starter(int i)
 			handles[i].esd=comedi_fileno(handles[i].dev);
 			err = pthread_create(&(handles[i].input_thread),
 					NULL, /*Thread attributes */
-					esd_starter_thread,
+					input_reader_thread,
 					/*args passed to thread */
 					(void *) &(handles[i].esd) 
 					);
@@ -260,29 +252,18 @@ int input_thread_stopper(int i)
 	{
 #ifdef HAVE_ESD
 		case ESD:
-#if OLD_THREAD
-			/* stop gtk thread */
-			gtk_input_remove(tag);
-			err=0;
-#else
 			err=pthread_cancel(handles[i].input_thread);
 			if(err == ESRCH)
 				fprintf(stderr,"        No thread could be found corresponding "
 						"to that\n        specified by the thread ID.\n");
-#endif
 			break;
 #endif 
 #ifdef HAVE_COMEDI
 		case COMEDI:
-#if OLD_THREAD
-			/* stop old gtk thread */
-			gtk_input_remove(tag);
-#else
 			err=pthread_cancel(handles[i].input_thread);
 			if(err == ESRCH)
-				fprintf(stderr,"        No thread could be found corresponding "
-						"to that\n        specified by the thread ID.\n");
-#endif
+				fprintf(stderr,"No thread could be found corresponding to that\nspecified by the thread ID.\n");
+
 #if 0 /* maybe later add this */
 			comedi_unlock(handles[i].dev,subdevice);
 #endif
@@ -354,32 +335,27 @@ int close_datasource(int i)
 
 /*****************************************************************************/
 
-void *esd_starter_thread(void *esd_handle)
+void *input_reader_thread(void *input_handle)
 {
 
-	int source=*((int *)esd_handle);
-#if !OLD_THREAD
+	int source=*((int *)input_handle);
 	static gint last;
 	int count = 0;
 	int runcount = 0;
-#endif
+	struct pollfd ufds;
+	ufds.fd = source;
+	ufds.events = POLLIN;
+	gint timeo = 100; /* wait 100ms max before timeout */
+	gint res = -1;
+	gint to_get = 0;
+	static gint ring_ptr_size = sizeof(*audio_ring);
+	
 
 	/* reset data ring buffer */
 	ring_pos=0;
 
-#if 0 /* these are the default settings */
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-#endif
-#if OLD_THREAD
-	/* Creates the GTK input handler for Esound, then evaporates */
-
-	/*	fcntl(esd_handle, F_SETFL, O_NONBLOCK); */
-	tag = gdk_input_add(source, 
-			GDK_INPUT_READ | GDK_INPUT_EXCEPTION,
-			esd_reader_thread, NULL);
-	return 0;
-#else
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
 
 	/*
 	   There should be a "wait for input" line so that this
@@ -390,75 +366,39 @@ void *esd_starter_thread(void *esd_handle)
 	   In COMEDI, on gave find/set the size of the data buffer.
 	 */
 
+	fcntl(source,F_SETFL,O_NONBLOCK); /* Set source to non block I/O */
+	
 	do
 	{
-read:
 		/* in linux, there are no automatic test points yet */
 		runcount++;
 		pthread_testcancel();
-		if (elements_to_get + ring_pos > ring_end)
+		res = poll(&ufds,1,timeo);
+		if (res)  /* Data Arrived */
 		{
-			/* avoid reading past end of buffer */
-			int to_read = ring_end - ring_pos;
-			/*  maybe use mmap() instead? It may be faster */
-			count = read(source,audio_ring + ring_pos,sizeof(*audio_ring)*to_read);
-			if( count <0 || count%sizeof(*audio_ring)>0 )
+			to_get = (ring_end-ring_pos)*ring_ptr_size;
+			count = read(source,audio_ring+ring_pos,to_get);
+			if(count < 0 )
 			{
 				fprintf(stderr,__FILE__":  first read error, count=%i invalid.\n          ",count);
-						
-				perror("esd_reader_thread");
+				perror("input_reader_thread");
 				exit (-3);
 			}
-			count /= sizeof(*audio_ring);
-			if (count == to_read) /* Clean fill to end of Ring, wrapping */
-			{
-				elements_to_get -= count;
-				ring_pos = 0; /* WRAP */
-				goto read; /* read again because there might be more in buffer */
-			}
-			else 
-			{
-				elements_to_get  -= count;
-				ring_pos += count;
-			}
-		}
-		else 	/*normal read, no risk of wrapping the buffer */
-		{
-			count = read(source,audio_ring + ring_pos,
-					sizeof(*audio_ring)*elements_to_get);
-			if( count <0 || count%sizeof(*audio_ring)>0 )
-			{
-				fprintf(stderr,__FILE__":  second read error, count=%i invalid.\n          ",count); 
-						
-				perror("esd_reader_thread");
-				exit (-3);
-			}
-			count /= sizeof(*audio_ring);
-			elements_to_get  -= count;
-			ring_pos += count;
-		}
+			if (count == to_get) /* We read to the end of the ring*/
+				ring_pos = 0;
+			else
+				ring_pos += count/ring_ptr_size;
 
-		/* 
-		   Performance question:  do I always read until I have the 
-		   requested number of elements or do I just read once?
-		 */
-#if 1
-		if(elements_to_get>0) goto read;
-#endif
+			audio_arrival_last = audio_arrival;
+			gettimeofday(&audio_arrival, NULL);
 
-		elements_to_get = nsamp/2;   /* reset to default value */
-
-		pthread_testcancel();
-
-		audio_arrival_last = audio_arrival;
-		gettimeofday(&audio_arrival, NULL);
 #if 0  /* debug prints */
-		printf("Moved %i elements of input data\n",count);
-		printf("-- Audio READER: current at %.6f, diff %.2fms\n", 
-				audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,
-				((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-
-				 (audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+			printf("Moved %i elements of input data\n",count);
+			printf("-- Audio READER: current at %.6f, diff %.2fms\n",audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+					 
 #endif
+		}
+		pthread_testcancel();
 		if (gdk_window_is_visible(buffer_area->window))
 		{
 			/* Runcount is used to only update the buffer_area
@@ -470,7 +410,7 @@ read:
 			 * XFlush is expensive, thus we try to do it less
 			 * here..
 			 */
-			if (runcount > 10) 
+			/* if (runcount > 10)  */
 			{	
 				/* Only draw it if its visible.  
 				 * Why waste CPU time ??? 
@@ -497,119 +437,9 @@ read:
 			}
 		}
 
-	}while(1);
+	}while(TRUE);
 
-#endif
 }
-
-#if OLD_THREAD
-    
-/* esd_reader_thread isn't a true thread as it runs in the GTK main lock
- * context, its called by the gtk main loop whenever data becomes available 
- * on the esd filedescriptor.
- * I'd like to STOP using gtk's input handler and put that into its own thread
- * so that the sound i/o routines are completely independant of the GUI so
- * that they can be broken out into shared objects easier. (future plans)
- */
-void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
-{
-	static gint last;
-	int count = 0;
-	gint bytes_to_read = 0;
-	gint ring_ptr_size = sizeof(*audio_ring);
-
-read:
-	if (elements_to_get + ring_pos > ring_end)
-	{
-		/* avoid reading past end of buffer */
-		int bytes_to_read = (ring_end - ring_pos)*ring_ptr_size;
-		/*  maybe use mmap() instead? It may be faster */
-		count = read(source,audio_ring + ring_pos,bytes_to_read);
-		if (count < bytes_to_read)
-		{
-			/* printf("Short read, %i bytes\n",count); */
-			/* printf("bytes_to_read= %i\n",bytes_to_read); */
-			elements_to_get  -= (count/ring_ptr_size);
-			ring_pos += (count/ring_ptr_size);	/*ELEMENTS not bytes */
-			goto read;
-		}
-		else if (count == bytes_to_read)
-		{
-			/* printf("Clean fill to end of Ring, wrapping\n"); */
-			elements_to_get -= (count/ring_ptr_size);
-			ring_pos = 0; /* WRAP */
-			/* printf("read in %i bytes to fill ring \n",count); */
-		}
-		else	/* over-run */
-		{
-			printf("read overrun past end of ring, FAULT!!!\b\n"); 
-			exit (-3);
-		}
-		bytes_to_read = elements_to_get*ring_ptr_size;
-		count = read(source,audio_ring,bytes_to_read);
-		/* printf("requesting %i bytes,  Read %i bytes\n",bytes_to_read,count); */
-		ring_pos = (count/ring_ptr_size);	/*ELEMENTS not bytes */
-		elements_to_get = nsamp/ring_ptr_size;
-		/* printf("Wrap complete, read in %i more bytes\n",count); */
-	}
-	else 	/*normal read, no risk of wrapping the buffer */
-	{
-		bytes_to_read = elements_to_get*ring_ptr_size;
-		/* printf("Requesting %i bytes\n",bytes_to_read); */
-		count = read(source,audio_ring + ring_pos,bytes_to_read);
-		/* printf("NORM read %i bytes to ring_position %i\n",count,ring_pos); */
-		if (count == bytes_to_read)
-		{
-			/* printf("Full good read\n"); */
-			ring_pos += (count/ring_ptr_size);	/*ELEMENTS not bytes */
-			elements_to_get = nsamp/ring_ptr_size;
-			/* printf("Normal read complete, read in %i more bytes\n",count); */
-		}
-		else if (count > bytes_to_read)
-		{
-			printf("BUG\b More data came in than requested, Oh shit!!!\n");
-			exit (-3);
-		}
-		else
-		{
-			/* printf("Partial good read\n"); */
-			ring_pos += (count/ring_ptr_size);	/*ELEMENTS not bytes */
-			elements_to_get = nsamp/ring_ptr_size ;
-			/* printf("Partial read complete, read in %i more bytes\n",count); */
-		}
-	}
-
-	audio_arrival_last = audio_arrival;
-	gettimeofday(&audio_arrival, NULL);
-	//    printf("Moved %i bytes of input data\n",count);
-
-	//    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
-
-	if (gdk_window_is_visible(buffer_area->window))
-	{
-		// Only draw it if its visible.  Why waste CPU time ???
-		gdk_threads_enter();
-
-		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
-				TRUE,
-				last, 20,
-				2,15);
-
-		gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-				TRUE,
-				(float)buffer_area->allocation.width\
-				*((float)ring_pos/(float)ring_end), 20,
-				2,15);
-
-		last = (float)buffer_area->allocation.width\
-			*((float)ring_pos/(float)ring_end);
-
-		gdk_window_clear(buffer_area->window);
-		gdk_threads_leave();
-	}
-}
-
-#endif
 
 void error_close_cb(GtkWidget *widget, gpointer *data)
 {

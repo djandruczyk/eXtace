@@ -131,7 +131,6 @@ void init()
 	/* WON'T max out when you resize */
 	dir_win_present = 1;	/* Direction control window */
 	grad_win_present = 0;	/* Color picker window */
-	elements_to_get = nsamp/2;	/* how many samples to read at a time */
 	height = 480;		/* Self explanitory */
 	width  = 640;		/* Self explanitory */
 	buffer_area_height = 100;	/* Self explanitory */
@@ -228,9 +227,6 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
 		cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 
-		//elements_to_get = nsamp/2;/* how many samples to read at a time */
-		elements_to_get = nsamp/8;/* how many samples to read at a time */
-		copy_window = nsamp < 2048 ? 4096 : nsamp *2;
 		/* fft_lag is an added delay because the fft looks most synced to
 		 * audio when viewing the "middle" of the datawindow. i.e. 
 		 * at 1/2 the number of samples in the window
