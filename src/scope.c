@@ -24,11 +24,7 @@
 static gint i=0;
 static gint j=0;
 static gint height_per_scope=0;
-static gint old_left_val=0;
-static gint old_right_val=0;
-static gint old_scope_pos_l=0;
 static gint scope_pos_l=0;
-static gint old_scope_pos_r=0;
 static gint scope_pos_r=0;
 static gint left_val=0;
 static gint right_val=0;
@@ -42,12 +38,11 @@ static gint right_scope_pos=0;
 	 */
 static GdkPoint	l_scope_points[2048];
 static GdkPoint	r_scope_points[2048];
-static GdkPoint	l_scope_points_last[2048];
-static GdkPoint	r_scope_points_last[2048];
 static gint top;
 static gint bottom;
 gfloat left_amplitude;
 gfloat right_amplitude;
+extern gint scope_sync_source;
 
 
 
@@ -71,20 +66,21 @@ void draw_scope()
 
 	if ((!stabilized) || (nsamp <=1024))
 	{
-		scope_begin_l = old_scope_begin_l = 0;
-		scope_begin_r = old_scope_begin_r = 0;
+		scope_begin_l = 0;
+		scope_begin_r = 0;
 	}
 	else
 	{
-		if (sync_to_left)
+		switch((ScopeSyncSource)scope_sync_source)
 		{
-			scope_begin_r=scope_begin_l;
-			old_scope_begin_r=old_scope_begin_l;
-		}
-		else if (sync_to_right)
-		{
-			scope_begin_l=scope_begin_r;
-			old_scope_begin_l=old_scope_begin_r;
+			case SYNC_LEFT:
+				scope_begin_r=scope_begin_l;
+				break;
+			case SYNC_RIGHT:
+				scope_begin_l=scope_begin_r;
+				break;
+			default:
+				break;
 		}
 	}
 	if (show_graticule)
@@ -143,67 +139,35 @@ void draw_scope()
 	//    printf("drawing scope of %i points\n",lo_width);
 	for(i=0,
 			scope_pos_l=scope_begin_l,
-			scope_pos_r=scope_begin_r,
-			old_scope_pos_l=old_scope_begin_l,
-			old_scope_pos_r=old_scope_begin_r;
+			scope_pos_r=scope_begin_r;
 			i<lo_width;
 			i++,
 			scope_pos_l++,
-			scope_pos_r++,
-			old_scope_pos_l++,
-			old_scope_pos_r++)
+			scope_pos_r++)
 	{
-		/* if (old_scope_pos_l > 2046)
-		 * g_print("WARNING to close to array boundary!!!!\n");
-		 * if (old_scope_pos_r > 2046)
-		 * g_print("WARNING to close to array boundary!!!!\n");
-		 */
 		if (scope_pos_l > nsamp)
 			printf("scope_pos_left OVERFLOW!!!!\n");
 		if (scope_pos_r > nsamp)
 			printf("scope_pos_right OVERFLOW!!!!\n");
-		old_left_val=(gint)(audio_last_l[old_scope_pos_l]\
-				*left_amplitude);
 
 		left_val=(gint)(audio_left[scope_pos_l]*left_amplitude);
-
-		old_right_val=(gint)(audio_last_r[old_scope_pos_r]\
-				*right_amplitude);
 
 		right_val=(gint)(audio_right[scope_pos_r]*right_amplitude);
 
 		if (left_val < -127)
-		{
 			left_val = -127;
-			old_left_val = -127;
-		}
 		else if (left_val > 127)
-		{
 			left_val = 127;
-			old_left_val = 127;
-		}
 
 		if (right_val < -127)
-		{
 			right_val = -127;
-			old_right_val = -127;
-		}
 		else if (right_val > 127)
-		{
 			right_val = 127;
-			old_right_val = 127;
-		}
-
 
 		l_scope_points[i].x = i;
 		l_scope_points[i].y = height_per_scope+left_val;
 		r_scope_points[i].x = i;
 		r_scope_points[i].y = height-height_per_scope+right_val;
-		l_scope_points_last[i].x = i;
-		l_scope_points_last[i].y = height_per_scope+old_left_val;
-		r_scope_points_last[i].x = i;
-		r_scope_points_last[i].y = height-height_per_scope\
-			+old_right_val;
 	}
 	switch ((ScopeMode)scope_sub_mode)
 	{
@@ -289,8 +253,6 @@ void draw_scope()
 		audio_last_l[i] =  audio_left[i];       /* copy the arrays */
 		audio_last_r[i] =  audio_right[i];      /* copy the arrays */
 	}
-	old_scope_begin_l = scope_begin_l;
-	old_scope_begin_r = scope_begin_r;
 	for (i=0;i<CONVOLVE_SMALL;i++)
 	{
 		last_buf_l[i] = (last_buf_l[i]>>1) + cur_buf_l[(i)+scope_begin_l/convolve_factor];

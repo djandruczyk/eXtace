@@ -38,6 +38,7 @@
 static gint delay;
 static gint last_start;
 static gint last_end;
+gint  scope_sync_source;
 
 void run_fft(void)
 {
@@ -431,11 +432,22 @@ void split_and_decimate()
 			cur_buf_l[j] = audio_left[convolve_factor*j]; 
 			cur_buf_r[j] = audio_right[convolve_factor*j];
 		}
-		if (sync_to_left || sync_independant)
-			scope_begin_l = convolve_factor*convolve_match(last_buf_l, cur_buf_l, l_state);
-		if (sync_to_right || sync_independant)
-			scope_begin_r = convolve_factor*convolve_match(last_buf_r, cur_buf_r, r_state);
-		//	printf("begin left\t%i,\tbegin_right\t%i\n",scope_begin_l,scope_begin_r);
+		switch ((ScopeSyncSource)scope_sync_source)
+		{
+			case SYNC_LEFT:
+				scope_begin_l = convolve_factor*convolve_match(last_buf_l, cur_buf_l, l_state);
+				break;
+			case SYNC_RIGHT:
+				scope_begin_r = convolve_factor*convolve_match(last_buf_r, cur_buf_r, r_state);
+				break;
+			case SYNC_INDEP:
+				scope_begin_l = convolve_factor*convolve_match(last_buf_l, cur_buf_l, l_state);
+				scope_begin_r = convolve_factor*convolve_match(last_buf_r, cur_buf_r, r_state);
+				break;
+		}
+#if 0
+		printf("begin left\t%i,\tbegin_right\t%i\n",scope_begin_l,scope_begin_r);
+#endif
 	}
 
 }

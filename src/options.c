@@ -29,6 +29,7 @@
 GtkObject *lf_adj;
 GtkObject *hf_adj;
 GtkObject *lag_adj;
+extern gint scope_sync_source;
 
 int setup_options()
 {
@@ -432,7 +433,7 @@ int setup_options()
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
 			GTK_SIGNAL_FUNC (scope_sync_source_set), 
 			(gpointer)SYNC_LEFT);
-	if (sync_to_left)
+	if (scope_sync_source == SYNC_LEFT)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -441,7 +442,7 @@ int setup_options()
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
 			GTK_SIGNAL_FUNC (scope_sync_source_set), 
 			(gpointer)SYNC_RIGHT);
-	if (sync_to_right)
+	if (scope_sync_source == SYNC_RIGHT)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -450,7 +451,7 @@ int setup_options()
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
 			GTK_SIGNAL_FUNC (scope_sync_source_set), 
 			(gpointer)SYNC_INDEP);
-	if (sync_independant)
+	if (scope_sync_source == SYNC_INDEP)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
 	gtk_widget_show_all(main_scope_vbox);

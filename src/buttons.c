@@ -34,6 +34,7 @@
 extern GtkWidget *stars; /* from stars.c */
 extern GtkObject *lf_adj;	/* Freq adjustment sliders... */
 extern GtkObject *hf_adj;	/* Freq adjustment sliders... */
+gint scope_sync_source;
 
 void leave(GtkWidget *widget, gpointer *data)
 {
@@ -147,45 +148,12 @@ gint scope_sync_source_set(GtkWidget * widget, gpointer *data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		switch((ScopeSyncSource)data)
-		{
-			case SYNC_LEFT:
-				sync_to_left = 1;
-				sync_to_right = 0;
-				sync_independant = 0;
-				/* gotta clear the screen to prevent old data from
-				 * laying around....
-				 */
-				gdk_draw_rectangle(main_display->window,
-						main_display->style->black_gc,
-						TRUE, 0,0,
-						width,height);
-				break;
-			case SYNC_RIGHT:
-				sync_to_left = 0;
-				sync_to_right = 1;
-				sync_independant = 0;
-				/* gotta clear the screen to prevent old data from
-				 * laying around....
-				 */
-				gdk_draw_rectangle(main_display->window,
-						main_display->style->black_gc,
-						TRUE, 0,0,
-						width,height);
-				break;
-			case SYNC_INDEP:
-				sync_to_left = 0;
-				sync_to_right = 0;
-				sync_independant = 1;
-				/* gotta clear the screen to prevent old data from
-				 * laying around....
-				 */
-				gdk_draw_rectangle(main_display->window,
-						main_display->style->black_gc,
-						TRUE, 0,0,
-						width,height);
-				break;
-		}
+		scope_sync_source = (ScopeSyncSource)data;
+
+		gdk_draw_rectangle(main_display->window,
+				main_display->style->black_gc,
+				TRUE, 0,0,
+				width,height);
 	}
 	return TRUE;
 }

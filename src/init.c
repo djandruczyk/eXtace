@@ -37,6 +37,7 @@ gint main_x_origin;
 gint main_y_origin;
 
 extern gint ready;
+extern gint scope_sync_source;
 extern gint seg_height;	/* from 2d_eq.c */
 extern gint seg_space;	/* from 2d_eq.c */
 extern gfloat xdet_start;
@@ -143,9 +144,7 @@ void init()
 	tape_scroll = 2;
 	horiz_spec_start = 60;	/* 60 from right edge of screen */
 	vert_spec_start = 120;	/* 120 from BOTTOM of the screen, unconventional */
-	sync_to_left = 1;	/* default to sync to left channel */
-	sync_to_right = 0; 	/* sync to right channel */
-	sync_independant = 0;	/* independtant sync */
+	scope_sync_source = SYNC_LEFT;
 	paused = FALSE;		/* display running */
 	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
 	high_freq = 22050;	/* Low frequency cutoff in hi-res displays */
@@ -253,9 +252,7 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "x3d_scroll", &x3d_scroll);
 		cfg_read_int(cfgfile, "Global", "z3d_scroll", &z3d_scroll);
 		cfg_read_boolean(cfgfile, "Global", "show_leader", &show_leader);
-		cfg_read_int(cfgfile, "Global", "sync_to_left", &sync_to_left);
-		cfg_read_int(cfgfile, "Global", "sync_to_right", &sync_to_right);
-		cfg_read_int(cfgfile, "Global", "sync_independant", &sync_independant);
+		cfg_read_int(cfgfile, "Global", "scope_sync_source", &scope_sync_source);
 		cfg_read_int(cfgfile, "Global", "horiz_spec_start", &horiz_spec_start);
 		cfg_read_int(cfgfile, "Global", "vert_spec_start", &vert_spec_start);
 		if (horiz_spec_start > width)
@@ -338,9 +335,7 @@ void save_config(GtkWidget *widget)
 	cfg_write_int(cfgfile, "Global", "x3d_scroll", x3d_scroll);
 	cfg_write_int(cfgfile, "Global", "z3d_scroll", z3d_scroll);
 	cfg_write_boolean(cfgfile, "Global", "show_leader", show_leader);
-	cfg_write_int(cfgfile, "Global", "sync_to_left", sync_to_left);
-	cfg_write_int(cfgfile, "Global", "sync_to_right", sync_to_right);
-	cfg_write_int(cfgfile, "Global", "sync_independant", sync_independant);
+	cfg_write_int(cfgfile, "Global", "scope_sync_source", scope_sync_source);
 	cfg_write_boolean(cfgfile, "Global", "landtilt",landtilt);
 	cfg_write_boolean(cfgfile, "Global", "spiketilt", spiketilt);
 	cfg_write_float(cfgfile, "Global", "low_freq", low_freq);
@@ -531,8 +526,6 @@ void reinit_extace(int new_nsamp)
         mem_dealloc();
 	scope_begin_l = 0;
 	scope_begin_l = 0;
-	old_scope_begin_l = 0;
-	old_scope_begin_r = 0;
 	/* auto shift lag slightly to maintain good sync 
 	 * The idea is the shift the lag slighly so that the "on-time" data
 	 * is in the MIDDLE of the window function for better eye/ear matchup

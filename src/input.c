@@ -65,6 +65,7 @@ static struct {
 } handles[MAX_HANDLES];
 
 #define MAX_STR 99
+#ifdef HAVE_COMEDI
 static struct {
 	gchar device_name[255];
 	gchar subdevice[MAX_STR][20];
@@ -73,6 +74,7 @@ static struct {
 }control_window[MAX_HANDLES];  
 
 static gchar channel_numbers[MAX_STR][10];  /* string containing integers */
+#endif
 GtkWidget *errbox;
 int errorbox_up;
 gint tag;		/* Used by gdk_input_* */
