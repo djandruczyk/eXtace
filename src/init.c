@@ -111,6 +111,7 @@ void init()
 	x_border = 8;		/* border on right side of display */
 	x_offset = 0;		/* 3D X axis offset for centering */
 	landtilt = 1;		/* Flag */
+	outlined = TRUE;	/* Outlined 3D Landform style */
 	spiketilt = 0;		/* Flag */
 
 	y_border = 8;		/* border on right side of display */
@@ -212,6 +213,7 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
 		cfg_read_int(cfgfile, "Global", "landflip", &landflip);
 		cfg_read_int(cfgfile, "Global", "spikeflip", &spikeflip);
+		cfg_read_int(cfgfile, "Global", "outlined", &outlined);
 		cfg_read_int(cfgfile, "Global", "sub_mode_3D", &sub_mode_3D);
 		cfg_read_int(cfgfile, "Global", "scope_sub_mode", &scope_sub_mode);
 		cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
@@ -307,6 +309,7 @@ void save_config(GtkWidget *widget)
 	cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
 	cfg_write_int(cfgfile, "Global", "landflip", landflip);
 	cfg_write_int(cfgfile, "Global", "spikeflip", spikeflip);
+	cfg_write_int(cfgfile, "Global", "outlined", outlined);
 	cfg_write_int(cfgfile, "Global", "sub_mode_3D", sub_mode_3D);
 	cfg_write_int(cfgfile, "Global", "scope_sub_mode", scope_sub_mode);
 	cfg_write_int(cfgfile, "Global", "dir_win_present", dir_win_present);

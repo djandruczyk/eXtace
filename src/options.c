@@ -287,6 +287,13 @@ int setup_options()
 	if (landflip == -1)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),1);
 
+	button = gtk_toggle_button_new_with_label("Smooth 3D Landform");
+	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
+	gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			GTK_SIGNAL_FUNC (button_handle), (gpointer)OUTLINED);
+	if (outlined == TRUE)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),TRUE);
+
 	button = gtk_toggle_button_new_with_label("Landform Perspective Tilt Disabled");
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",

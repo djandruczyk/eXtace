@@ -97,6 +97,7 @@
 #define LAND_PERS_TILT	0x65
 #define LEADING_EDGE	0x66
 #define LANDFLIP	0x67
+#define OUTLINED	0x68
 /* 3D Low Res FFT (flying Landform) */
 
 /* Oscilloscope */

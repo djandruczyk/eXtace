@@ -1,3 +1,9 @@
+2003-08-18 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	Some work on land3d.c to alter the tilt algorithms.  Still not perfect
+	but fixes some previous issues.  The implementation is difficult since 
+	we're not working in true 3D. (OpenGL). Added smooth3D button into
+	the options to get rid of the black grid in Land-3D mode.  Looks cool
+	with some audio sources...  Released 1.8.11
 2003-06-14 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	More cleanups, released version 1.8.06 from Sourceforge...
 

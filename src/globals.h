@@ -160,6 +160,7 @@ gint		tag;		/* Used by gdk_input_* */
 #endif
 gint		landflip;	/* Invert Y axis on 3D modes */
 gint		spikeflip;	/* Invert Y axis on 3D modes */
+gint		outlined;	/* Outlined 3D landform flag */
 gint		fft_signal_source;/* Left right or both channels */
 gint		refresh_rate;	/* display refresh rate*/
 guint 		display_id;	/* display ID for gtk_timeout_* */

@@ -141,6 +141,11 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 						"Peak Decay Enabled");
 				peak_decay = 1;
 				break;
+			case OUTLINED:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+						"Outlined 3D Landform");
+				outlined = TRUE;
+				break;
 			case STABLE:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
 						"Trace Stabilizer Enabled");
@@ -353,6 +358,11 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
 						"Peak Decay Disabled");
 				peak_decay = 0;
+				break;
+			case OUTLINED:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+						"Smooth 3D Landform");
+				outlined = FALSE;
 				break;
 			case STABLE:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
