@@ -135,33 +135,53 @@ int setup_options()
 
 	label = gtk_label_new("Choose Sound Source ");
 	gtk_box_pack_start(GTK_BOX(sub_vbox),label,TRUE,TRUE,0);
+	group = NULL;
 
 	/* 
 	   Do gtk_toggle_button_set_active() before gtk_signal_connect()
 	   so set_data_source is not run on initialization.
 	*/
 
-	button = gtk_radio_button_new_with_label(NULL, "Use Esound");
+#ifdef HAVE_ESD
+	button = gtk_radio_button_new_with_label(group, "Use Esound");
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
 	if (data_source == ESD)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 	gtk_signal_connect(GTK_OBJECT(button),"toggled",
 			   GTK_SIGNAL_FUNC(set_data_source),
 			   GINT_TO_POINTER(ESD));
+#endif
 
+#if defined(HAVE_OSS) && defined(EXPERIMENTAL)
+	button = gtk_radio_button_new_with_label(group, "Use OSS (experimental)");
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
+	if (data_source == OSS)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	gtk_signal_connect(GTK_OBJECT(button),"toggled",
+			   GTK_SIGNAL_FUNC(set_data_source),
+			   GINT_TO_POINTER(OSS));
+#endif
+
+#if defined(HAVE_ALSA) && defined(EXPERIMENTAL)
+	button = gtk_radio_button_new_with_label(group, "Use ALSA (experimental)");
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
+	if (data_source == ALSA)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	gtk_signal_connect(GTK_OBJECT(button),"toggled",
+			   GTK_SIGNAL_FUNC(set_data_source),
+			   GINT_TO_POINTER(ALSA));
+#endif
+
+#ifdef HAVE_COMEDI
 	hbox = gtk_hbox_new(FALSE,0);
 	button = gtk_radio_button_new_with_label(group, "Use COMEDI");
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	if (data_source == COMEDI)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-/*
-  Eventually, remove these buttons completely if 
-  the support is not built in (likewise for esd and alsa).
-*/
-#if 0 && defined(HAVE_COMEDI)
-	gtk_widget_set_sensitive(button,FALSE);
-#endif
 	gtk_signal_connect(GTK_OBJECT(button),"toggled",
 			   GTK_SIGNAL_FUNC(set_data_source),
 			   GINT_TO_POINTER(COMEDI));
@@ -174,15 +194,20 @@ int setup_options()
 	gtk_signal_connect(GTK_OBJECT(comedi_button),"toggled",
 			GTK_SIGNAL_FUNC(comedi_control_window_toggle),NULL);
 	gtk_container_add(GTK_CONTAINER(sub_vbox), hbox);
+#else
+	comedi_button = NULL;
+#endif
 
+#if defined(HAVE_ARTS) && defined(DEBUG)
+	button = gtk_radio_button_new_with_label(group, "Use ARTS (experimental)");
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group, "Use ARTS");
 	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
 	if (data_source == ARTS)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 	gtk_signal_connect(GTK_OBJECT(button),"toggled",
 			   GTK_SIGNAL_FUNC(set_data_source),
 			   GINT_TO_POINTER(ARTS));
+#endif
 
 	gtk_widget_show_all(vbox);
 	

@@ -165,6 +165,7 @@ gint set_data_source(GtkWidget *widget, gpointer data)
   if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
     draw_stop();
     if(data_source == COMEDI && comedi_window_open){
+	    /* temporarily close comedi control window */
 	    gtk_toggle_button_set_active(
 		    GTK_TOGGLE_BUTTON(comedi_button), 
 		    FALSE);
@@ -185,12 +186,15 @@ gint set_data_source(GtkWidget *widget, gpointer data)
 	      input_thread_starter(data_handle);
 	      draw_start();
       }
-    gtk_widget_set_sensitive(comedi_button,data_source == COMEDI);
-    if(data_source == COMEDI)
-	    gtk_toggle_button_set_active(
-		    GTK_TOGGLE_BUTTON(comedi_button),
-		    comedi_window_open);
-    ring_rate_changed();
+
+    if(comedi_button)  /* make sure it is defined */
+    {
+	    gtk_widget_set_sensitive(comedi_button,data_source == COMEDI);
+	    if(data_source == COMEDI)
+		    gtk_toggle_button_set_active(
+			    GTK_TOGGLE_BUTTON(comedi_button),
+			    comedi_window_open);
+    }
   }
   return TRUE;
 }

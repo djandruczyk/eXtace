@@ -2,7 +2,7 @@ Multimediadir = $(datadir)/gnome/apps/Multimedia
 
 INCLUDES = \
 	-I$(top_srcdir)/include \
-	@GTK_CFLAGS@ \
+	@PACKAGE_CFLAGS@ \
 	-DGTK_DISABLE_COMPAT_H \
 	-D_MAJOR_=@EXTACE_MAJOR_VERSION@ \
 	-D_MINOR_=@EXTACE_MINOR_VERSION@ \
@@ -44,9 +44,7 @@ extace_SOURCES = \
 	vert_specgram.c \
 	win_func.c
 
-extace_LDADD = @EFENCE@ @GTK_LIBS@ @ESD_LIBS@ @EXTRA_LIBS@ @ALSA_LIBS@ -lgdk_imlib 
-
-
+extace_LDADD = @EFENCE@ @PACKAGE_LIBS@ @EXTRA_LIBS@
 
 LIBS= -lpthread
 

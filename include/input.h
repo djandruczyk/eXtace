@@ -21,6 +21,12 @@
 #ifdef HAVE_ESD
 #include <esd.h>
 #endif
+#ifdef HAVE_ALSA
+#include <alsa/asoundlib.h>
+#endif
+#ifdef HAVE_OSS
+#include <sys/soundcard.h>
+#endif
 #ifdef HAVE_COMEDI
 #include <comedilib.h>
 #endif

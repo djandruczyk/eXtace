@@ -18,11 +18,9 @@ dnl =========================================================================
 
 have_rfftw=no
 have_drfftw=no
-dnl have_alsa_05x=no
-dnl have_alsa_final=no
-
-
-dnl Checks for library functions.
+have_alsa=no
+have_oss=no
+have_esd=no
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -32,22 +30,19 @@ AC_PROG_MAKE_SET
 AM_PROG_LIBTOOL
 
 dnl Checks for header files.
-dnl AC_HEADER_DIRENT
-dnl AC_HEADER_STDC
-AC_CHECK_HEADERS(asm/errno.h drfftw.h esd.h fcntl.h math.h pthread.h  rfftw.h stdio.h stdlib.h string.h sys/ioctl.h sys/poll.h sys/time.h sys/stat.h sys/types.h unistd.h )
+AC_CHECK_HEADERS(asm/errno.h drfftw.h esd.h fcntl.h math.h pthread.h  rfftw.h stdio.h stdlib.h string.h sys/ioctl.h sys/poll.h sys/time.h sys/stat.h sys/types.h unistd.h)
 
 
 dnl 
 dnl check for GTK 1.2
 dnl
+#AM_PATH_GTK(1.2.0, , AC_MSG_ERROR([** GTK 1.2.0 not installed or broken **]),gthread)
+#AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR([** GLIB 1.2.0 not installed or broken **]),gthread)
 
-AM_PATH_GTK(1.2.0, , AC_MSG_ERROR([** GTK 1.2.0 not installed or broken **]),gthread)
-AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR([** GLIB 1.2.0 not installed or broken **]),gthread)
-
-dnl
-dnl Check for esound library
-dnl
-AM_PATH_ESD(0.2.8, AC_DEFINE(HAVE_ESD),echo "You need the esound-devel package!!!";exit 0,[`esd-config --libs`])
+pkg_modules="gtk+ imlibgdk gthread"
+PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
+AC_SUBST(PACKAGE_CFLAGS)
+AC_SUBST(PACKAGE_LIBS)
 
 dnl POSIX.4 threads
 dnl ---
@@ -55,9 +50,6 @@ AC_CHECK_LIB(pthread,pthread_create, ,
          AC_CHECK_LIB(c_r,pthread_create,LDFLAGS="-pthreads",
                  AC_MSG_ERROR([** POSIX.4 threads not installed or broken **])))
 
-dnl ===============
-dnl Debugging stuff
-dnl ===============
 
 CFLAGS="-O2 "
 AC_SUBST(CFLAGS)
@@ -68,25 +60,54 @@ AC_SUBST(EFENCE)
 EXTRA_LIBS=""
 AC_SUBST(EXTRA_LIBS)
 
+dnl
+dnl Check for ESOUND library 
+dnl
+AC_CHECK_LIB(esd, esd_monitor_stream,have_esd=yes,have_esd=no,[`esd-config --libs`]) 
+if test "$have_esd" = "yes"
+then
+	AC_DEFINE(HAVE_ESD,1,[Build with Esound input])
+	EXTRA_LIBS="`esd-config --libs` $EXTRA_LIBS "
+fi
 
+dnl
+dnl Check for ALSA library (can also do OSS under emulation)
+dnl
+AC_CHECK_LIB(asound, snd_pcm_open, have_alsa=yes, have_alsa=no) 
+if test "$have_alsa" = "yes"
+then
+   AC_DEFINE(HAVE_ALSA,1,[Build with ALSA input]) 
+   EXTRA_LIBS="-lasound $EXTRA_LIBS "
+fi
+
+dnl
+dnl Check for OSS library
+dnl
+AC_CHECK_HEADER(sys/soundcard.h, have_oss=yes, have_oss=no)
+if test "$have_oss" = "yes"
+then
+	AC_DEFINE(HAVE_OSS,1,[Build with OSS input])
+fi
 
 dnl
 dnl Check for COMEDI library
 dnl
-AC_CHECK_LIB(comedi, comedi_open, [AC_DEFINE(HAVE_COMEDI) EXTRA_LIBS="-lcomedi $EXTRA_LIBS"] , ,[-lm]) 
-AC_CHECK_HEADERS(comedilib.h)
-
+AC_CHECK_LIB(comedi, comedi_open, have_comedi=yes, have_comedi=no,[ -lm])
+if test "$have_comedi" = "yes"
+then
+	AC_DEFINE(HAVE_COMEDI,1,[Build with COMEDI input]) 
+	EXTRA_LIBS="-lcomedi $EXTRA_LIBS "
+fi
 
 dnl fftw
 dnl
 PROGRAMS_EXTACE=""
-AC_CHECK_LIB(rfftw, rfftw_one, have_rfftw=yes,,[-lfftw -lm] )
-
+AC_CHECK_LIB(rfftw, rfftw_one, have_rfftw=yes, have_rfftw=no,[-lfftw -lm] )
 if test "$have_rfftw" = "yes"
 then
  	AC_CHECK_LIB(rfftw, rfftw_one,, )
 	PROGRAMS_EXTACE=extace
-	EXTRA_LIBS="$EXTRA_LIBS -lrfftw -lfftw"	
+	EXTRA_LIBS="-lrfftw -lfftw $EXTRA_LIBS "	
 fi
 
 if test "$have_rfftw" = "no" 
@@ -97,7 +118,7 @@ then
 	then
 		AC_CHECK_LIB(drfftw, rfftw_one,, )
 		PROGRAMS_EXTACE=extace
-		EXTRA_LIBS="$EXTRA_LIBS -ldrfftw -ldfftw"	
+		EXTRA_LIBS="-ldrfftw -ldfftw $EXTRA_LIBS "	
 	fi
 fi
 
@@ -108,7 +129,7 @@ then
 		echo 
 		echo "!!! FFTW libraries NOT found. eXtace will NOT compile without them!!!"
 		echo
-		echo "Please install the FFTW library (Fastest FFT in the West), it is available from http://www.fftw.org or from your most convienient .RPM .DEB or Gentoo mirror"
+		echo "Please install the FFTW 2.x library (Fastest FFT in the West), it is available from http://www.fftw.org or from your most convienient .RPM .DEB or Gentoo mirror"
 		echo
 		echo " - Gentoo users can get it via \"emerge fftw\" as root"
 		echo " - Debian users can get it via \"apt-get fftw\" or \"apt-get fftw-lib\" as root"
@@ -119,20 +140,24 @@ then
 
 fi
 
-dnl
-dnl Check for imlib
-dnl
-LIBS=""
-AC_CHECK_LIB(gdk_imlib, gdk_imlib_render,,echo "Imlib not found!"; exit 0,[`gtk-config --libs` ])
+dnl ===============
+dnl Debugging stuff
+dnl ===============
 
-dnl ---
-
-dnl General Debugging code
 AC_ARG_ENABLE(debug,
 [  --enable-debug	  enable debugging [default=no]],, enable_debug=no)
 
 if test "$enable_debug" = yes; then
 DFLAGS="$DFLAGS -g -DDEBUG"
+fi
+AC_SUBST(DFLAGS)
+
+dnl Experimental Features support code
+AC_ARG_ENABLE(experimental,
+[  --enable-experimental	  enable experimental [default=no]],, enable_experimental=no)
+
+if test "$enable_experimental" = yes; then
+DFLAGS="$DFLAGS -DEXPERIMENTAL"
 fi
 AC_SUBST(DFLAGS)
 
@@ -181,7 +206,6 @@ AC_SUBST(EXTACE_MAJOR_VERSION)
 AC_SUBST(EXTACE_MINOR_VERSION)
 AC_SUBST(EXTACE_MICRO_VERSION)
 AC_SUBST(EXTACE_VERSION)
-AC_SUBST(ALSA_LIBS)
 AC_OUTPUT([
 Makefile 
 src/Makefile
@@ -194,12 +218,15 @@ echo "
 Configuration:
 
     Install Path:			${prefix}
+    Experimental Features:		${enable_experimental}
     General Debugging:			${enable_debug}
     Drag'n Drop Debugging:		${enable_dnd_debug}
     Window Function Debugging:		${enable_window_debug}
     Memory Allocation Debugging:	${enable_malloc_debug}
     Profiling:				${enable_profiling}
-dnl    ALSA 0.5.x capability		${have_alsa_05x}
-dnl    ALSA 0.9.x capability		${have_alsa_final}
+    ESD Input Support:			${have_esd}
+    ALSA Input Support:			${have_alsa}
+    OSS Input Support:			${have_oss}
+    COMEDI Input Support:		${have_comedi}
 "
 
