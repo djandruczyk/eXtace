@@ -1,7 +1,6 @@
 
 headers = \
 	2d_eq.h \
-	audio_processing.h \
 	buttons.h \
 	color_win.h \
 	configfile.h \
@@ -18,6 +17,7 @@ headers = \
 	horiz_specgram.h \
 	init.h \
 	input.h \
+	input_processing.h \
 	land_3d.h \
 	markers.h \
 	options.h \

@@ -146,10 +146,10 @@ void init()
 	vert_spec_start = 120;	/* 120 from BOTTOM of the screen, unconventional */
 	sync_to_left = 1;	/* default to sync to left channel */
 	sync_to_right = 0; 	/* sync to right channel */
-	sync_independant = 0;	/* independtant sync */
-	paused = 0;		/* display running */
-	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
-	high_freq = RATE/2;	/* High frequency cutoff in hi-res displays */
+	sync_independant = 0;	 /* independtant sync */
+	paused = 0;		 /* display running */
+	low_freq = 0;		 /* Low frequency cutoff in hi-res displays */
+	high_freq = ring_rate/2; /* High frequency cutoff in hi-res displays */
 	clear_display = 0;	/* Flag for markers */
 
 	/*	Color presets (default colormap) */
@@ -233,7 +233,7 @@ void read_config(void)
 		 * expense of one display over the other (time vs freq domains)
 		 * This factor helps to balance things out..
 		 */
-		fft_lag = 1000*((nsamp/2)/(float)RATE);
+		fft_lag = 1000*((nsamp/2)/ring_rate);
 		cfg_read_int(cfgfile, "Global", "window_func", &window_func);
 		cfg_read_int(cfgfile, "Global", "win_width", &win_width);
 		cfg_read_int(cfgfile, "Global", "axis_type", &axis_type);
@@ -412,7 +412,28 @@ void mem_alloc()
 	pt4 = malloc(nsamp*sizeof(GdkColor));
 	end = malloc(nsamp*sizeof(GdkColor));
 
-	/* Audio block in time domain currently being processed, size of nsamp */
+	/* Audio Data Specific definitions */
+#define FRAMES		88200  // Audio ring size in audio "frames"
+	/* 1 frame is a left and right channel of audio, Signed 16 bit LE.
+	   Thus 1 frame is 32 bits in total size, 16 bits for left and 16 
+	   bits for right.
+	   I'm making the assumption that we are using standard STEREO 
+	   (2 channel)
+	   audio for our source. (that may change in the distant future)
+	   A frame for a 4 channel input card would NOT be the same for a 
+	   stereo input.
+	*/
+#define NSEC 2 // number of seconds
+	ring_end = FRAMES*NSEC;  // Audio ring size (NSEC at 44100/stereo)
+	/* 
+	   Actual buffer is twice that value in size, because its a buffer 
+	   of "shorts." 1 "short" = 16 bits, thus 2 bytes, thus total 
+	   buffer size is 176000 bytes per second.
+	*/
+	ringbuffer = malloc(ring_end*sizeof(ring_type));
+	/* initialize array to zero */
+	memset((void *)ringbuffer, 0, ring_end*sizeof(ring_type));
+
 	/* Audio block in frequency domain being processed, size of nsamp */
 	raw_fft_out = malloc(nsamp*sizeof(gdouble));
 	raw_fft_in = malloc(nsamp*sizeof(gdouble));
@@ -420,8 +441,6 @@ void mem_alloc()
 	datawindow = malloc(nsamp*sizeof(gdouble));
 	/* FFT after scaling/massaging, size of (nsamp+1)/2 */
 	norm_fft = malloc(nsamp*sizeof(gdouble));
-	/* Main audio ringbuffer of data after reading interleaved stereo */
-	audio_ring = malloc(BUFFER*sizeof(gshort));
 
 	audio_left = malloc(nsamp*sizeof(gshort));
 	audio_last_l = malloc(nsamp*sizeof(gshort));
@@ -441,6 +460,7 @@ void mem_alloc()
 
 
 	if ((raw_fft_out == NULL) \
+	                || (ringbuffer == NULL) \
 			|| (raw_fft_in == NULL) \
 			|| (start == NULL) \
 			|| (pt2 == NULL) \
@@ -449,7 +469,6 @@ void mem_alloc()
 			|| (end == NULL) \
 			|| (datawindow == NULL) \
 			|| (norm_fft == NULL) \
-			|| (audio_ring == NULL) \
 			|| (pip_arr == NULL) \
 			|| (disp_val == NULL) \
 			|| (audio_left == NULL) \
@@ -471,26 +490,21 @@ void mem_alloc()
 	memset((void *)raw_fft_in , 0, nsamp*sizeof(gdouble));
 	memset((void *)norm_fft , 0, nsamp*sizeof(gdouble));
 	memset((void *)datawindow , 0, nsamp*sizeof(gdouble));
-	memset((void *)audio_ring, 0, BUFFER*sizeof(gshort));
 	memset((void *)audio_left , 0, nsamp*sizeof(gshort));
 	memset((void *)audio_last_l , 0, nsamp*sizeof(gshort));
 	memset((void *)audio_right , 0, nsamp*sizeof(gshort));
 	memset((void *)audio_last_r , 0, nsamp*sizeof(gshort));
 	memset((void *)pip_arr , 0, 8192*sizeof(gint));
 	memset((void *)disp_val , 0, nsamp*sizeof(gint));
-
-	/* set pointers to proper values */
-	ring_pos = 0;	/* 0 = beginning */
-	ring_end = BUFFER; /* endpoint in ELEMENTS, NOT bytes */
 }
 
 void mem_dealloc()
 {
+	free(ringbuffer);  ring_end=0;
 	free(raw_fft_out);
 	free(raw_fft_in);
 	free(norm_fft);
 	free(datawindow);
-	free(audio_ring);
 	free(audio_left);
 	free(audio_last_l);
 	free(audio_right);
@@ -534,7 +548,7 @@ void reinit_extace(int new_nsamp)
 	 * is in the MIDDLE of the window function for better eye/ear matchup
 	 */
 	nsamp = new_nsamp;
-	fft_lag = 1000*((nsamp/2)/(float)RATE);
+	fft_lag = 1000*((nsamp/2)/ring_rate);
 
 	convolve_factor = floor(nsamp/width) < 3 ? floor(nsamp/width) : 3 ;
 	if (convolve_factor == 0)
@@ -542,10 +556,10 @@ void reinit_extace(int new_nsamp)
 	recalc_markers = 1;
 	recalc_scale = 1;	
 	mem_alloc();
-	GTK_ADJUSTMENT(lf_adj)->lower = (float)RATE/(float)nsamp;
-	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)RATE/(float)nsamp;
-	GTK_ADJUSTMENT(hf_adj)->lower = (float)RATE/(float)nsamp;
-	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)RATE/(float)nsamp;
+	GTK_ADJUSTMENT(lf_adj)->lower = ring_rate/(float)nsamp;
+	GTK_ADJUSTMENT(lf_adj)->step_increment = ring_rate/(float)nsamp;
+	GTK_ADJUSTMENT(hf_adj)->lower = ring_rate/(float)nsamp;
+	GTK_ADJUSTMENT(hf_adj)->step_increment = ring_rate/(float)nsamp;
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
 	gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 	setup_datawindow(NULL,(WindowFunction)window_func);

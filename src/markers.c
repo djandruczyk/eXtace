@@ -17,6 +17,7 @@
 
 #include <config.h>
 #include <enums.h>
+#include <input.h>
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <markers.h>
@@ -33,7 +34,8 @@ void update_time_markers()
 	if (mode == HORIZ_SPECGRAM)
 	{
 		start = width-horiz_spec_start;
-		space = (gint)((((float)(RATE)/(float)nsamp))*2.0*(float)tape_scroll);
+		space = (gint)(((ring_rate/(float)nsamp))*2.0*
+			       (float)tape_scroll);
 		if (nsamp < 4096)
 			space = space/2.0;
 
@@ -56,7 +58,7 @@ void update_time_markers()
 	else if (mode == VERT_SPECGRAM)
 	{
 		start = height-vert_spec_start;
-		space = (gint)((((float)(RATE)/(float)nsamp))*2.0*(float)tape_scroll);
+		space = (gint)(((ring_rate/(float)nsamp))*2.0*(float)tape_scroll);
 		if (nsamp < 4096)
 			space = space/2.0;
 		gdk_draw_rectangle(main_pixmap,

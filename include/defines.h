@@ -27,19 +27,6 @@
 #define TRACE_COLOR_BLUE        60
 
 
-/* Audio Data Specific definitions */
-#define FRAMES		88200  // Audio ring size in audio "frames"
-/* 1 frame is a left and right channel of audio, Signed 16 bit LE.
- * thus 1 frame is 32 bits in total size, 16 bits for left and 16 bits for right
- * I'm making the assumption that we are using standard STEREO (2 channel)
- * audio for our source. (that may change in the distant future)
- * A frame for a 4 channel input card would NOT be the same for a stereo input.
- */
-#define BUFFER 		FRAMES*2 // Audio ring size (1 seconds at 44100/stereo)
-/* Actual buffer is twice that value in size, because its a buffer of "shorts" 
- * 1 "short" = 16 bits, thus 2 bytes, thus total buffer size is 176000 bytes.
- */
-#define RATE   		44100	// sample rate (samples/sec) 
 #define MAXBANDS        256	// maximum number of low freq display bands 
 
 

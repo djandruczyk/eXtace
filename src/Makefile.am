@@ -19,7 +19,6 @@ extace_SOURCES = \
 	Makefile \
 	logo.xpm \
 	2d_eq.c \
-	audio_processing.c \
 	buttons.c \
 	color_win.c \
 	configfile.c \
@@ -31,6 +30,7 @@ extace_SOURCES = \
 	horiz_specgram.c \
 	init.c \
 	input.c \
+	input_processing.c \
 	land3d.c \
 	main.c \
 	markers.c \

@@ -67,6 +67,14 @@ gint tag;		/* Used by gdk_input_* */
 
 /*--- globals to this file */
 
+/* 
+   The ringbuffer buffer should be allocated and
+   the length ring_end should be set by the calling routine.
+*/
+
+ring_type *ringbuffer = NULL;  /* initialize pointer for realloc later */
+int ring_end=0;                /* initialize length to zero */
+float ring_rate=-1;             /* initalize rate to nonsense */
 
 int open_datasource(DataSource source)
 {
@@ -83,7 +91,10 @@ int open_datasource(DataSource source)
 	{
 #ifdef HAVE_ESD
 		case ESD:
-			handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,RATE,NULL,"extace");
+			/* esd rate is rate for each channel */
+			ring_rate=ESD_DEFAULT_RATE;
+			handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"extace");
+			ring_channels=2; /* since ESD_STEREO is set */
 			if (handles[i].esd > 0) handles[i].opened = 1;
 			break;
 #endif
@@ -284,6 +295,7 @@ int input_thread_stopper(int i)
 			break;
 	}
 
+
 	handles[i].read_started = 0;
 	return err;
 }
@@ -330,6 +342,7 @@ int close_datasource(int i)
 			break;
 	}
 
+
 	return err;
 }
 
@@ -339,16 +352,15 @@ void *input_reader_thread(void *input_handle)
 {
 
 	int source=*((int *)input_handle);
-	static gint last;
+	static gint last_marker=0;
 	int count = 0;
-	int runcount = 0;
 	struct pollfd ufds;
 	ufds.fd = source;
 	ufds.events = POLLIN;
 	gint timeo = 100; /* wait 100ms max before timeout */
 	gint res = -1;
 	gint to_get = 0;
-	static gint ring_ptr_size = sizeof(*audio_ring);
+	static gint ring_ptr_size = sizeof(*ringbuffer);
 	
 
 	/* reset data ring buffer */
@@ -359,11 +371,12 @@ void *input_reader_thread(void *input_handle)
 
 	/*
 	   There should be a "wait for input" line so that this
-	   loop is not always hogging CPU.
+	   loop is not always hogging CPU?  Does the blocking 
+	   read wait without hogging CPU if there is not enough data?
 
 	   Using mmap instead of read would greatly improve speed.
 
-	   In COMEDI, on gave find/set the size of the data buffer.
+	   In COMEDI, one can find/set the size of the data buffer.
 	 */
 
 	fcntl(source,F_SETFL,O_NONBLOCK); /* Set source to non block I/O */
@@ -371,16 +384,15 @@ void *input_reader_thread(void *input_handle)
 	do
 	{
 		/* in linux, there are no automatic test points yet */
-		runcount++;
 		pthread_testcancel();
 		res = poll(&ufds,1,timeo);
 		if (res)  /* Data Arrived */
 		{
 			to_get = (ring_end-ring_pos)*ring_ptr_size;
-			count = read(source,audio_ring+ring_pos,to_get);
+			count = read(source,ringbuffer+ring_pos,to_get);
 			if(count < 0 )
 			{
-				fprintf(stderr,__FILE__":  first read error, count=%i invalid.\n          ",count);
+				fprintf(stderr,__FILE__":  input read error, count=%i invalid.\n          ",count);
 				perror("input_reader_thread");
 				exit (-3);
 			}
@@ -403,42 +415,34 @@ void *input_reader_thread(void *input_handle)
 		{
 			/* Runcount is used to only update the buffer_area
 			 * monitor at about 1/10th the input rate.  This is
-			 * doen to be nicer to the Xserver,  since we are 
+			 * done to be nicer to the Xserver,  since we are 
 			 * making gtk_*() calls inside a PTHREAD, i.e. 
 			 * outside gtk's main loop. a call to XFlush is 
 			 * rewuired to keep updating the window properly.
 			 * XFlush is expensive, thus we try to do it less
 			 * here..
 			 */
-			/* if (runcount > 10)  */
-			{	
-				/* Only draw it if its visible.  
-				 * Why waste CPU time ??? 
-				 */
-				gdk_threads_enter();
-				gdk_draw_rectangle(buffer_pixmap,
-						buffer_area->style->black_gc,TRUE,
-						last, 20,
-						2,15);
-
-				gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-						TRUE,
-						(float)buffer_area->allocation.width\
-						*((float)ring_pos/(float)ring_end), 20,
-						2,15);
-
-				last = (float)buffer_area->allocation.width\
-					*((float)ring_pos/(float)ring_end);
-
-				gdk_window_clear(buffer_area->window);
-				gdk_flush();
-				gdk_threads_leave();
-				runcount = 0; /* reset counter.... */
-			}
+			gdk_threads_enter();
+			gdk_draw_rectangle(buffer_pixmap,
+					   buffer_area->style->black_gc,TRUE,
+					   last_marker, 20,
+					   2,15);
+			
+			last_marker=(float)buffer_area->allocation.width
+				*(float)ring_pos/(float)ring_end;
+			
+			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
+					   TRUE,
+					   last_marker, 20,
+						   2,15);
+			
+			gdk_window_clear(buffer_area->window);
+			gdk_flush();
+			gdk_threads_leave();
 		}
-
+		
 	}while(TRUE);
-
+	
 }
 
 void error_close_cb(GtkWidget *widget, gpointer *data)
@@ -448,6 +452,11 @@ void error_close_cb(GtkWidget *widget, gpointer *data)
 	gtk_widget_destroy(errbox);
 }
 
+/*************************************************************************/
+
+/* 
+   routines to set sound input
+*/
 
 
 /*************************************************************************/
@@ -463,27 +472,30 @@ void error_close_cb(GtkWidget *widget, gpointer *data)
 int prepare_cmd_lib(comedi_t *dev,int subdevice,comedi_cmd *cmd)
 {
 	int ret;
-	int n_chan=0;  // actual number of channels to read
 	int aref= AREF_GROUND;
-	int range=1;  // which voltage range to use
+	int range=3;  // which voltage range to use
 
-	/* comedi rate is samples per nanosecond for all channels */
-	ret = comedi_get_cmd_generic_timed(dev,subdevice,cmd,1e9/RATE);
+	/* set channels */
+	ring_channels=0;
+	chanlist[ring_channels++]=CR_PACK(8,range,aref);
+/*	chanlist[ring_channels++]=CR_PACK(9,range,aref);*/
+
+
+	/* comedi rate is samples per nanosecond for 
+	   all channels being read.  
+	   Assume rate in samples per second per channel. */
+	ring_rate=ESD_DEFAULT_RATE;
+	ret = comedi_get_cmd_generic_timed(dev,subdevice,cmd,
+					   1e9/(ring_rate*ring_channels));
 	if(ret<0){
 		comedi_perror("comedi_get_cmd_generic_timed\n");
 		return ret;
 	}
 
-	/* only listen to first two channels */
-	n_chan=0;
-	chanlist[n_chan++]=CR_PACK(0,range,aref);
-	chanlist[n_chan++]=CR_PACK(1,range,aref);
-
-
 	cmd->chanlist = chanlist;
-	cmd->chanlist_len = n_chan;
+	cmd->chanlist_len =ring_channels;
 
-	cmd->scan_end_arg = n_chan;
+	cmd->scan_end_arg = ring_channels;
 
 	//if(cmd->stop_src==TRIG_COUNT)cmd->stop_arg = 1000;
 	cmd->stop_src = TRIG_NONE;

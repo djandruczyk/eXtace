@@ -18,6 +18,7 @@
 #include <datawindow.h>
 #include <defaults.h>
 #include <enums.h>
+#include <input.h>
 #include <events.h>
 #include <globals.h>
 #include <gtk/gtk.h>
@@ -485,7 +486,8 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,0);
 
 	/* Low Frequency Limit slider */
-	lf_adj = gtk_adjustment_new(low_freq,RATE/nsamp,high_freq,RATE/nsamp,RATE/nsamp,10.0);
+	lf_adj = gtk_adjustment_new(low_freq,ring_rate/nsamp,high_freq,
+				    ring_rate/nsamp,ring_rate/nsamp,10.0);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(lf_adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),2);
 	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
@@ -496,7 +498,7 @@ int setup_options()
 
 
 	/* High Frequency Limit slider */
-	hf_adj = gtk_adjustment_new(high_freq,low_freq+33.0*(RATE/nsamp),RATE/2+RATE/nsamp,RATE/nsamp,RATE/nsamp,10.0);
+	hf_adj = gtk_adjustment_new(high_freq,low_freq+33.0*(ring_rate/nsamp),ring_rate/2+ring_rate/nsamp,ring_rate/nsamp,ring_rate/nsamp,10.0);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(hf_adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),2);
 	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
@@ -781,7 +783,8 @@ int setup_options()
 	label = gtk_label_new("Lag in Milliseconds");
 	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
-	adj = gtk_adjustment_new(lag,lag_min,(int)(1000*((float)(BUFFER/2)/(float)RATE)),1,1,1);
+	adj = gtk_adjustment_new(lag,lag_min,(int)(1000*ring_end/ring_rate),
+				 1,1,1);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),0);
 	gtk_box_pack_start(GTK_BOX(vbox),scale,TRUE,TRUE,0);

@@ -13,14 +13,15 @@
  */
 
 #include <2d_eq.h>
-#include <audio_processing.h>
 #include <config.h>
 #include <draw.h>
 #include <enums.h>
+#include <input.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <globals.h>
 #include <horiz_specgram.h>
+#include <input_processing.h>
 #include <land_3d.h>
 #include <math.h>
 #include <scope.h>
@@ -104,7 +105,7 @@ int draw(void)
 	/* If no window, just return */
 	if (!main_display->window) return (TRUE);
 	/* Run audio processor */
-	if (!audio_chewer()) return (TRUE);
+	if (!input_chewer()) return (TRUE);
 
 
 	/* Next set of routines ONLY ONLY needs to be done for 3D Landform
@@ -240,9 +241,9 @@ recalc:
 		if(recalc_markers)
 		{
 			if (axis_type == LINEAR)
-				resolution = ((float)RATE/2.0)/(float)bands;
+				resolution = (ring_rate/2.0)/(float)bands;
 			else if (axis_type == LOG)
-				resolution = ((float)RATE)/((float)nsamp*decimation_factor);
+				resolution = ring_rate/((float)nsamp*decimation_factor);
 			switch (axis_type)
 			{
 				case LINEAR:

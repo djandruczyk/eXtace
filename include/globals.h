@@ -52,9 +52,6 @@ GdkGC		*graticule_gc;	/* Graphics context for graticule in scope */
 GdkGC		*arc_gc;	/* Graphics context for Arc in dircontrol */
 GdkGC		*trace_gc;	/* Graphics context for Trace in scope */
 GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
-gint		ring_pos;	/* place safe to write in ringbuffer */
-gint		ring_end;	/* end of ringbuffer in ELEMENTS */
-gshort		*audio_ring;	/* Array raw  audio data from input source */
 gshort		*audio_left;	/* left channel (scope??) */
 gshort		*audio_last_l;	/* last one of above, left channel (scope??) */
 gshort		*audio_last_r;	/* last one of above, right channel (scope??) */
@@ -156,7 +153,6 @@ gint		fft_signal_source;/* Left right or both channels */
 gint		refresh_rate;	/* display refresh rate*/
 guint 		display_id;	/* display ID for gtk_timeout_* */
 gint		convolve_factor;	
-gshort 		*raw_ptr;
 gshort 		copywindow;	/* size of intermediate buffer for processing */
 gfloat		update_factor;
 gint 		draw_running;

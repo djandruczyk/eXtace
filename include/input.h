@@ -11,12 +11,30 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
-#ifndef __SOUND_H__
-#define __SOUND_H__
+#ifndef __INPUT_H__
+#define __INPUT_H__
 
 #include <gtk/gtk.h>
 
+typedef gshort ring_type;
 
+/* 
+   Data ring buffer is shared globally,
+   perhaps this should be turned into a structure. 
+
+   The idea here is that the calling program sets the
+   size and allocates memory for ringbuffer.
+
+   The input routines set ring_channels and ring_rate.
+*/
+
+ring_type *ringbuffer; /* Array of raw audio data from input source */
+int ring_end;          /* size of ring buffer in total samples */
+int ring_pos;          /* offset in ringbuffer that is most recently updated*/
+int ring_channels;     /* number of channels being read into input ring */
+float ring_rate;       /* samples read per second in each channel */
+                       /* eventually, this should take over the functionality
+		       of RATE */
 /* Prototypes */
 int input_thread_starter(int );
 int input_thread_stopper(int );
@@ -30,3 +48,5 @@ void error_close_cb(GtkWidget *, gpointer * );
 
 
 #endif
+
+

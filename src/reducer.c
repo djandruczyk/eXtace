@@ -17,7 +17,8 @@
 #include <globals.h>
 #include <math.h>
 #include <reducer.h>
-
+#include <enums.h>
+#include <input.h>
 
 /* See globals.h for variable declarations and DEFINES */
 
@@ -63,7 +64,7 @@ void reducer(gfloat lowfreq, gfloat hifreq ,int axis_length)
 	/* determine the frequency spread per bin, and the low and high bin
 	 * limits for recalculating to fit the number of pips (pixels on screen)
 	 */
-	hertz_per_bin = (float)RATE/(float)nsamp;
+	hertz_per_bin = ring_rate/(float)nsamp;
 	lowbin = lowfreq/hertz_per_bin;
 	highbin = hifreq/hertz_per_bin;
 

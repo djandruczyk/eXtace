@@ -16,12 +16,13 @@
  */
 
 #include <asm/errno.h>
-#include <audio_processing.h>
 #include <config.h>
 #include <convolve.h>
 #include <enums.h>
 #include <globals.h>
 #include <gtk/gtk.h>
+#include <input.h>
+#include <input_processing.h>
 #include <math.h>
 #ifdef HAVE_LIBRFFTW
 #include <rfftw.h>
@@ -87,7 +88,7 @@ void run_fft(void)
 
 }
 
-int audio_chewer(void)
+int input_chewer(void)
 {
 	split_and_decimate();
 	if (mode != SCOPE)
@@ -101,6 +102,7 @@ void split_and_decimate()
 	/* De-interleaves data into seperate buffers and decimates 
 	 * if requested 
 	 */
+	gshort *raw_ptr;
 	gint start_offset = 0;
 	gint end_offset = 0;
 	gint count = 0;
@@ -151,10 +153,10 @@ void split_and_decimate()
 	 * fft_lag is a delay based on fft size, as the fft seems to be
 	 * in best visual sync when delaying by 1/2 it's length in 
 	 * "sample time". It's computed as follows:
-	 *      init.c: fft_lag = 1000*((nsamp/2)/(float)RATE);
+	 *      init.c: fft_lag = 1000*((nsamp/2)/ring_rate);
 	 * so for a 4096 point fft, this adds  another 46.44 milliseconds.
 	 */
-	delay = (int)(((float)(fft_lag+lag)/1000.0)*(float)RATE);
+	delay = (int)(((float)(fft_lag+lag)/1000.0)*ring_rate);
 
 	/* Set pointer position to be offset from the reader pointer by
 	 * amount specified by "fft_lag" (user adjustable). fft_lag is in 
@@ -168,22 +170,22 @@ void split_and_decimate()
 	 * of audio came in. (Most usefull with LARGE ft sizes (8192 points 
 	 * or more..)
 	 */
-	cur_time = draw_win_time.tv_sec\
+	cur_time = draw_win_time.tv_sec
 		+((double)draw_win_time.tv_usec/1000000.0);
 
 	/* audio_offset_lag is the time difference between when this 
 	 * function runs since that last audio block was committed to 
 	 * the ringbuffer. 
 	 */
-	audio_offset_lag = ((draw_win_time.tv_sec \
-				+(draw_win_time.tv_usec/1000000.0))\
-			-(audio_arrival.tv_sec\
+	audio_offset_lag = ((draw_win_time.tv_sec 
+				+(draw_win_time.tv_usec/1000000.0))
+			-(audio_arrival.tv_sec
 				+(audio_arrival.tv_usec/1000000.0)))*1000;
 
 
 	/* Need this in sample elements not in milliseconds.... */
-	audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)\
-			*(float)RATE);
+	audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)
+			*ring_rate);
 
 	
 	/* Set pointer to be offset from the beginning of the ring + the 
@@ -198,28 +200,28 @@ void split_and_decimate()
 	 * Function below takes care of overflow and moves to the right spot.
 	 */
 
-	raw_ptr = audio_ring+ring_pos-(delay-audio_offset_delay)*2;
+	raw_ptr = ringbuffer+ring_pos-(delay-audio_offset_delay)*2;
 	/* raw_ptr now represents the "center" of the fft that we want to 
 	 * run.  We will now copy this buffer int oanother shifting things
 	 * as necessary to  get raw_ptr to be exactly at the midpoint of th
 	 * buffer,  makes decimation calcs and scope stuff far easier.
 	 */
 
-	/* If hte pointer is out of bounds, i.e. below audio_ring, or after
-	 * audio_ring+ring_end, shift by one buffer length.
+	/* If hte pointer is out of bounds, i.e. below ringbuffer, or after
+	 * ringbuffer+ring_end, shift by one buffer length.
 	 */
-	while (raw_ptr < audio_ring)
+	while (raw_ptr < ringbuffer)
 	{
-		raw_ptr += BUFFER;
+		raw_ptr += ring_end;
 	}
-	while (raw_ptr > (audio_ring+ring_end))
+	while (raw_ptr > (ringbuffer+ring_end))
 	{
-		raw_ptr -=BUFFER;
+		raw_ptr -= ring_end;
 	}
 	/* convert to real number offset from "0" (beginning of buffer)
 	 * instead of a pointer address, (easier to deal with)
 	 */
-	virtual_centerpoint = raw_ptr-audio_ring; 
+	virtual_centerpoint = raw_ptr-ringbuffer; 
 
 	if (decimation_factor < 1)
 		decimation_factor = 1;
@@ -231,12 +233,12 @@ void split_and_decimate()
 	/* Handle the condition of reverse loop around */
 	while (start_offset < 0)	
 	{
-		start_offset += BUFFER;
+		start_offset += ring_end;
 	}
 	/* handle condtion of endpoint being past end of buffer, loop around */
 	while (end_offset > ring_end)	
 	{
-		end_offset -= BUFFER;
+		end_offset -= ring_end;
 	}
 	data_win_ptr = datawindow;
 	raw_fft_in_ptr = raw_fft_in;
@@ -258,10 +260,10 @@ void split_and_decimate()
 		 * need to offset properly after the wraparound, otherwaise
 		 * we'll get one too many samples, and segfault. 
 		 */
-		if ((endpoint_1-start_offset)%(2*decimation_factor))
+		if ((endpoint_1-start_offset)%(ring_channels*decimation_factor))
 		{
-			index2 = (2*decimation_factor)\
-				- (endpoint_1-start_offset)%(2*decimation_factor);
+			index2 = (ring_channels*decimation_factor)\
+				- (endpoint_1-start_offset)%(ring_channels*decimation_factor);
 		}
 		endpoint_2 = end_offset;
 		looparound = 1;
@@ -273,11 +275,12 @@ void split_and_decimate()
 	 * offsets to the scope code and drop the buffer altogether for 
 	 * pure speed, and allows us to use a convolution on any size
 	 * of datablocks, unless latency is set extremely low
-	 * we increment our index by "2*decimation_factor",  because the 
-	 * data is interleaved, the 2 makes sure we don't swap channels 
-	 * by accident and the decimation_factor acts to essentially change 
-	 * the scope's effective sweeep rate, even though it updates at a 
-	 * constant speed. (decimation acts like resampling)
+	 * we increment our index by "ring_channels*decimation_factor",  
+         * because the data is interleaved, the ring_channels makes sure we 
+	 don't swap channels 
+	 by accident and the decimation_factor acts to essentially change 
+	 the scope's effective sweeep rate, even though it updates at a 
+	 constant speed. (decimation acts like resampling)
 	 */
 
 	if (mode == SCOPE) /* copy data to scope buffers */
@@ -285,15 +288,22 @@ void split_and_decimate()
 		while (index < endpoint_1)
 		{
 			/* for scope left channel */
-			*audio_left_ptr=((short)*(audio_ring\
-						+index));
-			audio_left_ptr++;
-
+			if(ring_channels>0)
+			{
+				*audio_left_ptr=((short)*(ringbuffer\
+							  +index));
+				audio_left_ptr++;
+			}
+			
 			/* for scope right channel */
-			*audio_right_ptr=((short)*(audio_ring\
-						+index+1));
-			audio_right_ptr++;
-			index += 2*decimation_factor; 
+			if(ring_channels>1)
+			{
+				*audio_right_ptr=((short)*(ringbuffer\
+							   +index+1));
+				audio_right_ptr++;
+			}
+			
+			index += ring_channels*decimation_factor; 
 			count++;
 		}
 		if (looparound)
@@ -301,15 +311,22 @@ void split_and_decimate()
 			while (index2 < endpoint_2)
 			{
 				/* for scope left channel */
-				*audio_left_ptr=((short)*(audio_ring\
-							+index2));
-				audio_left_ptr++;
-
+				if(ring_channels>0)
+				{
+					*audio_left_ptr=((short)*(ringbuffer\
+								  +index2));
+					audio_left_ptr++;
+				}
+				
 				/* for scope right channel */
-				*audio_right_ptr=((short)*(audio_ring\
-							+index2+1));
-				audio_right_ptr++;
-				index2 += 2*decimation_factor; 
+				if(ring_channels>1)
+				{
+					*audio_right_ptr=((short)*(ringbuffer\
+								   +index2+1));
+					audio_right_ptr++;
+				}
+				
+				index2 += ring_channels*decimation_factor; 
 				count++;
 			}
 		}
@@ -321,10 +338,10 @@ void split_and_decimate()
 			case LEFT_MINUS_RIGHT:
 				while (index < endpoint_1)
 				{
-					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) - (double)*(audio_ring+index + 1))/2.0);
+					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index) - (double)*(ringbuffer+index + 1))/2.0);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*decimation_factor; 
+					index += ring_channels*decimation_factor; 
 					count++;
 
 				}
@@ -332,10 +349,10 @@ void split_and_decimate()
 				{	
 					while (index2 < endpoint_2)
 					{
-						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) - (double)*(audio_ring+index2 + 1))/2.0);
+						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index2) - (double)*(ringbuffer+index2 + 1))/2.0);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*decimation_factor; 
+						index2 += ring_channels*decimation_factor; 
 						count++;
 
 					}
@@ -345,10 +362,10 @@ void split_and_decimate()
 			case LEFT_PLUS_RIGHT:
 				while (index < endpoint_1)
 				{
-					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) + (double)*(audio_ring+index + 1))/2.0);
+					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index) + (double)*(ringbuffer+index + 1))/2.0);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*decimation_factor;
+					index += ring_channels*decimation_factor;
 					count++;
 
 				}
@@ -356,10 +373,10 @@ void split_and_decimate()
 				{
 					while (index2 < endpoint_2)
 					{
-						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) + (double)*(audio_ring+index2 + 1))/2.0);
+						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(ringbuffer+index2) + (double)*(ringbuffer+index2 + 1))/2.0);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*decimation_factor;
+						index2 += ring_channels*decimation_factor;
 						count++;
 					}
 				}
@@ -368,10 +385,10 @@ void split_and_decimate()
 				while (index < endpoint_1)
 				{
 					*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(audio_ring+index);
+						* *(ringbuffer+index);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*decimation_factor;
+					index += ring_channels*decimation_factor;
 					count++;
 				}
 				if (looparound)
@@ -379,10 +396,10 @@ void split_and_decimate()
 					while(index2 < endpoint_2)
 					{
 						*raw_fft_in_ptr=(*data_win_ptr)\
-							* *(audio_ring+index2);
+							* *(ringbuffer+index2);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*decimation_factor;
+						index2 += ring_channels*decimation_factor;
 						count++;
 					}
 				}
@@ -391,10 +408,10 @@ void split_and_decimate()
 				while (index < endpoint_1)
 				{
 					*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(audio_ring+index+1);
+						* *(ringbuffer+index+1);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*decimation_factor;
+					index += ring_channels*decimation_factor;
 					count++;
 				}
 				if (looparound)
@@ -402,10 +419,10 @@ void split_and_decimate()
 					while (index2 < endpoint_2)
 					{
 						*raw_fft_in_ptr=(*data_win_ptr)\
-							* *(audio_ring+index2+1);
+							* *(ringbuffer+index2+1);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*decimation_factor;
+						index2 += ring_channels*decimation_factor;
 						count++;
 					}
 				}

@@ -11,13 +11,13 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
-#ifndef __AUDIO_PROCESSING_H__
-#define __AUDIO_PROCESSING_H__
+#ifndef __INPUT_PROCESSING_H__
+#define __INPUT_PROCESSING_H__
 
 
 /* Prototypes */
 void run_fft(void);
-int audio_chewer(void);
+int input_chewer(void);
 void split_and_decimate(void);
 /* Prototypes */
 
