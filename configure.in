@@ -3,7 +3,7 @@ AC_INIT(src/main.c)
 
 EXTACE_MAJOR_VERSION=1
 EXTACE_MINOR_VERSION=7
-EXTACE_MICRO_VERSION=4
+EXTACE_MICRO_VERSION=5
 
 EXTACE_VERSION=$EXTACE_MAJOR_VERSION.$EXTACE_MINOR_VERSION.${EXTACE_MICRO_VERSION}
 
@@ -16,7 +16,8 @@ dnl =========================================================================
 dnl control variables
 dnl =========================================================================
 
-have_fftw=no
+have_rfftw=no
+have_drfftw=no
 have_alsa_05x=no
 have_alsa_final=no
 
@@ -180,22 +181,22 @@ dnl
 dnl fftw
 dnl
 PROGRAMS_EXTACE=""
-AC_CHECK_LIB(rfftw, rfftw_one, have_fftw=yes,,[-lfftw] )
+AC_CHECK_LIB(rfftw, rfftw_one, have_rfftw=yes,,[-lfftw] )
 
-if test "$have_fftw" = "yes"
+if test "$have_rfftw" = "yes"
 then
-	AC_CHECK_LIB(rfftw, rfftw_one,, )
+ 	AC_CHECK_LIB(rfftw, rfftw_one,, )
 	PROGRAMS_EXTACE=extace
 	EXTRA_LIBS="-lrfftw -lfftw -lm"
 	AC_SUBST(EXTRA_LIBS)
 	
 fi
 
-if test "$have_fftw" = "no" 
+if test "$have_rfftw" = "no" 
 then
-	AC_CHECK_LIB(drfftw, rfftw_one, have_fftw=yes,,[-ldfftw] )
+	AC_CHECK_LIB(drfftw, rfftw_one, have_drfftw=yes,,[-ldfftw] )
 
-	if test "$have_fftw" = "yes"
+	if test "$have_drfftw" = "yes"
 	then
 		AC_CHECK_LIB(drfftw, rfftw_one,, )
 		PROGRAMS_EXTACE=extace
@@ -205,11 +206,14 @@ then
 	fi
 fi
 
-if test "$have_fftw" = "no" 
+if test "$have_rfftw" = "no"
 then
-	echo "!!! FFTW libraries NOT found. eXtace will NOT compile without them!!!"
+	if test "$have_drfftw" = "no"
+	then
+		echo "!!! FFTW libraries NOT found. eXtace will NOT compile without them!!!"
+		exit 1
+	fi
 
-exit 1
 fi
 
 LIBS=""

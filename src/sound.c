@@ -58,109 +58,109 @@ pthread_t alsa_thread;
 
 int open_sound(void)
 {
-    int handle = -1;
+	int handle = -1;
 #ifdef HAVE_ALSA_05
-    int err = 0;
-    format = malloc(sizeof(snd_pcm_format_t));
-    memset((void *)format, 0, sizeof(snd_pcm_format_t));
+	int err = 0;
+	format = malloc(sizeof(snd_pcm_format_t));
+	memset((void *)format, 0, sizeof(snd_pcm_format_t));
 #endif
 
 
-    switch (sound_source)
-    {
-	case ESD:
-	    esd_handle=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,RATE,NULL,"extace");
-	    if (esd_handle > 0)
-	    {
-		handle = 1;
-		read_started = 0;
-	    }
+	switch (sound_source)
+	{
+		case ESD:
+			esd_handle=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,RATE,NULL,"extace");
+			if (esd_handle > 0)
+			{
+				handle = 1;
+				read_started = 0;
+			}
 
-	    break;
+			break;
 
 
 #ifdef HAVE_ALSA_05
-	case ALSA:
+		case ALSA:
 #ifdef ALSA_DEBUG
-	    printf("opening alsa device \n");
+			printf("opening alsa device \n");
 #endif
-	    err = snd_pcm_loopback_open(&alsa_handle, alsa_card, alsa_device, alsa_sub_dev, SND_PCM_LB_OPEN_PLAYBACK);
-	    if (err <0)
-	    {
-		printf("open failed: %s\n", snd_strerror(err)); 
-		handle = -1;
-	    }
-	    else
-	    {
-		handle = 1;
+			err = snd_pcm_loopback_open(&alsa_handle, alsa_card, alsa_device, alsa_sub_dev, SND_PCM_LB_OPEN_PLAYBACK);
+			if (err <0)
+			{
+				printf("open failed: %s\n", snd_strerror(err)); 
+				handle = -1;
+			}
+			else
+			{
+				handle = 1;
 #ifdef ALSA_DEBUG
-		printf("ALSA loopback device opened successfully\n");
+				printf("ALSA loopback device opened successfully\n");
 #endif
-		snd_pcm_loopback_block_mode(alsa_handle, 1);
-		format->format = SND_PCM_SFMT_S16_LE;
-		format->rate = RATE;
-		format->voices = 2;
-		err = snd_pcm_loopback_format(alsa_handle, format);
-		if (err <0)
-		{
-		    printf("format info failed: %s\n", snd_strerror(err)); 
-		    handle = -1; 
-		}
+				snd_pcm_loopback_block_mode(alsa_handle, 1);
+				format->format = SND_PCM_SFMT_S16_LE;
+				format->rate = RATE;
+				format->voices = 2;
+				err = snd_pcm_loopback_format(alsa_handle, format);
+				if (err <0)
+				{
+					printf("format info failed: %s\n", snd_strerror(err)); 
+					handle = -1; 
+				}
 #ifdef ALSA_DEBUG
-		else
-		{
-		    printf("ALSA format setup worked OK\n");
-		    printf("rate %i, channels %i\n",format->rate, format->voices);
-		}
+				else
+				{
+					printf("ALSA format setup worked OK\n");
+					printf("rate %i, channels %i\n",format->rate, format->voices);
+				}
 #endif
-	    }
-	    g_free(format);
-	    break;
+			}
+			g_free(format);
+			break;
 #endif
 
-    }
-    if (handle < 0)
-    {
-	GtkWidget *label;
-	if (errorbox_up)
-	    return(-1); /* ERROR window already onscreen */
-	errbox = gtk_window_new(GTK_WINDOW_DIALOG);
-	
-	gtk_window_set_title(GTK_WINDOW(errbox),"ERROR!!!");
-	label = gtk_label_new("Error, Cannot connect to Sound source!!\n. PLease make sure you have the proper setting in the options panel.\n");
-	gtk_container_add(GTK_CONTAINER(errbox), label);
-	gtk_widget_show_all(errbox);
+	}
+	if (handle < 0)
+	{
+		GtkWidget *label;
+		if (errorbox_up)
+			return(-1); /* ERROR window already onscreen */
+		errbox = gtk_window_new(GTK_WINDOW_DIALOG);
 
-	gtk_signal_connect(GTK_OBJECT(errbox), "delete_event",
-		GTK_SIGNAL_FUNC(error_close_cb), NULL);
-	gtk_signal_connect(GTK_OBJECT(errbox), "destroy_event",
-		GTK_SIGNAL_FUNC(error_close_cb), NULL);
-	errorbox_up = 1;
-	return(-1);
-    }
-    else
-    {
-	plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
-	return(0);
-    }
+		gtk_window_set_title(GTK_WINDOW(errbox),"ERROR!!!");
+		label = gtk_label_new("Error, Cannot connect to Sound source!!\n. PLease make sure you have the proper setting in the options panel.\n");
+		gtk_container_add(GTK_CONTAINER(errbox), label);
+		gtk_widget_show_all(errbox);
+
+		gtk_signal_connect(GTK_OBJECT(errbox), "delete_event",
+				GTK_SIGNAL_FUNC(error_close_cb), NULL);
+		gtk_signal_connect(GTK_OBJECT(errbox), "destroy_event",
+				GTK_SIGNAL_FUNC(error_close_cb), NULL);
+		errorbox_up = 1;
+		return(-1);
+	}
+	else
+	{
+		plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+		return(0);
+	}
 }
 void close_sound(void)
 {
-    switch(sound_source)
-    {
-	case ESD:
-	    /*	    printf("closing esd_handle\n");  */
-	    esd_close(esd_handle);
-	    break;
+	switch(sound_source)
+	{
+		case ESD:
+			/*	    printf("closing esd_handle\n");  */
+			esd_close(esd_handle);
+			break;
 #ifdef HAVE_ALSA_05
-	case ALSA:
-	    /*	    printf("closing alsa_handle\n");  */
-	    snd_pcm_loopback_close(alsa_handle);
-	    break;
+		case ALSA:
+			/*	    printf("closing alsa_handle\n");  */
+			snd_pcm_loopback_close(alsa_handle);
+			break;
 #endif
-	default:
-	    break;
-    }
+		default:
+			break;
+	}
 }
         
 int audio_thread_stopper()
@@ -199,44 +199,44 @@ int audio_thread_stopper()
 
 int audio_thread_starter()
 {
-    int retcode = 0;
-    if (read_started)
-	printf("Error, reader already running!!\n");
-    else
-    {
-	switch (sound_source)
+	int retcode = 0;
+	if (read_started)
+		printf("Error, reader already running!!\n");
+	else
 	{
-	    case ESD:
-		/* since we want to audio to NOT be read in the main gtk loop
-		 * we'll use the gtk input function as a helper. IT will awaken
-		 * our esound reader thread whenever data is ready. Save us 
-		 * from having to setup a poll loop by hand, as gdk/gtk does
-		 * it pretty well already */
-		retcode = pthread_create(&esound_thread,
-			NULL, /*Thread attributes */
-			esd_starter_thread,
-			NULL /* args passed to thread */);
-		if (retcode != 0)
-		    printf("Error attempting to create Esound thread\n");
-		break;
+		switch (sound_source)
+		{
+			case ESD:
+				/* since we want to audio to NOT be read in the main gtk loop
+				 * we'll use the gtk input function as a helper. IT will awaken
+				 * our esound reader thread whenever data is ready. Save us 
+				 * from having to setup a poll loop by hand, as gdk/gtk does
+				 * it pretty well already */
+				retcode = pthread_create(&esound_thread,
+						NULL, /*Thread attributes */
+						esd_starter_thread,
+						NULL /* args passed to thread */);
+				if (retcode != 0)
+					printf("Error attempting to create Esound thread\n");
+				break;
 #ifdef HAVE_ALSA_05
-	    case ALSA:
-		retcode = pthread_create(&alsa_thread,
-			NULL,
-			alsa_starter_thread,
-			alsa_handle);
-		if (retcode != 0)
-		    printf("Error attempting to create MAIN ALSA thread\n");
-		break;
+			case ALSA:
+				retcode = pthread_create(&alsa_thread,
+						NULL,
+						alsa_starter_thread,
+						alsa_handle);
+				if (retcode != 0)
+					printf("Error attempting to create MAIN ALSA thread\n");
+				break;
 #endif
 
-	    default:
-		break;
+			default:
+				break;
 
+		}
 	}
-    }
-    read_started = 1;
-    return(0);
+	read_started = 1;
+	return(0);
 
 }
     
@@ -247,73 +247,73 @@ int audio_thread_starter()
  */
 void alsa_reader_thread(void *private_data, char *buffer, size_t count)
 {
-    static gint last;
+	static gint last;
 
-    /* set predicate to block any other threads 
-     * not really needed as I ripped out the unnecessary thread/mutex
-     * stuff, but the flags might be good to have anyway....
-     */
-    alsa_locked = 1;
-    bytes_2_move = count;
-    bytes_moved = 0;
-    /* ring_pos is in ELEMENTS, NOT BYTES!!!!, since the buffer is of shorts
-     * incrementing ring_pos by 1 actually moves 2 bytes ahead */
+	/* set predicate to block any other threads 
+	 * not really needed as I ripped out the unnecessary thread/mutex
+	 * stuff, but the flags might be good to have anyway....
+	 */
+	alsa_locked = 1;
+	bytes_2_move = count;
+	bytes_moved = 0;
+	/* ring_pos is in ELEMENTS, NOT BYTES!!!!, since the buffer is of shorts
+	 * incrementing ring_pos by 1 actually moves 2 bytes ahead */
 
-    if (ring_pos+(bytes_2_move/2) > ring_end) 
-    {
-	/* fill up to end of ring buffer, but don't jump boundary */
-	memcpy(audio_ring + ring_pos,
-		buffer,
-		(ring_end - ring_pos)*2); /*need bytes, not elements */
-	bytes_moved = (ring_end - ring_pos)*2;
+	if (ring_pos+(bytes_2_move/2) > ring_end) 
+	{
+		/* fill up to end of ring buffer, but don't jump boundary */
+		memcpy(audio_ring + ring_pos,
+				buffer,
+				(ring_end - ring_pos)*2); /*need bytes, not elements */
+		bytes_moved = (ring_end - ring_pos)*2;
 
-	/* wrap to beginning */
-	memcpy(audio_ring,
-		buffer + bytes_moved,
-		bytes_2_move - bytes_moved);
-	/* mark where we are .. */
-	ring_pos = (bytes_2_move - bytes_moved)/2; /* need elements NOT bytes*/
-    }         
-    else
-    {
-	memcpy(audio_ring + ring_pos,
-		buffer,
-		bytes_2_move);
-	ring_pos += bytes_2_move/2; /* mark where we are in ringbuffer */
-    } 
+		/* wrap to beginning */
+		memcpy(audio_ring,
+				buffer + bytes_moved,
+				bytes_2_move - bytes_moved);
+		/* mark where we are .. */
+		ring_pos = (bytes_2_move - bytes_moved)/2; /* need elements NOT bytes*/
+	}         
+	else
+	{
+		memcpy(audio_ring + ring_pos,
+				buffer,
+				bytes_2_move);
+		ring_pos += bytes_2_move/2; /* mark where we are in ringbuffer */
+	} 
 
 
-    audio_arrival_last = audio_arrival;
-    gettimeofday(&audio_arrival, NULL);
+	audio_arrival_last = audio_arrival;
+	gettimeofday(&audio_arrival, NULL);
 
-    //    printf("Moved %i bbytes of input data\n",count);
+	//    printf("Moved %i bbytes of input data\n",count);
 
-    //    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+	//    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
 
-    if (gdk_window_is_visible(buffer_area->window))
-    {
-	/* Only draw it if its visible.  Why waste CPU time ??? */
-	gdk_threads_enter();
+	if (gdk_window_is_visible(buffer_area->window))
+	{
+		/* Only draw it if its visible.  Why waste CPU time ??? */
+		gdk_threads_enter();
 
-	gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
-		TRUE,
-		last, 20,
-		2,15);
+		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
+				TRUE,
+				last, 20,
+				2,15);
 
-	gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-		TRUE,
-		(float)buffer_area->allocation.width\
-		*((float)ring_pos/(float)ring_end), 20,
-		2,15);
+		gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
+				TRUE,
+				(float)buffer_area->allocation.width\
+				*((float)ring_pos/(float)ring_end), 20,
+				2,15);
 
-	last = (float)buffer_area->allocation.width\
-	    *((float)ring_pos/(float)ring_end);
+		last = (float)buffer_area->allocation.width\
+			*((float)ring_pos/(float)ring_end);
 
-	gdk_window_clear(buffer_area->window);
-	gdk_threads_leave();
-    }
-    /* unset predicate */
-    alsa_locked = 0;
+		gdk_window_clear(buffer_area->window);
+		gdk_threads_leave();
+	}
+	/* unset predicate */
+	alsa_locked = 0;
 }
 #endif
 
@@ -326,175 +326,175 @@ void alsa_reader_thread(void *private_data, char *buffer, size_t count)
  */
 void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 {
-    static gint last;
-    int count = 0;
+	static gint last;
+	int count = 0;
 
-    /* set predicate to block other thread */
-    esd_locked = 1;
-    bytes_moved = 0;
+	/* set predicate to block other thread */
+	esd_locked = 1;
+	bytes_moved = 0;
 
-    /* copy fd so that reader thread can copy data to ringbuffer */
-    count = read(source, incoming_buf, to_get); 
-//    printf("%i requested, %i bytes read from Esound\n",to_get,count);
-    if (count > 0)
-    {
-	bytes_2_move = count;
-	if (ring_pos+(bytes_2_move/2) > ring_end)
+	/* copy fd so that reader thread can copy data to ringbuffer */
+	count = read(source, incoming_buf, to_get); 
+	//    printf("%i requested, %i bytes read from Esound\n",to_get,count);
+	if (count > 0)
 	{
+		bytes_2_move = count;
+		if (ring_pos+(bytes_2_move/2) > ring_end)
+		{
 
-	    /* fill up to end of ring buffer, but don't jump boundary */
-	    memcpy(audio_ring+ring_pos,
-		    incoming_buf,
-		    (ring_end - ring_pos)*2); /* bytes NOT elements */
+			/* fill up to end of ring buffer, but don't jump boundary */
+			memcpy(audio_ring+ring_pos,
+					incoming_buf,
+					(ring_end - ring_pos)*2); /* bytes NOT elements */
 
-	    bytes_moved = (ring_end - ring_pos)*2;
+			bytes_moved = (ring_end - ring_pos)*2;
 
-	    /* wrap to beginning */
-	    /* We have to use bytes_moved/2 for the mem address, because
-	     * incoming_buf is a SHORT *, thus an index increment of 1 = 2 bytes
-	     */
-	    memcpy(audio_ring,
-		    incoming_buf + bytes_moved/2, 
-		    bytes_2_move - bytes_moved);
-	    /* mark where we are .. */
-	    ring_pos =  (bytes_2_move - bytes_moved)/2; /* need elements not BYTES */
+			/* wrap to beginning */
+			/* We have to use bytes_moved/2 for the mem address, because
+			 * incoming_buf is a SHORT *, thus an index increment of 1 = 2 bytes
+			 */
+			memcpy(audio_ring,
+					incoming_buf + bytes_moved/2, 
+					bytes_2_move - bytes_moved);
+			/* mark where we are .. */
+			ring_pos =  (bytes_2_move - bytes_moved)/2; /* need elements not BYTES */
 
+		}
+		else
+		{
+			memcpy(audio_ring+ring_pos,
+					incoming_buf,
+					bytes_2_move);
+			//	    printf("NOWRAP %i bytes moved to %p\n",bytes_2_move,audio_ring+ring_pos);
+			ring_pos += bytes_2_move/2; /*mark where we are in ringbuffer*/
+		}                  
 	}
-	else
+
+	audio_arrival_last = audio_arrival;
+	gettimeofday(&audio_arrival, NULL);
+	//    printf("Moved %i bytes of input data\n",count);
+
+	//    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+
+	if (gdk_window_is_visible(buffer_area->window))
 	{
-	    memcpy(audio_ring+ring_pos,
-		    incoming_buf,
-		    bytes_2_move);
-//	    printf("NOWRAP %i bytes moved to %p\n",bytes_2_move,audio_ring+ring_pos);
-	    ring_pos += bytes_2_move/2; /*mark where we are in ringbuffer*/
-	}                  
-    }
+		// Only draw it if its visible.  Why waste CPU time ??? 
+		gdk_threads_enter();
 
-    audio_arrival_last = audio_arrival;
-    gettimeofday(&audio_arrival, NULL);
-//    printf("Moved %i bytes of input data\n",count);
+		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
+				TRUE,
+				last, 20,
+				2,15);
 
-//    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+		gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
+				TRUE,
+				(float)buffer_area->allocation.width\
+				*((float)ring_pos/(float)ring_end), 20,
+				2,15);
 
-    if (gdk_window_is_visible(buffer_area->window))
-    {
-	// Only draw it if its visible.  Why waste CPU time ??? 
-	gdk_threads_enter();
+		last = (float)buffer_area->allocation.width\
+			*((float)ring_pos/(float)ring_end);
 
-	gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
-		TRUE,
-		last, 20,
-		2,15);
-
-	gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-		TRUE,
-		(float)buffer_area->allocation.width\
-		*((float)ring_pos/(float)ring_end), 20,
-		2,15);
-
-	last = (float)buffer_area->allocation.width\
-	    *((float)ring_pos/(float)ring_end);
-
-	gdk_window_clear(buffer_area->window);
-	gdk_threads_leave();
-    }
-    /* unset predicate */
-    esd_locked = 0;
+		gdk_window_clear(buffer_area->window);
+		gdk_threads_leave();
+	}
+	/* unset predicate */
+	esd_locked = 0;
 }
 
 void *esd_starter_thread(void * params)
 {
-    /* Creates the GTK input handler for Esound, then evaporates */
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+	/* Creates the GTK input handler for Esound, then evaporates */
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 
-    /*	fcntl(esd_handle, F_SETFL, O_NONBLOCK); */
-    tag = gdk_input_add(esd_handle, 
-	    GDK_INPUT_READ | GDK_INPUT_EXCEPTION,
-	    esd_reader_thread, NULL);
-    return(0);
+	/*	fcntl(esd_handle, F_SETFL, O_NONBLOCK); */
+	tag = gdk_input_add(esd_handle, 
+			GDK_INPUT_READ | GDK_INPUT_EXCEPTION,
+			esd_reader_thread, NULL);
+	return(0);
 }
 
 #ifdef HAVE_ALSA_05
 
 void *alsa_starter_thread(void * handle)
 {
-    /* Creates the ALSA callback handler for ALSA, then sleeps indefinitely */
-    /* Callback can return if the handle over-runs, (buffer overrun) thus
-     * when pausing extace (SIG_STOP/SUSPEND) the handle will overflow and
-     * upon resume the callback will exit. We get around that via the loop
-     * below.
-     */
-    int retcode=0;
-    pthread_t callback_thread;
-    snd_pcm_loopback_callbacks_t callbacks;
+	/* Creates the ALSA callback handler for ALSA, then sleeps indefinitely */
+	/* Callback can return if the handle over-runs, (buffer overrun) thus
+	 * when pausing extace (SIG_STOP/SUSPEND) the handle will overflow and
+	 * upon resume the callback will exit. We get around that via the loop
+	 * below.
+	 */
+	int retcode=0;
+	pthread_t callback_thread;
+	snd_pcm_loopback_callbacks_t callbacks;
 
-    pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-    pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-    memset(&callbacks, 0, sizeof(callbacks));
-    callbacks.data = alsa_reader_thread;
-    callbacks.position_change = loopback_position_change;
-    callbacks.silence = loopback_silence;
-    callbacks.format_change = loopback_format_change;
-    callbacks.max_buffer_size = callback_buffer_size;
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+	memset(&callbacks, 0, sizeof(callbacks));
+	callbacks.data = alsa_reader_thread;
+	callbacks.position_change = loopback_position_change;
+	callbacks.silence = loopback_silence;
+	callbacks.format_change = loopback_format_change;
+	callbacks.max_buffer_size = callback_buffer_size;
 
-    snd_pcm_loopback_read(handle, &callbacks);
-    if (keep_reading == 1)
-    {
-	/*    printf("loopback died for some stupid reason, restarting\n"); */
-	retcode = pthread_create(&callback_thread, NULL, alsa_starter_thread,alsa_handle);
-    }
-    /*	#printf("alsa shutting down, don't restart callback thread \n"); */
+	snd_pcm_loopback_read(handle, &callbacks);
+	if (keep_reading == 1)
+	{
+		/*    printf("loopback died for some stupid reason, restarting\n"); */
+		retcode = pthread_create(&callback_thread, NULL, alsa_starter_thread,alsa_handle);
+	}
+	/*	#printf("alsa shutting down, don't restart callback thread \n"); */
 	return(0);
 }
 
 void loopback_position_change(void *private_data,unsigned int pos) 
 {
-    printf("Alsa POSITION change callback called, doing nothing\n");
+	printf("Alsa POSITION change callback called, doing nothing\n");
 }
 
 void loopback_format_change(void *private_data,snd_pcm_format_t *format) 
 {
-    printf("Alsa FORMAT change callback called, doing nothing\n");
+	printf("Alsa FORMAT change callback called, doing nothing\n");
 }
 
 void loopback_silence(void *private_data,size_t count) 
 {
-    printf("Alsa silence callback called, doing nothing\n");
+	printf("Alsa silence callback called, doing nothing\n");
 }
 #endif
 
 void error_close_cb(GtkWidget *widget, gpointer *data)
 {
-      printf("Cannot connect to sound source, check options.\n");
+	printf("Cannot connect to sound source, check options.\n");
 	gtk_widget_destroy(errbox);
 }
 
 void alsa_adjust(GtkWidget *widget, gpointer *data)
 {
-    switch ((gint)data)
-    {
-	case ALSA_CARD:
-	    alsa_card = GTK_ADJUSTMENT(widget)->value;
-	    break;
-	case ALSA_DEVICE:
-	    alsa_device = GTK_ADJUSTMENT(widget)->value;
-	    break;
-	case ALSA_SUB_DEV:
-	    alsa_sub_dev = GTK_ADJUSTMENT(widget)->value;
-	    break;
-	default:
-	    break;
-    }
-    if (sound_source == ALSA)
-    {
-	keep_reading = 0;
-	audio_thread_stopper();
-	usleep(2000);
-	close_sound();
-	keep_reading = 1;
-	if (open_sound() >= 0)
-	    audio_thread_starter();
-    }
+	switch ((gint)data)
+	{
+		case ALSA_CARD:
+			alsa_card = GTK_ADJUSTMENT(widget)->value;
+			break;
+		case ALSA_DEVICE:
+			alsa_device = GTK_ADJUSTMENT(widget)->value;
+			break;
+		case ALSA_SUB_DEV:
+			alsa_sub_dev = GTK_ADJUSTMENT(widget)->value;
+			break;
+		default:
+			break;
+	}
+	if (sound_source == ALSA)
+	{
+		keep_reading = 0;
+		audio_thread_stopper();
+		usleep(2000);
+		close_sound();
+		keep_reading = 1;
+		if (open_sound() >= 0)
+			audio_thread_starter();
+	}
 }
 

@@ -131,7 +131,7 @@ static void convolve_run (stack_entry * top, unsigned size, double * scratch)
 		/* When we get here, the stack top is always a convolve,
 		 * with size > 4.  So we will split it.  We repeatedly split
 		 * the top entry until we get to size = 4. */
-			
+
 		left = top->v.left;
 		right = top->v.right;
 		out = top->v.out;
@@ -157,7 +157,7 @@ static void convolve_run (stack_entry * top, unsigned size, double * scratch)
 				s_left[i + size] = r;
 				s_left[i] = l;
 			}
-			
+
 			/* Push the combine entry onto the stack. */
 			top -= 3;
 			top[2].b.main = out;
@@ -262,7 +262,7 @@ int convolve_match (const int * lastchoice,
 	top->v.right = right;
 	top->v.out = right + 256;
 	convolve_run (top, 256, scratch);
-	
+
 	/* The high 256x256, of which we want the low 256 outputs. */
 	top->v.left = left + 256;
 	top->v.right = right;
@@ -291,7 +291,7 @@ int convolve_match (const int * lastchoice,
 		best = 0;
 		for (i = 0; i < 256; i++)
 			best += ((double) input[i+p]) * ((double) lastchoice[i] - avg);
-		
+
 		for (i = 0; i < 257; i++) {
 			double tot = 0;
 			unsigned int j;
