@@ -237,28 +237,6 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 #ifdef DND_DEBUG
 		g_print("BUTTON 1 PRESSED!! running handler \n");
 #endif
-		/* In 2d EQ (Graphica Equalizer) we get the frequency for 
-		 * wherever the user presses the mouse button  and display it
-		 * near the top of the window
-		 */
-		if (mode == EQ_2D)
-		{
-			int band_num =0;
-			int x_draw_width = width-2*x_border;
-
-			if (x < x_border)
-				x = x_border;
-			if (x > width-x_border)
-				x = width-x_border;
-			band_num = (int)(((float)(x-x_border)/(float)(x_draw_width))*(float)bands);
-			if (band_num > bands-1)
-				band_num = bands-1;
-			freq_at_pointer = freqmark[band_num];
-
-			pt_lock = 1;
-			one_to_fix = EQ_2D;
-		}
-
 		/* Test if close to an endpoint on 3D modes, or near the beginning
 		 * of the scrolled regio on the spectragram modes
 		 */
@@ -360,25 +338,24 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 		state = event->state;
 	}
 
+	if (mode == EQ_2D)
+	{
+		int band_num =0;
+		int x_draw_width = width-2*x_border;
+
+		if (x < x_border)
+			x = x_border;
+		if (x > width-x_border)
+			x = width-x_border;
+		band_num = (int)(((float)(x-x_border)/(float)(x_draw_width))*(float)bands);
+		if (band_num > bands-1)
+			band_num = bands-1;
+		freq_at_pointer = freqmark[band_num];
+	}
 	if (pt_lock)
 	{
 		switch (one_to_fix)
 		{
-			case EQ_2D:
-				{
-					int band_num =0;
-					int x_draw_width = width-2*x_border;
-
-					if (x < x_border)
-						x = x_border;
-					if (x > width-x_border)
-						x = width-x_border;
-					band_num = (int)(((float)(x-x_border)/(float)(x_draw_width))*(float)bands);
-					if (band_num > bands-1)
-						band_num = bands-1;
-					freq_at_pointer = freqmark[band_num];
-					break;
-				}
 			case CHANGE_X_START:
 				{
 #ifdef DND_DEBUG
