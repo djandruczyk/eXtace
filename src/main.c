@@ -147,6 +147,7 @@ int main(int argc, char **argv)
 	main_display=gtk_drawing_area_new();
 	gtk_box_pack_start(GTK_BOX(vbox),main_display,TRUE,TRUE,0);
 	gtk_widget_realize(main_display);
+	g_print("Width being set to %i\n",width);
 	gtk_widget_set_usize(main_display,width,height);
 	//    win=main_display->window;
 	gc=gdk_gc_new(main_display->window);

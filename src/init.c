@@ -183,6 +183,7 @@ void read_config(void)
 		extace_cfg_read_int(cfgfile, "Global", "low_freq", &low_freq);
 		extace_cfg_read_int(cfgfile, "Global", "high_freq", &high_freq);
 		extace_cfg_read_int(cfgfile, "Window", "width", &width);
+		g_print("Width read from config file is %i\n",width);
 		extace_cfg_read_int(cfgfile, "Window", "height", &height);
 		extace_cfg_read_int(cfgfile, "Window", "main_x_origin", &main_x_origin);
 		extace_cfg_read_int(cfgfile, "Window", "main_y_origin", &main_y_origin);

@@ -210,7 +210,15 @@ if test "$have_rfftw" = "no"
 then
 	if test "$have_drfftw" = "no"
 	then
+		echo 
 		echo "!!! FFTW libraries NOT found. eXtace will NOT compile without them!!!"
+		echo
+		echo "Please install the FFTW library (Fastest FFT in the West), it is available from http://www.fftw.org or from your most convienient .RPM .DEB or Gentoo mirror"
+		echo
+		echo " - Gentoo users can get it via \"emerge fftw\" as root"
+		echo " - Debian users can get it via \"apt-get fftw\" or \"apt-get fftw-lib\" as root"
+		echo " - RPM users (mandrake, suse, redhat) can install it via \"urpmi fftw\" or \"urpmi fftw-lib\", or via http://RPMfind.net as root"
+		echo
 		exit 1
 	fi
 

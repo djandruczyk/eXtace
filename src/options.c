@@ -171,10 +171,10 @@ int setup_options()
 
 	box = gtk_hbox_new(FALSE,0);
 
-	label = gtk_label_new("Low Res FFT's");
+	label = gtk_label_new("Low Res. FFT's");
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), box, label);
 
-	frame = gtk_frame_new("Low Res FFT Display Options");
+	frame = gtk_frame_new("Low Resolution FFT Display Options");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
@@ -393,10 +393,10 @@ int setup_options()
 
 	box = gtk_hbox_new(FALSE,0);
 
-	label = gtk_label_new("High Res FFT's");
+	label = gtk_label_new("High Res. FFT's");
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), box, label);
 
-	frame = gtk_frame_new("High Res Display Bandwidth");
+	frame = gtk_frame_new("High Resolution Display Bandwidth");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
@@ -426,7 +426,7 @@ int setup_options()
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)22050);
 
-	frame = gtk_frame_new("High Res FFT Display Options");
+	frame = gtk_frame_new("High Resolution FFT Display Options");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
