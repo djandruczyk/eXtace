@@ -55,6 +55,6 @@ CFLAGS += $(COMMON_FLAGS) -Wall
 	
 CLEANFILES = *~ core* .deps/* gmon.out nohup.out -r .deps
 
-EXTRA_DIST = extace.desktop README NEWS TODO Colormap-format
+EXTRA_DIST = extace.desktop Colormap-format
 
 Multimedia_DATA = extace.desktop

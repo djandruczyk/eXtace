@@ -1,4 +1,4 @@
-# Makefile.in generated automatically by automake 1.4-p5 from Makefile.am
+# Makefile.in generated automatically by automake 1.4-p6 from Makefile.am
 
 # Copyright (C) 1994, 1995-8, 1999, 2001 Free Software Foundation, Inc.
 # This Makefile.in is free software; the Free Software Foundation
@@ -117,7 +117,7 @@ CFLAGS = @CFLAGS@ $(COMMON_FLAGS) -Wall
 
 CLEANFILES = *~ core* .deps/* gmon.out nohup.out -r .deps
 
-EXTRA_DIST = extace.desktop README NEWS TODO Colormap-format
+EXTRA_DIST = extace.desktop Colormap-format
 
 Multimedia_DATA = extace.desktop
 mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
@@ -150,8 +150,7 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(LDFLAGS) -o $@
 DATA =  $(Multimedia_DATA)
 
-DIST_COMMON =  README AUTHORS ChangeLog Makefile.am Makefile.in NEWS \
-TODO
+DIST_COMMON =  AUTHORS ChangeLog Makefile.am Makefile.in
 
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
