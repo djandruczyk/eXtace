@@ -572,23 +572,70 @@ void reinit_extace(int new_nsamp)
 void ring_rate_changed()
 {
 	/* Fixes all adjustments that depend on sample rate */
+	gfloat val = 0.0;
+	gfloat low = 0.0;
+	gfloat upper = 0.0;
+	gfloat percentage = 0.0;
+	gfloat newval = 0.0;
+
 	if (!ready)
 		return;
 
-	GTK_ADJUSTMENT(lf_adj)->lower = (float)ring_rate/(float)decimation_factor/(float)nsamp;
-	GTK_ADJUSTMENT(lf_adj)->upper = high_freq - 64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp);
+	/* The idea behind this is pretty cool.  
+	 * First off, if you increas the decimation or fft size, the
+	 * low limit goes lower.  What this does is gets the adjustments
+	 * position as a percentage of range, alters the limits of that 
+	 * range and recalculates a new value and moves the pointer.  This
+	 * way if the pointer was atthe min, and you increased the fft size
+	 * the adjustment will auotmatically move to show you the increaed
+	 * resolution...
+	 */
+	/* Store values BEFORE we change the limits... */
+	val = GTK_ADJUSTMENT(lf_adj)->value;
+	low = GTK_ADJUSTMENT(lf_adj)->lower;
+	upper = GTK_ADJUSTMENT(lf_adj)->upper;
+	percentage = (val-low)/(upper-low);
+	/* Set new limits to the adjustment */
+	GTK_ADJUSTMENT(lf_adj)->lower = 
+			(float)ring_rate/(float)decimation_factor/(float)nsamp;
+	GTK_ADJUSTMENT(lf_adj)->upper = 
+			high_freq - 64.0*((float)ring_rate
+			/ (float)decimation_factor/(float)nsamp);
 	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(lf_adj)->page_increment = (float)ring_rate/(float)nsamp;
+	/* Copy new values to temp vars for new calc (cleaner code) */
+	low = GTK_ADJUSTMENT(lf_adj)->lower;
+	upper = GTK_ADJUSTMENT(lf_adj)->upper;
+	newval = (percentage*(upper-low)) + low;
+	/* Reset the value */
+	GTK_ADJUSTMENT(lf_adj)->value = newval;
 
+	/* Store values BEFORE we change the limits... */
+	val = GTK_ADJUSTMENT(hf_adj)->value;
+	low = GTK_ADJUSTMENT(hf_adj)->lower;
+	upper = GTK_ADJUSTMENT(hf_adj)->upper;
+	percentage = (val-low)/(upper-low);
+	/* Set new limits to the adjustment */
 	GTK_ADJUSTMENT(hf_adj)->lower = 
-			low_freq + 64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp);
+			low_freq + 64.0*((float)ring_rate
+			/ (float)decimation_factor/(float)nsamp);
 	GTK_ADJUSTMENT(hf_adj)->upper = 
-			(float)ring_rate/(float)(2*decimation_factor) + (float)ring_rate/(float)nsamp;
+			(float)ring_rate/(float)(2*decimation_factor)
+			+ 10.001;
 	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(hf_adj)->page_increment = (float)ring_rate/(float)nsamp;
+	/* Copy new values to temp vars for new calc (cleaner code) */
+	low = GTK_ADJUSTMENT(hf_adj)->lower;
+	upper = GTK_ADJUSTMENT(hf_adj)->upper;
+	newval = (percentage*(upper-low)) + low;
+	/* Reset the value */
+	GTK_ADJUSTMENT(hf_adj)->value = newval;
+
+	/* Force the adjustments to update on screen */
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
 	gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 
+	/* Display lag control */
 	GTK_ADJUSTMENT(lag_adj)->upper = (int)(1000*ring_end/(ring_rate*sizeof(ring_type)));
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lag_adj));
 
