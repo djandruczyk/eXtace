@@ -120,7 +120,7 @@ struct		Color_map {
     gchar *filename;	/* Currently used colormap */
 }Color_map;
 
-fftw_plan	plan;		/* fft plan for fftw library */
+rfftw_plan	plan;		/* fft plan for fftw library */
 gboolean	landtilt;	/* Landform 3D perspective tilt flag */
 gboolean	spiketilt;	/* Spike 3D perspective tilt flag */
 gboolean	landflip;	/* Invert Y axis on 3D modes */

@@ -134,7 +134,7 @@ void draw_2d_eq()
 			xdraw_width*0.66,0,
 			xdraw_width*0.33,10);
 
-	g_snprintf(buff,20,"%f hertz", freq_at_pointer);
+	g_snprintf(buff,20,"%.2f hertz", freq_at_pointer);
 	gdk_draw_text(main_pixmap,main_display->style->font,
 			main_display->style->white_gc,
 			xdraw_width*.66,10,

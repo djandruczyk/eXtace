@@ -97,7 +97,7 @@ then
 	EXTRA_LIBS="-lcomedi $EXTRA_LIBS "
 fi
 
-dnl fftw
+dnl rfftw
 dnl
 PROGRAMS_EXTACE=""
 AC_CHECK_LIB(rfftw, rfftw_one, have_rfftw=yes, have_rfftw=no,[-lfftw -lm] )
@@ -108,15 +108,15 @@ then
 	EXTRA_LIBS="-lrfftw -lfftw $EXTRA_LIBS "	
 fi
 
-if test "$have_rfftw" = "no" 
+if test "$have_rftw" = "no" 
 then
-	AC_CHECK_LIB(drfftw, rfftw_one, have_drfftw=yes,,[-ldfftw -lm] )
+	AC_CHECK_LIB(drfftw, drfftw_one, have_drfftw=yes,,[-ldrfftw -lm] )
 
 	if test "$have_drfftw" = "yes"
 	then
-		AC_CHECK_LIB(drfftw, rfftw_one,, )
+		AC_CHECK_LIB(drfftw, drfftw_one,, )
 		PROGRAMS_EXTACE=extace
-		EXTRA_LIBS="-ldrfftw -ldfftw $EXTRA_LIBS "	
+		EXTRA_LIBS="-ldrfftw -lfftw $EXTRA_LIBS "	
 	fi
 fi
 

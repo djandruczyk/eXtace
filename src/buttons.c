@@ -179,7 +179,7 @@ gint set_data_source(GtkWidget *widget, gpointer data)
        (in case previous sound source was bad) */
     if ((data_handle=open_datasource(data_source)) >= 0)
       {
-	      plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+	      plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 	      ring_rate_changed(); /* Fix all gui controls that depend on
 				    * ring_rate (adjustments and such
 				    */

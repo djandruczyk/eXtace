@@ -27,12 +27,7 @@ void setup_datawindow(GtkWidget *widget, WindowFunction function)
 {
 	gint i=0;
 	gdouble sumw=0.0;
-#ifdef HAVE_LIBRFFTW
 	gdouble *ptr;
-#endif
-#ifdef HAVE_LIBDRFFTW
-	gdouble *ptr;
-#endif
 #ifdef WINDOW_DEBUG
 	FILE *f;
 #endif

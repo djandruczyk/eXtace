@@ -510,7 +510,7 @@ void mem_dealloc()
 	//	free(Color_map.locations);
 
 	if (plan)
-		rfftw_destroy_plan(plan);
+		fftw_destroy_plan(plan);
 	convolve_close(l_state); 
 	convolve_close(r_state); 
 }
@@ -549,7 +549,7 @@ void reinit_extace(int new_nsamp)
 	/* only start if it has been stopped above */
 	if(data_handle != -1 && (data_handle=open_datasource(data_source)) >= 0)
 	  {
-		  plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+		  plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 		  input_thread_starter(data_handle);
 		  ring_rate_changed(); /* Fix all gui controls that depend on
 					* ring_rate (adjustments and such

@@ -25,10 +25,10 @@
 #include <gtk/gtk.h>
 #include <math.h>
 #ifdef HAVE_LIBRFFTW
-#include <rfftw.h>
+#include <fftw.h>
 #endif 
 #ifdef HAVE_LIBDRFFTW
-#include <drfftw.h>
+#include <dfftw.h>
 #endif 
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
