@@ -134,7 +134,7 @@ void split_and_decimate()
 	 *    - Decimate this buffer, remembering middle of buf is mid of 
 	 *    display.  Skip every other byte, to decimate by 2 and so on.
 	 * 4. Scope.
-	 *    - Center of buffer is NOT the cneter of the scope,  it is offset
+	 *    - Center of buffer is NOT the center of the scope,  it is offset
 	 *    by an amount that is dependant on the currently selected FFT
 	 *    size. (THIS SHOULD BE CHANGED EVENTUALLY).
 	 *    will need to handle this condition.  because of the huge buffer
@@ -180,7 +180,7 @@ void split_and_decimate()
 			-(audio_arrival.tv_sec\
 				+(audio_arrival.tv_usec/1000000.0)))*1000;
 
-	//printf("Audio offset lag in milliseconds %f\n",audio_offset_lag);
+	printf("Audio offset lag in milliseconds %f\n",audio_offset_lag);
 
 	/* Need this in sample elements not in milliseconds.... */
 	audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)\
@@ -253,7 +253,7 @@ void split_and_decimate()
 		index = start_offset;
 		endpoint_1 = ring_end;
 		/* since we may end short of the end of the buffer, we
-		 * needto offset properly after the wraparound, otherwaise
+		 * need to offset properly after the wraparound, otherwaise
 		 * we'll get one too many samples, and segfault. 
 		 */
 		if ((endpoint_1-start_offset)%(2*decimation_factor))
@@ -268,13 +268,14 @@ void split_and_decimate()
 	 * we find our position in the ring to copy from above, and 
 	 * copy the data to the audio_left and right buffers as requested
 	 * eventualy this code will go away and we'll just pass the necessary
-	 * offsets to the cope code and drop the buffer altogether for 
+	 * offsets to the scope code and drop the buffer altogether for 
 	 * pure speed, and allows us to use a convolution on any size
 	 * of datablocks, unless latency is set extremely low
 	 * we increment our index by "2*decimation_factor",  because the 
 	 * data is interleaved, the 2 makes sure we don't swap channels 
 	 * by accident and the decimation_factor acts to essentially change 
-	 * the scope's effective sweeep rate.
+	 * the scope's effective sweeep rate, even though it updates at a 
+	 * constant speed. (decimation acts like resampling)
 	 */
 
 	if (mode == SCOPE) /* copy data to scope buffers */
