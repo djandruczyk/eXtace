@@ -23,10 +23,6 @@
 static gint i=0;
 static gint j=0;
 static gint height_per_scope=0;
-static gint prev_left_val=0;
-static gint prev_right_val=0;
-static gint prev_old_left_val=0;
-static gint prev_old_right_val=0;
 static gint old_left_val=0;
 static gint old_right_val=0;
 static gint old_scope_pos_l=0;
@@ -37,6 +33,16 @@ static gint left_val=0;
 static gint right_val=0;
 static gint lo_width=0;
 static gint max=0;
+static gint right_scope_pos=0;
+
+	/* NOTE to myself.  VERY VERY bad to statically define this.  this WILL
+	 * break with a window size larger than 2048 pixels.  (Not possible on
+	 * my system, but still possible elsewhere
+	 */
+static GdkPoint	l_scope_points[2048];
+static GdkPoint	r_scope_points[2048];
+static GdkPoint	l_scope_points_last[2048];
+static GdkPoint	r_scope_points_last[2048];
 
 
 
@@ -67,11 +73,6 @@ void draw_scope()
 				TRUE, 0,0,
 				lo_width,height);
 	}
-	prev_right_val = 0;
-	prev_old_right_val = 0;
-
-	prev_left_val = 0;
-	prev_old_left_val = 0;
 
 	if (show_graticule)
 	{
@@ -81,17 +82,53 @@ void draw_scope()
 			if(use_back_pixmap)
 			{
 
-				gdk_draw_line(main_pixmap,graticule_gc,0,height-height/4+i,lo_width,height-height/4+i);
-				gdk_draw_line(main_pixmap,graticule_gc,0,height-height/4-i,lo_width,height-height/4-i);
-				gdk_draw_line(main_pixmap,graticule_gc,0,height/4+i,lo_width,height/4+i);
-				gdk_draw_line(main_pixmap,graticule_gc,0,height/4-i,lo_width,height/4-i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						0,\
+						height-height_per_scope+i,\
+						lo_width,\
+						height-height_per_scope+i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						0,\
+						height-height_per_scope-i,\
+						lo_width,\
+						height-height_per_scope-i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						0,\
+						height_per_scope+i,\
+						lo_width,\
+						height_per_scope+i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						0,\
+						height_per_scope-i,\
+						lo_width,\
+						height_per_scope-i);
 			}
 			else
 			{
-				gdk_draw_line(main_display->window,graticule_gc,0,height-height/4+i,lo_width,height-height/4+i);
-				gdk_draw_line(main_display->window,graticule_gc,0,height-height/4-i,lo_width,height-height/4-i);
-				gdk_draw_line(main_display->window,graticule_gc,0,height/4+i,lo_width,height/4+i);
-				gdk_draw_line(main_display->window,graticule_gc,0,height/4-i,lo_width,height/4-i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,\
+						0,\
+						height-height_per_scope+i,\
+						lo_width,
+						height-height_per_scope+i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,
+						0,\
+						height-height_per_scope-i,\
+						lo_width,\
+						height-height_per_scope-i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,\
+						0,\
+						height_per_scope+i,\
+						lo_width,\
+						height_per_scope+i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,\
+						0,\
+						height_per_scope-i,\
+						lo_width,\
+						height_per_scope-i);
 			}
 		}
 		i-=32;
@@ -100,17 +137,53 @@ void draw_scope()
 		{
 			if(use_back_pixmap)
 			{
-				gdk_draw_line(main_pixmap,graticule_gc,lo_width/2+j,height/4-i,lo_width/2+j,height/4+i);
-				gdk_draw_line(main_pixmap,graticule_gc,lo_width/2-j,height/4-i,lo_width/2-j,height/4+i);
-				gdk_draw_line(main_pixmap,graticule_gc,lo_width/2+j,height-height/4-i,lo_width/2+j,height-height/4+i);
-				gdk_draw_line(main_pixmap,graticule_gc,lo_width/2-j,height-height/4-i,lo_width/2-j,height-height/4+i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						lo_width/2+j,\
+						height_per_scope-i,\
+						lo_width/2+j,\
+						height_per_scope+i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						lo_width/2-j,\
+						height_per_scope-i,\
+						lo_width/2-j,\
+						height_per_scope+i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						lo_width/2+j,\
+						height-height_per_scope-i,\
+						lo_width/2+j,\
+						height-height_per_scope+i);
+				gdk_draw_line(main_pixmap,graticule_gc,\
+						lo_width/2-j,\
+						height-height_per_scope-i,\
+						lo_width/2-j,\
+						height-height_per_scope+i);
 			}
 			else
 			{
-				gdk_draw_line(main_display->window,graticule_gc,lo_width/2+j,height/4-i,lo_width/2+j,height/4+i);
-				gdk_draw_line(main_display->window,graticule_gc,lo_width/2-j,height/4-i,lo_width/2-j,height/4+i);
-				gdk_draw_line(main_display->window,graticule_gc,lo_width/2+j,height-height/4-i,lo_width/2+j,height-height/4+i);
-				gdk_draw_line(main_display->window,graticule_gc,lo_width/2-j,height-height/4-i,lo_width/2-j,height-height/4+i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,\
+						lo_width/2+j,\
+						height_per_scope-i,\
+						lo_width/2+j,\
+						height_per_scope+i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,\
+						lo_width/2-j,\
+						height_per_scope-i,\
+						lo_width/2-j,\
+						height_per_scope+i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,\
+						lo_width/2+j,\
+						height-height_per_scope-i,\
+						lo_width/2+j,\
+						height-height_per_scope+i);
+				gdk_draw_line(main_display->window,\
+						graticule_gc,\
+						lo_width/2-j,\
+						height-height_per_scope-i,\
+						lo_width/2-j,\
+						height-height_per_scope+i);
 			}
 		}
 	}
@@ -154,38 +227,25 @@ void draw_scope()
 			printf("scope_pos_left OVERFLOW!!!!\n");
 		if (scope_pos_r > nsamp)
 			printf("scope_pos_right OVERFLOW!!!!\n");
-		old_left_val=(gint)(audio_last_l[old_scope_pos_l]*left_amplitude);
+		old_left_val=(gint)(audio_last_l[old_scope_pos_l]\
+				*left_amplitude);
+
 		left_val=(gint)(audio_left[scope_pos_l]*left_amplitude);
 
-		old_right_val=(gint)(audio_last_r[old_scope_pos_r]*right_amplitude);
+		old_right_val=(gint)(audio_last_r[old_scope_pos_r]\
+				*right_amplitude);
+
 		right_val=(gint)(audio_right[scope_pos_r]*right_amplitude);
 
-		if (i >= 1)
-		{
-			prev_old_left_val=(gint)(audio_last_l[old_scope_pos_l-1]*left_amplitude);
-			prev_left_val=(gint)(audio_left[scope_pos_l-1]*left_amplitude);
-			prev_old_right_val=(gint)(audio_last_r[old_scope_pos_r-1]*right_amplitude);
-			prev_right_val=(gint)(audio_right[scope_pos_r-1]*right_amplitude);
-		}
 		if (left_val < -127)
 		{
 			left_val = -127;
 			old_left_val = -127;
 		}
-		if (prev_left_val < -127)
-		{
-			prev_left_val = -127;
-			prev_old_left_val = -127;
-		}
 		else if (left_val > 127)
 		{
 			left_val = 127;
 			old_left_val = 127;
-		}
-		else if (prev_left_val > 127)
-		{
-			prev_left_val = 127;
-			prev_old_left_val = 127;
 		}
 
 		if (right_val < -127)
@@ -193,90 +253,215 @@ void draw_scope()
 			right_val = -127;
 			old_right_val = -127;
 		}
-		if (prev_right_val < -127)
-		{
-			prev_right_val = -127;
-			prev_old_right_val = -127;
-		}
 		else if (right_val > 127)
 		{
 			right_val = 127;
 			old_right_val = 127;
 		}
-		else if (prev_right_val > 127)
+
+
+		l_scope_points[i].x = i;
+		l_scope_points[i].y = height_per_scope+left_val;
+		r_scope_points[i].x = i;
+		r_scope_points[i].y = height-height_per_scope+right_val;
+		l_scope_points_last[i].x = i;
+		l_scope_points_last[i].y = height_per_scope+old_left_val;
+		r_scope_points_last[i].x = i;
+		r_scope_points_last[i].y = height-height_per_scope\
+			+old_right_val;
+	}
+	switch (scope_sub_mode)
+	{
+		case DOT_SCOPE:
+			if (use_back_pixmap)
+			{
+				/* Left Chanel */
+				gdk_draw_points(main_pixmap,\
+						main_display->style->\
+						white_gc,\
+						l_scope_points,\
+						lo_width);
+				/* Right Chanel */
+				gdk_draw_points(main_pixmap,\
+						main_display->style->\
+						white_gc,\
+						r_scope_points,\
+						lo_width);
+			}
+			else
+			{
+				/* since we are NOT using a backing
+				 * pixmap, to minimize flicker I use
+				 * a trick by writing OVER the last
+				 * trace with the background colot
+				 * and then draw the new trace
+				 * this precents an expensive display
+				 * pixmap copy, at the expense of 
+				 * drawing two lines instead of on
+				 */
+				/* Left Channel */
+				gdk_draw_points(main_display->window,\
+						main_display->style->\
+						black_gc,\
+						l_scope_points_last,\
+						lo_width);
+				gdk_draw_points(main_display->window,\
+						main_display->style->\
+						white_gc,\
+						l_scope_points,\
+						lo_width);
+				/* Right Channel */
+				gdk_draw_points(main_display->window,\
+						main_display->style->\
+						black_gc,\
+						r_scope_points_last,\
+						lo_width);
+				gdk_draw_points(main_display->window,\
+						main_display->style->\
+						white_gc,\
+						r_scope_points,\
+						lo_width);
+			}
+			break;
+
+		case LINE_SCOPE:
+			if (use_back_pixmap)
+			{
+
+				/* Left Channel */
+				gdk_draw_lines(main_pixmap,\
+						main_display->style->\
+						white_gc,\
+						l_scope_points,\
+						lo_width);
+				/* Right Channel */
+				gdk_draw_lines(main_pixmap,\
+						main_display->style->\
+						white_gc,\
+						r_scope_points,\
+						lo_width);
+			}
+			else
+			{
+				/* Left Channel */
+				gdk_draw_lines(main_display->window,\
+						main_display->style->\
+						black_gc,\
+						l_scope_points_last,\
+						lo_width);
+
+				gdk_draw_lines(main_display->window,\
+						main_display->style->\
+						white_gc,\
+						l_scope_points,\
+						lo_width);
+				/* RIGHT Channel scope */
+				gdk_draw_lines(main_display->window,\
+						main_display->style->\
+						black_gc,\
+						r_scope_points_last,\
+						lo_width);
+				gdk_draw_lines(main_display->window,\
+						main_display->style->\
+						white_gc,\
+						r_scope_points,\
+						lo_width);
+			}
+			break;
+	}
+
+
+	if (scope_sub_mode== GRAD_SCOPE)
+	{
+		right_scope_pos = height-height_per_scope;
+		for(i=0;i<lo_width;i++)
 		{
-			prev_right_val = 127;
-			prev_old_right_val = 127;
-		}
 
-		switch (scope_sub_mode)
-		{
-			case DOT_SCOPE:
-				if (use_back_pixmap)
+			left_val = l_scope_points[i].y\
+				-height_per_scope;
+			right_val = r_scope_points[i].y\
+				+height_per_scope-height;
+			if (left_val == 0)
+				left_val++;
+			if (right_val == 0)
+				right_val++;
+			if (use_back_pixmap)
+			{
+				if (left_val < 0) /* Negative signal */
 				{
-					gdk_draw_point(main_pixmap,main_display->style->white_gc,i,((height/4))+left_val);
-					/* RIGHT Channel scope */
-					gdk_draw_point(main_pixmap,main_display->style->white_gc,i,(height-(height/4))+right_val);
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[left_val+127],\
+							0,0,\
+							i,l_scope_points[i].y,\
+							1,-left_val);
 				}
-				else
+				else	/* Positive Signal (left channel)*/
 				{
-					gdk_draw_point(main_display->window,main_display->style->black_gc,i,((height/4))+old_left_val);
-					gdk_draw_point(main_display->window,main_display->style->white_gc,i,((height/4))+left_val);
-					/* RIGHT Channel scope */
-					gdk_draw_point(main_display->window,main_display->style->black_gc,i,(height-(height/4))+old_right_val);
-					gdk_draw_point(main_display->window,main_display->style->white_gc,i,(height-(height/4))+right_val);
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[left_val+127],\
+							0,0,\
+							i,height_per_scope,\
+							1,left_val);
 				}
-				break;
 
-			case LINE_SCOPE:
-				if (use_back_pixmap)
+				if (right_val < 0) /*Negative Signal */
 				{
-
-					gdk_draw_line(main_pixmap,main_display->style->white_gc,i-1,((height/4))+prev_left_val,i,((height/4))+left_val);
-					/* RIGHT Channel scope */
-					gdk_draw_line(main_pixmap,main_display->style->white_gc,i-1,(height-(height/4))+prev_right_val,i,(height-(height/4))+right_val);
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[right_val+127],\
+							0,0,\
+							i,right_scope_pos\
+							+right_val,\
+							1,\
+							-right_val);
 				}
-				else
+				else /* Positive Signal */
 				{
-					gdk_draw_line(main_display->window,main_display->style->black_gc,i-1,((height/4))+prev_old_left_val,i,((height/4))+old_left_val);
-					gdk_draw_line(main_display->window,main_display->style->white_gc,i-1,((height/4))+prev_left_val,i,((height/4))+left_val);
-					/* RIGHT Channel scope */
-					gdk_draw_line(main_display->window,main_display->style->black_gc,i-1,(height-(height/4))+prev_old_right_val,i,(height-(height/4))+old_right_val);
-					gdk_draw_line(main_display->window,main_display->style->white_gc,i-1,(height-(height/4))+prev_right_val,i,(height-(height/4))+right_val);
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[right_val+127],\
+							0,0,\
+							i,right_scope_pos,\
+							1,right_val);
 				}
-				break;
-			case GRAD_SCOPE:
-				if (left_val == 0)
-					left_val++;
-				if (right_val == 0)
-					right_val++;
-				if (use_back_pixmap)
+
+			}
+			else	 /* NO Backing Pixmap */
+			{
+				if (left_val < 0) /* Negative Signal */
 				{
-
-					if (left_val < 0)
-						gdk_draw_pixmap(main_pixmap,gc,grad[left_val+127],0,0,                                        i,((height/4))+left_val,1,-left_val);
-					else
-						gdk_draw_pixmap(main_pixmap,gc,grad[left_val+127],0,0,                                        i,height/4,1,left_val);
-
-					if (right_val < 0)
-						gdk_draw_pixmap(main_pixmap,gc,grad[right_val+127],0,0,					i,(height-(height/4))+right_val,1,-right_val);
-					else
-						gdk_draw_pixmap(main_pixmap,gc,grad[right_val+127],0,0,					i,(height-(height/4)),1,right_val);
-
+					gdk_draw_pixmap(main_display->window,\
+							gc,\
+							grad[left_val+127],\
+							0,0,\
+							i,height_per_scope\
+							+left_val,\
+							1,-left_val);
 				}
-				else
+				else	/* Posiive Signal */
 				{
-					if (left_val < 0)
-						gdk_draw_pixmap(main_display->window,gc,grad[left_val+127],0,0,						i,((height/4))+left_val,1,-left_val);
-					else
-						gdk_draw_pixmap(main_display->window,gc,grad[left_val+127],0,0,						i,((height/4)),1,left_val);
-
-					if (right_val < 0)
-						gdk_draw_pixmap(main_display->window,gc,grad[right_val+127],0,0,					i,(height-(height/4))+right_val,1,-right_val);
-					else
-						gdk_draw_pixmap(main_display->window,gc,grad[right_val+127],0,0,					i,(height-(height/4)),1,right_val);
+					gdk_draw_pixmap(main_display->window,\
+							gc,grad[left_val+127],\
+							0,0,\
+							i,height_per_scope,\
+							1,left_val);
 				}
-				break;
+				if (right_val < 0) /* Negative Signal */
+				{
+					gdk_draw_pixmap(main_display->window,\
+							gc,grad[right_val+127],\
+							0,0,\
+							i,right_scope_pos\
+							+right_val,\
+							1,-right_val);
+				}
+				else	/* Posiive Signal */
+				{
+					gdk_draw_pixmap(main_display->window,\
+							gc,grad[right_val+127],\
+							0,0,\
+							i,right_scope_pos,\
+							1,right_val);
+				}
+			}
 		}
 	}
 	for (i=0;i<nsamp;i++)

@@ -24,6 +24,7 @@
 
 
 gint lock_x_at;
+gint lock_y_at;
 
 
 gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
@@ -240,10 +241,13 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 		}
 
 		/* Test if close to an endpoint on 3D modes, or near the beginning
-		 * of the scrolled regins on hte specgram modes
+		 * of the scrolled regio on the spectragram modes
 		 */
-		if ((mode == LAND_3D)||(mode == SPIKE_3D)||(mode == HORIZ_SPECGRAM)||
+		if ((mode == LAND_3D)||\
+				(mode == SPIKE_3D)||\
+				(mode == HORIZ_SPECGRAM)||\
 				(mode == VERT_SPECGRAM))
+
 		{
 			result = test_if_close(x,y);
 			if (result > 0)
@@ -252,7 +256,8 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 				g_print("mouse is close enough to an endpoint\n");
 				g_print("setting lock\n");
 #endif
-				lock_x_at = x;	// Remeber where we grabbed on.
+				lock_x_at = x;	// Remember where we grabbed on.
+				lock_y_at = y;	// Remember where we grabbed on.
 				pt_lock = 1;
 				one_to_fix = result;
 
@@ -377,7 +382,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 			case CHANGE_SPEC_START:
 				{
 #ifdef DND_DEBUG
-					g_print("Changing Spectrogram Start point\n");
+					g_print("Changing Spectragram Start point\n");
 #endif
 					if (mode == HORIZ_SPECGRAM)
 					{
@@ -400,7 +405,7 @@ int test_on_line(int x_fed, int y_fed)
 
 	if (mode == HORIZ_SPECGRAM)
 	{
-		if (abs(((width-horiz_spec_start) - x_fed)) < 20)
+		if (abs(((width-horiz_spec_start) - x_fed)) < 30)
 			return (ON_THE_LINE);
 	}
 	if (mode == VERT_SPECGRAM)
@@ -513,7 +518,7 @@ void change_spec_start(gint new_pos)
 	switch ((gint)mode)
 	{
 		case HORIZ_SPECGRAM:
-			horiz_spec_start = width-new_pos;
+			horiz_spec_start = width-new_pos+3;
 			if (horiz_spec_start < 55)
 				horiz_spec_start = 55;
 			if (horiz_spec_start > width)
@@ -521,7 +526,7 @@ void change_spec_start(gint new_pos)
 			break;
 
 		case VERT_SPECGRAM:
-			vert_spec_start = height-new_pos+45;
+			vert_spec_start = height-new_pos+52;
 			if (vert_spec_start < 120)
 				vert_spec_start = 120;
 			if (vert_spec_start > height)

@@ -88,7 +88,7 @@ void convolve_close(convolve_state *state)
 		free(state);
 }
 
-static void convolve_4 (double * out, const double * left, const double * right)
+static void inline convolve_4 (double * out, const double * left, const double * right)
 /* This does a 4x4 -> 7 convolution.  For what it's worth, the slightly odd
  * ordering gives about a 1% speed up on my Pentium II. */
 {

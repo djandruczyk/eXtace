@@ -3,6 +3,13 @@
 	reduced CPU usage a swidgeon. Code cleans throughout that file, 
 	fixed indentation issues, etc... Added a 0Hz border to the flying
 	landforms view, that was previously missing since initial release.
+	 -- later on --
+	Rewrote most of scope.c for speed.  Can't believe I wrote so poorly
+	last time.  Insteadof drwing things practically by the pixel, made
+	use of GTK functions to handle it in bulk batches. Over 3-5 times
+	faster now.  CPU usage dropped from 13% to 3% !! (scope modes only)
+	NOTE: this is only forthe line/dot scope modes.  The pixmap mode
+	still is inefficient and I have not found a way around it.
 2001-11-17 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	Fixed a very longstanding bug in the audio I/O routines.  When the 
 	buffer wrapped, it had an improper offset in an memcpy routine
