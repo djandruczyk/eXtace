@@ -1,6 +1,12 @@
 Multimediadir = $(datadir)/gnome/apps/Multimedia
 
-INCLUDES = @GTK_CFLAGS@ -DGTK_DISABLE_COMPAT_H  -D_MAJOR_=@EXTACE_MAJOR_VERSION@ -D_MINOR_=@EXTACE_MINOR_VERSION@ -D_MICRO_=@EXTACE_MICRO_VERSION@
+INCLUDES = \
+	-I$(top_srcdir)/include \
+	@GTK_CFLAGS@ \
+	-DGTK_DISABLE_COMPAT_H \
+	-D_MAJOR_=@EXTACE_MAJOR_VERSION@ \
+	-D_MINOR_=@EXTACE_MINOR_VERSION@ \
+	-D_MICRO_=@EXTACE_MICRO_VERSION@
 
 
 noinst_PROGRAMS = sweep
@@ -11,13 +17,6 @@ bin_PROGRAMS = extace
 
 extace_SOURCES = \
 	Makefile \
-	globals.h \
-	enums.h \
-	defaults.h \
-	defines.h \
-	protos.h \
-	convolve.h \
-	configfile.h \
 	logo.xpm \
    	stars.c \
 	init.c \
