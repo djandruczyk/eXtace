@@ -1,0 +1,6 @@
+
+
+ - Fade off in the distance.  Potentially impossible to do, except on extremely
+fast machines, OpenGL may be required... Anyone know how to use Alpha channels
+in Gtk/gdk email me right away djandruczyk@yahoo.com
+

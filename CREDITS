@@ -1,0 +1,22 @@
+Main code (re)written by:
+Dave J. Andruczyk    <djandruczyk@yahoo.com>
+
+Based on the original extace code from:
+    The Rasterman        <raster@redhat.com>
+    Michael Fulbright    <msf@redhat.com>
+
+Thanks to the developers of xmms (formerly x11amp) for the configfile.{ch}
+files which made parsing the config file options a breeze!
+
+Spectragram (originally called "tape") submitted by:
+    Gregor Leusch <gleusch@Pool.Informatik.RWTH-Aachen.DE>
+
+Thanks again to Rolf Mueller, for helping me extensively with the window
+functions section, and the color picker parts.
+
+Eric Lassauge for patches related to egcs-2.91.66, core dump fixes, etc..
+
+Thanks to all the users who sent in bugreports, spec files, suggestions and
+overall support.  Keep the requests coming....
+
+
