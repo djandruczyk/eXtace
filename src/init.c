@@ -207,6 +207,7 @@ void read_config(void)
 	extace_cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 	to_get = nsamp;/* nsamp * 2 channels * 2( 16 bit samples)*/
 	callback_buffer_size = 4096;
+	fft_lag = 1000*((nsamp/2)/(float)RATE);
 	extace_cfg_read_int(cfgfile, "Global", "window_func", &window_func);
 	extace_cfg_read_int(cfgfile, "Global", "winstyle", &winstyle);
 	extace_cfg_read_int(cfgfile, "Global", "axis_type", &axis_type);

@@ -53,7 +53,14 @@ int GetFFT(void)
     gint delay = (int)(((float)(fft_lag+lag)/1000.0)*(float)RATE);
     static gint last;
 
-//    printf("Current FFT lag is %i ms\n",fft_lag);
+    /* Actually the lag is the same for all displays which is NON-optimal
+     * as the FFT's give best visual/audio sync when the audio delay points
+     * to the MIDDLE of the fft window. (point 2048 in a 4096 pt fft).
+     * On large FFT sizes, this lag is considerable (over 50-100 msecs)
+     * whic makes the scope look out of sync.
+     * Sooner or later I'll rewrite this section to get around that..
+     */
+//    printf("Current FFT lag is %i ms\n",fft_lag+lag);
 //    printf("Current SCOPE lag is %i ms\n",lag);
 
 //
