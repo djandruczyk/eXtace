@@ -30,13 +30,13 @@ extace_SOURCES = \
 	gc_maker.c \
 	horiz_specgram.c \
 	init.c \
+	input.c \
 	land3d.c \
 	main.c \
 	markers.c \
 	options.c \
 	reducer.c \
 	scope.c \
-	sound.c \
 	spike_3d.c \
 	stars.c \
 	vert_specgram.c \

@@ -1,6 +1,6 @@
 /*
  *
- * sound.c extace source file
+ * input.c extace source file
  * 
  * esd (Esound) sound monitor program
  * 
@@ -21,7 +21,7 @@
 #include <fcntl.h>
 #include <globals.h>
 #include <gtk/gtk.h>
-#include <sound.h>
+#include <input.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -380,6 +380,7 @@ void *esd_starter_thread(void *esd_handle)
 	tag = gdk_input_add(source, 
 			GDK_INPUT_READ | GDK_INPUT_EXCEPTION,
 			esd_reader_thread, NULL);
+	return 0;
 #else
 
 	/*
@@ -391,8 +392,8 @@ void *esd_starter_thread(void *esd_handle)
 	   In COMEDI, on gave find/set the size of the data buffer.
 	 */
 
-	do{
-
+	do
+	{
 read:
 		/* in linux, there are no automatic test points yet */
 		pthread_testcancel();
@@ -483,9 +484,8 @@ read:
 		}
 
 	}while(1);
-#endif
 
-	return(0);
+#endif
 }
 
 #if OLD_THREAD

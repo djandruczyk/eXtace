@@ -26,8 +26,7 @@
 #include <init.h>
 #include <gtk/gtk.h>
 #include <options.h>
-#include <sound.h>
-//#include <math.h>
+#include <input.h>
 
 /* See globals.h for variable declarations and DEFINES */
 gint ready = 0;

@@ -26,7 +26,7 @@
 #include <init.h>
 #include <logo.xpm>
 #include <markers.h>
-#include <sound.h>
+#include <input.h>
 #include <stars.h>
 #include <unistd.h>
 

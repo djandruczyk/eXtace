@@ -17,12 +17,12 @@ headers = \
 	globals.h \
 	horiz_specgram.h \
 	init.h \
+	input.h \
 	land_3d.h \
 	markers.h \
 	options.h \
 	reducer.h \
 	scope.h \
-	sound.h \
 	spike_3d.h \
 	stars.h \
 	template.h \
