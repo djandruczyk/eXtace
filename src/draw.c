@@ -73,7 +73,7 @@ void draw_start()
 					 (GtkFunction)draw, NULL);
 	}
 	else
-		printf("Display in paused state,  clik on \"Resume Display\" in Options Panel\n");
+		printf("Display in paused state,  click on \"Resume Display\" in the Options Panel\n");
 
 }
 void draw_stop()

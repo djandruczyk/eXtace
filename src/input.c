@@ -431,12 +431,12 @@ void *input_reader_thread(void *input_handle)
 				ring_remainder = count%ring_ptr_size;
 			}
 
-			audio_arrival_last = audio_arrival;
-			gettimeofday(&audio_arrival, NULL);
+			input_arrival_last = input_arrival;
+			gettimeofday(&input_arrival, NULL);
 
 #if 0  /* debug prints */
 			printf("Moved %i elements of input data\n",count);
-			printf("-- Audio READER: current at %.6f, diff %.2fms\n",audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+			printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
 					 
 #endif
 		}

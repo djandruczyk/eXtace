@@ -116,8 +116,8 @@ void split_and_decimate()
 	static gint virtual_centerpoint=0;
 	gint i,k;
 	gfloat cur_time=0;
-	gfloat audio_offset_lag=0;
-	gint audio_offset_delay=0;
+	gfloat input_offset_lag=0;
+	gint input_offset_delay=0;
 	gint wrap = 0;
 	gint length = 0;
 	gint tmp = 0;
@@ -170,18 +170,18 @@ void split_and_decimate()
 	cur_time = draw_win_time.tv_sec
 		+((double)draw_win_time.tv_usec/1000000.0);
 
-	/* audio_offset_lag is the time difference between when this 
+	/* inpu_offset_lag is the time difference between when this 
 	 * function runs since that last audio block was committed to 
 	 * the ringbuffer. 
 	 */
-	audio_offset_lag = ((draw_win_time.tv_sec 
+	input_offset_lag = ((draw_win_time.tv_sec 
 				+(draw_win_time.tv_usec/1000000.0))
-			-(audio_arrival.tv_sec
-				+(audio_arrival.tv_usec/1000000.0)))*1000;
+			-(input_arrival.tv_sec
+				+(input_arrival.tv_usec/1000000.0)))*1000;
 
 
 	/* Need this in samples not in milliseconds.... */
-	audio_offset_delay = ring_rate*((float) audio_offset_lag)/1000.0;
+	input_offset_delay = ring_rate*((float) input_offset_lag)/1000.0;
 
 	/* 
 	   virtual_centerpoint represents the "center" of the fft 
@@ -192,7 +192,7 @@ void split_and_decimate()
 	   time delay (lag compensation).  
 	 */
 
-	virtual_centerpoint = ring_pos-(delay-audio_offset_delay)*ring_channels;
+	virtual_centerpoint = ring_pos-(delay-input_offset_delay)*ring_channels;
 	/* If the pointer is out of bounds, i.e. below ringbuffer, or after
 	 * ringbuffer+ring_end, shift by one buffer length.
 	 */
@@ -207,9 +207,9 @@ void split_and_decimate()
 
 
 #if 0  /* debug print */
-	printf("delay=%i, audio_offset_delay=%i,"
+	printf("delay=%i, input_offset_delay=%i,"
 			" ring position %i centerpoint=%i\n",
-			delay,audio_offset_delay,ring_pos,
+			delay,input_offset_delay,ring_pos,
 			virtual_centerpoint);  
 #endif
 

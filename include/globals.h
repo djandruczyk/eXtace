@@ -114,8 +114,7 @@ convolve_state	*r_state;	/* Pointer to make convolve happy */
 gint		r_count;
 glong		frame_cnt;	/* Frame count */
 struct		timeval cur_time, last_time;
-struct		timeval audio_arrival, audio_display, latency;
-struct		timeval audio_arrival_last, audio_display_last;
+struct		timeval input_arrival, input_arrival_last;
 struct		timeval draw_win_time_last, draw_win_time;
 struct		Color_map {
     gint steps;			/* Number of steps in the map */
