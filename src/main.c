@@ -48,6 +48,7 @@ int main(int argc, char **argv)
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	main_win_ptr = main_window;
 	gtk_widget_set_uposition(main_window, main_x_origin, main_y_origin);
+	gtk_widget_set_usize(main_window,width,height);
 	gtk_window_set_title(GTK_WINDOW(main_window),"eXtace " VERSION);
 	gtk_container_set_border_width(GTK_CONTAINER(main_window),0);
 	gtk_signal_connect(GTK_OBJECT(main_window),"destroy_event",
@@ -147,8 +148,6 @@ int main(int argc, char **argv)
 	main_display=gtk_drawing_area_new();
 	gtk_box_pack_start(GTK_BOX(vbox),main_display,TRUE,TRUE,0);
 	gtk_widget_realize(main_display);
-	gtk_widget_set_usize(main_display,width,height);
-	//    win=main_display->window;
 	gc=gdk_gc_new(main_display->window);
 	gdk_gc_copy(gc,main_display->style->white_gc);
 	main_pixmap=gdk_pixmap_new(main_display->window,width,height,
