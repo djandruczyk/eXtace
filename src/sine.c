@@ -14,10 +14,10 @@ int main(int argc, char **argv)
 {
 	short v;
 	double a=0;
-	float f = 64;
+	float f = 2;
 	int i;
 	int count = 22050;	 /* number of discrete steps */
-	int delay = 400000;
+	int delay = 40000;
 	int amplitude = 32768;
 
 	while(count--)

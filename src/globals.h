@@ -56,9 +56,10 @@ GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
 GdkImlibImage	*im;		/* Image for colormap */
 gulong		ring_pos;	/* place safe to write in ringbuffer */
 gulong		process_ptr;	/* place safe to write in ringbuffer */
-gulong		ring_end;	/* end of ringbuffer */
+gulong		ring_end;	/* end of ringbuffer in ELEMENTS */
+gulong		elements_to_get;	/* amount to read in ELEMENTS */
+gulong		ring_byte_end;	/* end of ringbuffer in bytes */
 gshort		*audio_ring;	/* Array of pointers to audio data from esd */
-gshort		*incoming_buf;	/* Array of pointers to audio data from esd */
 gshort		*audio_left;	/* left channel (scope??) */
 gshort		*audio_last_l;	/* last one of above, left channel (scope??) */
 gshort		*audio_last_r;	/* last one of above, right channel (scope??) */
@@ -135,7 +136,6 @@ gfloat		pix_per_block;	/* pixels per block */
 gint		pix_int;	/* int version of above */
 gint		space_used;	/* space the display takes up */
 gint		extras;
-gint		to_get;
 gint		last_is_full;	/* its initially ready ?? */
 gint		ready;		/* is everything initialized? */
 gfloat		x_disp;		/* X displacement */

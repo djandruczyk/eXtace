@@ -169,48 +169,77 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 {
 	static gint last;
 	int count = 0;
+	int bytes_to_read = 0;
 
 	/* set predicate to block other thread */
 	esd_locked = 1;
 	bytes_moved = 0;
+	/* Things may look funky, but I had to do it this way because of the
+	 * buffer used. (Short int). Incrementing a short int pointer 
+	 * actually moves you TWO bytes ahead, due to the 16 bit nature
+	 * of a short int.  The trouble is the read() system call uses
+	 * bytes only, so we use some intermediates to shift between buffer
+	 * ELEMENTS and bytes. (2:! ratio)
+	 */
 
-	/* copy fd so that reader thread can copy data to ringbuffer */
-	count = read(source, incoming_buf, to_get); 
-	//    printf("%i requested, %i bytes read from Esound\n",to_get,count);
-	if (count > 0)
+	/* handle the condition of possible buffer overflow */
+	if ((elements_to_get + ring_pos) > ring_end)
 	{
-		bytes_2_move = count;
-		if (ring_pos+(bytes_2_move/2) > ring_end)
+		/* printf("WRAP section, two part read\n");*/
+		/* Need to read in two parts */
+		bytes_to_read = (ring_end - ring_pos)*2;
+		count = read(source,audio_ring + ring_pos,bytes_to_read);
+
+		if (count < bytes_to_read)
 		{
-
-			/* fill up to end of ring buffer, but don't jump boundary */
-			memcpy(audio_ring+ring_pos,
-					incoming_buf,
-					(ring_end - ring_pos)*2); /* bytes NOT elements */
-
-			bytes_moved = (ring_end - ring_pos)*2;
-
-			/* wrap to beginning */
-			/* We have to use bytes_moved/2 for the mem address, because
-			 * incoming_buf is a SHORT *, thus an index increment of 1 = 2 bytes
-			 */
-			memcpy(audio_ring,
-					incoming_buf + bytes_moved/2, 
-					bytes_2_move - bytes_moved);
-			/* mark where we are .. */
-			ring_pos =  (bytes_2_move - bytes_moved)/2; /* need elements not BYTES */
-
+			/* printf("Short read, %i bytes\n",count); */
+			/* printf("bytes_to_read= %i\n",bytes_to_read); */
+			elements_to_get  -= (count/2);
+			ring_pos += (count/2);	/*ELEMENTS not bytes */
+		}
+		else if (count == bytes_to_read)
+		{
+			/* printf("Clean fill to end of Ring, wrapping\n"); */
+			elements_to_get -= (count/2);
+			ring_pos = 0; /* WRAP */
+			/* printf("read in %i bytes to fill ring \n",count); */
+		}
+		else	/* over-run */
+		{
+			/* printf("read overrun past end of ring, FAULT!!!\b\n"); */
+			exit (-3);
+		}
+		bytes_to_read = elements_to_get*2;
+		count = read(source,audio_ring,bytes_to_read);
+		ring_pos = (count/2);	/*ELEMENTS not bytes */
+		elements_to_get = nsamp/2;
+		/* printf("Wrap complete, read in %i more bytes\n",count); */
+	}
+	else 	/*normal read, no rsik of wrapping the buffer */
+	{
+		bytes_to_read = elements_to_get*2;
+		/* printf("Requesting %i bytes\n",bytes_to_read); */
+		count = read(source,audio_ring + ring_pos,bytes_to_read);
+		if (count == bytes_to_read)
+		{
+			/* printf("Full good read\n"); */
+			ring_pos += (count/2);	/*ELEMENTS not bytes */
+			elements_to_get = nsamp/2;
+			/* printf("Normal read complete, read in %i more bytes\n",count); */
+		}
+		else if (count > bytes_to_read)
+		{
+			/* printf("BUG \n"); */
 		}
 		else
 		{
-			memcpy(audio_ring+ring_pos,
-					incoming_buf,
-					bytes_2_move);
-			//	    printf("NOWRAP %i bytes moved to %p\n",bytes_2_move,audio_ring+ring_pos);
-			ring_pos += bytes_2_move/2; /*mark where we are in ringbuffer*/
-		}                  
+			/* printf("Partial good read\n"); */
+			ring_pos += (count/2);	/*ELEMENTS not bytes */
+			elements_to_get = nsamp/2 ;
+			/* printf("Partial read complete, read in %i more bytes\n",count); */
+		}
 	}
-
+			
 	audio_arrival_last = audio_arrival;
 	gettimeofday(&audio_arrival, NULL);
 	//    printf("Moved %i bytes of input data\n",count);

@@ -28,12 +28,12 @@
  * audio for our source. (that may change in the distant future)
  * A frame for a 4 channel input card would NOT be the same for a stereo input.
  */
-#define BUFFER 		FRAMES*2 // Audio ring size (4 seconds at 44100/stereo)
+#define BUFFER 		FRAMES*2 // Audio ring size (1 seconds at 44100/stereo)
 /* Actual buffer is twice that size, because its a buffer of "shorts" 
  * 1 "short" = 16 bits, thus 2 bytes
  */
 #define RATE   		44100	// sample rate (samples/sec) 
-#define MAXBANDS        256	// maximum number of bands 
+#define MAXBANDS        256	// maximum number of low freq display bands 
 /* Audio Data Specific definitions */
 
  

@@ -97,12 +97,12 @@ void init()
 	scalefactor = 10.0;	/* dynamically figured out by the program */
 	show_leader = 0;	/* show leading edge on 3d landscape fft */
 	multiplier = 26.0;	/* Level multiplier, fft amplitude adj */
-	noise_floor = -85;	/* FFT noise floor position. (NEEDS WORK!!!) */
+	noise_floor = -80;	/* FFT noise floor position. (NEEDS WORK!!!) */
 	/* WON'T max out when you resize */
 	dir_win_present = 1;	/* Direction control window */
 	grad_win_present = 0;	/* Color picker window */
 	one_to_fix = 0;		/* which end of trace to fix up */
-	to_get = nsamp/2;	/* how many samples to read at a time */
+	elements_to_get = nsamp/2;	/* how many samples to read at a time */
 	height = 256;		/* Self explanitory */
 	width  = 370;		/* Self explanitory */
 	buffer_area_height = 100;	/* Self explanitory */
@@ -197,7 +197,7 @@ void read_config(void)
 		extace_cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
 		extace_cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 
-		to_get = nsamp;/* nsamp * 2 channels * 2( 16 bit samples)*/
+		elements_to_get = nsamp/2;/* how many samples to read at a time */
 		/* fft_lag is an added delay because the fft looks most synced to
 		 * audio when viewing the "middle" of the datawindow. i.e. 
 		 * at 1/2 the number of samples in the window
@@ -402,9 +402,6 @@ void mem_alloc()
 	audio_right = malloc(nsamp*sizeof(gshort));
 	audio_last_r = malloc(nsamp*sizeof(gshort));
 
-	/* incoming buf ONLY used for esd */
-	incoming_buf = malloc(nsamp*2*sizeof(gshort));
-
 	/* Display values of norm_fft, scaled for screen viewing ,
 	 * for low resolution fft's (LAND_3D) */
 	disp_val = malloc(nsamp*sizeof(gint));
@@ -417,15 +414,23 @@ void mem_alloc()
 	pip_arr = malloc(8192*sizeof(gint));
 
 
-	if ((audio_data == NULL)       || (raw_fft_out == NULL) ||
-			(start == NULL)	       || (pt2 == NULL)   ||
-			(pt3 == NULL)          || (pt4 == NULL)   ||
-			(end == NULL)          || 
-			(datawindow == NULL)   || (norm_fft == NULL)   ||
-			(audio_ring == NULL)   || (incoming_buf == NULL) ||
-			(pip_arr == NULL)      || (disp_val == NULL) ||
-			(audio_left == NULL)   || (audio_right == NULL) ||
-			(audio_last_l == NULL) || (audio_last_r == NULL)) 
+	if ((audio_data == NULL) \
+			|| (raw_fft_out == NULL) \
+			|| (start == NULL) \
+			|| (pt2 == NULL) \
+			|| (pt3 == NULL) \
+			|| (pt4 == NULL) \
+			|| (end == NULL) \
+			|| (datawindow == NULL) \
+			|| (norm_fft == NULL) \
+			|| (audio_ring == NULL) \
+			|| (pip_arr == NULL) \
+			|| (disp_val == NULL) \
+			|| (audio_left == NULL) \
+			|| (audio_right == NULL) \
+			|| (audio_last_l == NULL) \
+			|| (audio_last_r == NULL)) 
+			
 	{   
 		g_print("Memory could NOT be allocated!!!!, Exiting now!\n");
 		exit (-2);
@@ -441,7 +446,6 @@ void mem_alloc()
 	memset((void *)norm_fft , 0, nsamp*sizeof(gdouble));
 	memset((void *)datawindow , 0, nsamp*sizeof(gdouble));
 	memset((void *)audio_ring, 0, BUFFER*sizeof(gshort));
-	memset((void *)incoming_buf, 0, nsamp*2*sizeof(gshort));
 	memset((void *)audio_left , 0, nsamp*sizeof(gshort));
 	memset((void *)audio_last_l , 0, nsamp*sizeof(gshort));
 	memset((void *)audio_right , 0, nsamp*sizeof(gshort));
@@ -452,6 +456,7 @@ void mem_alloc()
 	/* set pointers to proper values */
 	ring_pos = 0;	/* 0 = beginning */
 	ring_end = BUFFER; /* endpoint in ELEMENTS, NOT bytes */
+	ring_byte_end = BUFFER*4; /*endpoint in bytes*/
 }
 
 void mem_dealloc()
@@ -461,7 +466,6 @@ void mem_dealloc()
 	free(norm_fft);
 	free(datawindow);
 	free(audio_ring);
-	free(incoming_buf);
 	free(audio_left);
 	free(audio_last_l);
 	free(audio_right);
