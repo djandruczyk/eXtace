@@ -45,6 +45,8 @@ int subdevice=0;  /* subdevice on comedi card */
 unsigned int chanlist[N_CHANS];  /* this list must be non-volitile */
 /* Lame initialization function */
 int prepare_cmd_lib(comedi_t *dev,int subdevice,comedi_cmd *cmd);
+char *cmdtest_messages[];
+char *subdevice_types[];
 #endif
 
 #define MAX_HANDLES 4
@@ -62,6 +64,15 @@ static struct {
 	DataSource source;
 } handles[MAX_HANDLES];
 
+#define MAX_STR 99
+static struct {
+	gchar device_name[255];
+	gchar subdevice[MAX_STR][20];
+	gchar ranges[MAX_STR][20];
+	GtkWidget *handle;     /* window to control input device */
+}control_window[MAX_HANDLES];  
+
+static gchar channel_numbers[MAX_STR][10];  /* string containing integers */
 GtkWidget *errbox;
 int errorbox_up;
 gint tag;		/* Used by gdk_input_* */
@@ -95,7 +106,8 @@ int open_datasource(DataSource source)
 			/* esd rate is rate for each channel */
 			ring_rate=ESD_DEFAULT_RATE;
 			handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"extace");
-			ring_channels=2; /* since ESD_STEREO is set */
+			update_ring_channels(2); /* since ESD_STEREO is set */
+			ring_ptr_size=sizeof(short);
 			if (handles[i].esd > 0) 
 				handles[i].opened = 1;
 			break;
@@ -108,7 +120,11 @@ int open_datasource(DataSource source)
 			if((handles[i].dev = comedi_open(comedi_data_device)) == NULL)
 				comedi_perror(comedi_data_device);
 			else
+			{
+				comedi_device_control_open(i);
 				handles[i].opened = 1;
+			}
+			ring_ptr_size=sizeof(sampl_t);
 			break;
 #endif
 		case ARTS:
@@ -326,6 +342,8 @@ int close_datasource(int i)
 #endif
 #ifdef HAVE_COMEDI
 		case COMEDI:
+			comedi_device_control_close(control_window[i].handle,
+						    NULL);
 			err=comedi_close(handles[i].dev);
 			if(err)
 			{
@@ -356,18 +374,17 @@ void *input_reader_thread(void *input_handle)
 
 	int source=*((int *)input_handle);
 	static gint last_marker=0;
-	int count = 0;
+	int count;
 	struct pollfd ufds;
 	ufds.fd = source;
 	ufds.events = POLLIN;
 	gint timeo = 100; /* wait 100ms max before timeout */
 	gint res = -1;
 	gint to_get = 0;
-	static gint ring_ptr_size = sizeof(*ringbuffer);
-	
-
+     
 	/* reset data ring buffer */
 	ring_pos=0;
+	ring_remainder=0;
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
@@ -391,18 +408,26 @@ void *input_reader_thread(void *input_handle)
 		res = poll(&ufds,1,timeo);
 		if (res)  /* Data Arrived */
 		{
-			to_get = (ring_end-ring_pos)*ring_ptr_size;
+			to_get = (ring_end-ring_pos)*ring_ptr_size-ring_remainder;
 			count = read(source,ringbuffer+ring_pos,to_get);
-			if(count < 0 )
+			if(count < 0)
 			{
 				fprintf(stderr,__FILE__":  input read error, count=%i invalid.\n          ",count);
 				perror("input_reader_thread");
 				exit (-3);
 			}
-			if (count == to_get) /* We read to the end of the ring*/
+			/* include partial samples from previous read */
+			count += ring_remainder;
+			if (count == to_get) /* We read to the end of the ring */
+			{
 				ring_pos = 0;
+				ring_remainder=0;
+			}
 			else
+			{
 				ring_pos += count/ring_ptr_size;
+				ring_remainder = count%ring_ptr_size;
+			}
 
 			audio_arrival_last = audio_arrival;
 			gettimeofday(&audio_arrival, NULL);
@@ -439,6 +464,23 @@ void *input_reader_thread(void *input_handle)
 	
 }
 
+/*
+  Make sure that ring_end is divisible by ring_channels.
+  If not, increase length slightly.
+*/
+
+int update_ring_channels(int new)
+{
+	int remainder=ring_end%new;
+	ring_channels=new;
+	if(remainder)
+	{
+		ring_end+=ring_channels-remainder;
+		ringbuffer = realloc(ringbuffer,ring_end*ring_ptr_size);
+	}
+	return ringbuffer==NULL;
+}
+
 void error_close_cb(GtkWidget *widget, gpointer *data)
 {
 	fprintf(stderr,__FILE__":  Cannot connect to sound source, check options.\n");
@@ -465,14 +507,16 @@ void error_close_cb(GtkWidget *widget, gpointer *data)
 
 int prepare_cmd_lib(comedi_t *dev,int subdevice,comedi_cmd *cmd)
 {
+	int i;
 	int ret;
 	int aref= AREF_GROUND;
 	int range=3;  // which voltage range to use
 
 	/* set channels */
-	ring_channels=0;
-	chanlist[ring_channels++]=CR_PACK(8,range,aref);
-/*	chanlist[ring_channels++]=CR_PACK(9,range,aref);*/
+	i=0;
+	chanlist[i++]=CR_PACK(8,range,aref);
+/*	chanlist[i++]=CR_PACK(9,range,aref);*/
+	update_ring_channels(i);
 
 
 	/* comedi rate is samples per nanosecond for 
@@ -497,5 +541,304 @@ int prepare_cmd_lib(comedi_t *dev,int subdevice,comedi_cmd *cmd)
 
 	return 0;
 }
+
+int change_comedi_range(GtkWidget *widget, gpointer *data)
+{
+	return TRUE;
+}
+
+/*
+   This demo reads information about a comedi device and
+   displays the information in a human-readable form.
+ */
+
+char *cmd_src(int src,char *buf);
+void get_command_stuff(comedi_t *it,int s);
+
+int comedi_device_control_open(int handle_number)
+{
+	int i,j;
+	int n_subdevices,type;
+	int chan,n_chans;
+	int n_ranges;
+	comedi_range *rng;
+	comedi_t *it=NULL;
+	gchar *str;
+	GSList *group;
+	GtkWidget *button;
+	GtkWidget *frame;
+	GtkWidget *subdevice_frame;
+        GtkWidget *hbox;
+        GtkWidget *vbox;
+        GtkWidget *vbox2;
+        GtkWidget *vbox3;
+        GtkWidget *label;
+	GtkWidget *comedi_window;
+	GtkWidget *spinner;
+	GtkAdjustment *spinner_adj;
+
+	
+	if(handle_number!=-1)
+		it=handles[handle_number].dev;
+	
+	comedi_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	control_window[handle_number].handle=comedi_window;
+	gtk_window_set_title(GTK_WINDOW(comedi_window),"COMEDI input");
+	gtk_window_set_policy(GTK_WINDOW(comedi_window), 
+			      FALSE,		/* allow shrink */
+			      TRUE,		/* allow grow */
+			      FALSE);		/* auto shrink */
+	/* closing is probelmatic (how to reopen?) */
+	gtk_signal_connect(GTK_OBJECT(comedi_window),"destroy_event",
+			   GTK_SIGNAL_FUNC(comedi_device_control_close),
+			   NULL);
+	gtk_container_set_border_width(GTK_CONTAINER(comedi_window),2);
+
+#if 0  /* too many frames */	
+	frame = gtk_frame_new("Comedi input device");
+	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+        gtk_container_add(GTK_CONTAINER(comedi_window),frame);
+	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_add(GTK_CONTAINER(frame), vbox);
+#else
+	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_add(GTK_CONTAINER(comedi_window), vbox);
+#endif	
+	if(handle_number==-1)
+	{
+		label = gtk_label_new("Not opened");
+		gtk_box_pack_start(GTK_BOX(vbox),label,TRUE, TRUE, 0);
+	}
+	else
+	{
+		/* the strings have to be persistant */
+		str=control_window[handle_number].device_name;
+		sprintf(str,"Data acquistion board:  %s\n"
+			"Driver is %s, %i subdevices",
+			comedi_get_board_name(it),
+			comedi_get_driver_name(it),
+			n_subdevices=comedi_get_n_subdevices(it)
+			);
+		label = gtk_label_new(str);
+		gtk_box_pack_start(GTK_BOX(vbox),label,TRUE, TRUE, 0);
+
+#ifdef DEBUG
+		printf("  version code: 0x%06x\n",comedi_get_version_code(it));
+#endif	
+		
+		for(i=0;i<n_subdevices;i++)
+		{
+			type=comedi_get_subdevice_type(it,i);
+			/* Only show subdevices that could serve as input */
+			if(type!=1 && type != 3 && type != 5) continue;
+			str=control_window[handle_number].subdevice[i];
+			sprintf(str,"Subdevice %i, %s",i,subdevice_types[type]);
+			subdevice_frame = gtk_frame_new(str);
+			gtk_container_set_border_width (GTK_CONTAINER (subdevice_frame), 5);
+			gtk_container_add(GTK_CONTAINER(vbox),subdevice_frame);
+			vbox2 = gtk_vbox_new(FALSE,0);
+			gtk_container_add(GTK_CONTAINER(subdevice_frame), vbox2);
+			n_chans=comedi_get_n_channels(it,i);
+
+#if DEBUG
+			if(!comedi_maxdata_is_chan_specific(it,i)){
+				printf("  max data value: %d\n",comedi_get_maxdata(it,i,0));
+			}else{
+				printf("  max data value: (channel specific)\n");
+				for(chan=0;chan<n_chans;chan++){
+					printf("    chan%d: %d\n",chan,
+					       comedi_get_maxdata(it,i,chan));
+				}
+			}
+#endif
+
+			if(!comedi_range_is_chan_specific(it,i)){
+
+				frame = gtk_frame_new("Channels");
+				gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+				hbox = gtk_hbox_new(FALSE,0);
+				for(j=0; j<n_chans; j++){
+					str=channel_numbers[j];
+					sprintf(str,"%i",j);
+					button = gtk_radio_button_new_with_label(NULL,str);
+					gtk_box_pack_start(GTK_BOX(hbox),button,TRUE, TRUE, 0);
+					gtk_signal_connect(
+						GTK_OBJECT(button),"toggled",
+						GTK_SIGNAL_FUNC(change_comedi_range),
+						(gpointer) &j);
+				}
+				gtk_container_add(GTK_CONTAINER(frame), hbox);
+				gtk_box_pack_start(GTK_BOX(vbox2),frame,TRUE, TRUE, 0);
+
+				n_ranges=comedi_get_n_ranges(it,i,0);
+				frame = gtk_frame_new("Voltage ranges for all channels");
+				gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+				hbox = gtk_hbox_new(FALSE,0);
+				group=NULL;
+				for(j=0;j<n_ranges;j++){
+					rng=comedi_get_range(it,i,0,j);
+					str=control_window[handle_number].ranges[j];
+					sprintf(str," %+g\n%+g",rng->min,rng->max);
+					button = gtk_radio_button_new_with_label(group,str);
+					gtk_box_pack_start(GTK_BOX(hbox),button,TRUE, TRUE, 0);	      
+					gtk_signal_connect(
+						GTK_OBJECT(button),"toggled",
+						GTK_SIGNAL_FUNC(change_comedi_range),
+						(gpointer) &j);
+					group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+				}
+				gtk_container_add(GTK_CONTAINER(frame), hbox);
+				gtk_box_pack_start(GTK_BOX(vbox2),frame,TRUE, TRUE, 0);
+			}
+			else
+			{
+				hbox = gtk_hbox_new(FALSE,0);
+				for(chan=0;chan<n_chans;chan++){
+					vbox3 = gtk_vbox_new(FALSE,0);
+					str=channel_numbers[chan];
+					sprintf(str,"%i",chan);
+					label = gtk_label_new(str);
+					gtk_box_pack_start(GTK_BOX(vbox3),label,TRUE, TRUE, 0);
+					n_ranges=comedi_get_n_ranges(it,i,chan);
+					if(n_ranges*n_chans > MAX_STR)
+					{
+						fprintf(stderr,__FILE__":  Too many ranges in Comedi\n");
+						exit(23);
+					}
+					for(j=0;j<n_ranges;j++){
+						rng=comedi_get_range(it,i,chan,j);
+						str=control_window[handle_number].ranges[j*n_chans+chan];
+						sprintf(str," [%g,%g]",rng->min,rng->max);
+						label = gtk_label_new(str);
+						gtk_box_pack_start(GTK_BOX(vbox3),label,TRUE, TRUE, 0);
+					}
+					gtk_box_pack_start(GTK_BOX(hbox),vbox3,TRUE, TRUE, 0);
+				}
+			}
+			gtk_box_pack_start(GTK_BOX(vbox2),hbox,TRUE, TRUE, 0);
+
+			frame = gtk_frame_new("Sample rate");
+			gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
+			hbox = gtk_hbox_new(FALSE,0);
+			label = gtk_label_new("samples per second for each channel:");
+			gtk_box_pack_start(GTK_BOX(hbox),label,TRUE, TRUE, 0);
+			/* These will have to be tweaked, maybe find a way to test allowed values */ 
+			spinner_adj = (GtkAdjustment *) gtk_adjustment_new(
+				2.500, 0.0, 100000, 1, 0.1, 0.1);
+			spinner = gtk_spin_button_new (spinner_adj, 0.001, 5);
+			gtk_box_pack_start(GTK_BOX(hbox),spinner,TRUE, TRUE, 0);
+			gtk_container_add(GTK_CONTAINER(frame), hbox);
+			gtk_container_add(GTK_CONTAINER(vbox), frame);
+		
+#ifdef DEBUG
+			printf("  command:\n");
+			get_command_stuff(it,i);
+#endif
+		}
+	}
+	
+	gtk_widget_show_all(comedi_window);	
+	return 0;
+}
+
+int comedi_device_control_close(GtkWidget *widget, gpointer *handle)
+{
+	gtk_widget_destroy(GTK_WIDGET(widget));
+	return TRUE;
+}
+
+void probe_max_1chan(comedi_t *it,int s)
+{
+	comedi_cmd cmd;
+	char buf[100];
+
+	printf("  command fast 1chan:\n");
+	if(comedi_get_cmd_generic_timed(it,s,&cmd,1)<0){
+		printf("    not supported\n");
+	}else{
+		printf("    start: %s %d\n",
+			cmd_src(cmd.start_src,buf),cmd.start_arg);
+		printf("    scan_begin: %s %d\n",
+			cmd_src(cmd.scan_begin_src,buf),cmd.scan_begin_arg);
+		printf("    convert: %s %d\n",
+			cmd_src(cmd.convert_src,buf),cmd.convert_arg);
+		printf("    scan_end: %s %d\n",
+			cmd_src(cmd.scan_end_src,buf),cmd.scan_end_arg);
+		printf("    stop: %s %d\n",
+			cmd_src(cmd.stop_src,buf),cmd.stop_arg);
+	}
+}
+
+void get_command_stuff(comedi_t *it,int s)
+{
+	comedi_cmd cmd;
+	char buf[100];
+
+	if(comedi_get_cmd_src_mask(it,s,&cmd)<0){
+		printf("    not supported\n");
+	}else{
+		printf("    start: %s\n",cmd_src(cmd.start_src,buf));
+		printf("    scan_begin: %s\n",cmd_src(cmd.scan_begin_src,buf));
+		printf("    convert: %s\n",cmd_src(cmd.convert_src,buf));
+		printf("    scan_end: %s\n",cmd_src(cmd.scan_end_src,buf));
+		printf("    stop: %s\n",cmd_src(cmd.stop_src,buf));
+	
+		probe_max_1chan(it,s);
+	}
+}
+
+
+char *cmd_src(int src,char *buf)
+{
+        buf[0]=0;
+
+        if(src&TRIG_NONE)strcat(buf,"none|");
+        if(src&TRIG_NOW)strcat(buf,"now|");
+        if(src&TRIG_FOLLOW)strcat(buf, "follow|");
+        if(src&TRIG_TIME)strcat(buf, "time|");
+        if(src&TRIG_TIMER)strcat(buf, "timer|");
+        if(src&TRIG_COUNT)strcat(buf, "count|");
+        if(src&TRIG_EXT)strcat(buf, "ext|");
+        if(src&TRIG_INT)strcat(buf, "int|");
+#ifdef TRIG_OTHER
+        if(src&TRIG_OTHER)strcat(buf, "other|");
+#endif
+
+        if(strlen(buf)==0){
+                sprintf(buf,"unknown(0x%08x)",src);
+        }else{
+                buf[strlen(buf)-1]=0;
+        }
+
+        return buf;
+}
+
+/*
+  The following are from the comedilib demo directory.
+  They should be part of the comedilib API ...
+*/
+
+char *cmdtest_messages[]={
+        "success",
+        "invalid source",
+        "source conflict",
+        "invalid argument",
+        "argument conflict",
+        "invalid chanlist",
+};
+
+char *subdevice_types[]={
+	"unused",
+	"analog input",
+	"analog output",
+	"digital input",
+	"digital output",
+	"digital I/O",
+	"counter",
+	"timer",
+	"memory",
+	"calibration",
+	"processor"
+};
 
 #endif

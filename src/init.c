@@ -224,15 +224,6 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
 		cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 
-		/* fft_lag is an added delay because the fft looks most synced to
-		 * audio when viewing the "middle" of the datawindow. i.e. 
-		 * at 1/2 the number of samples in the window
-		 * whereas the scope looks best at the beginning of the window
-		 * and the error would have been bad at large window sizes at the 
-		 * expense of one display over the other (time vs freq domains)
-		 * This factor helps to balance things out..
-		 */
-		fft_lag = 1000*((nsamp/2)/ring_rate);
 		cfg_read_int(cfgfile, "Global", "window_func", &window_func);
 		cfg_read_int(cfgfile, "Global", "win_width", &win_width);
 		cfg_read_int(cfgfile, "Global", "axis_type", &axis_type);
@@ -510,7 +501,7 @@ void mem_dealloc()
 	free(audio_last_r);
 	free(pip_arr);
 	free(disp_val);
-	ring_end=0;
+	ring_end=0;  /* length of ringbuffer */
 
 	free(start);
 	free(pt2);
@@ -548,7 +539,6 @@ void reinit_extace(int new_nsamp)
 	 * is in the MIDDLE of the window function for better eye/ear matchup
 	 */
 	nsamp = new_nsamp;
-	fft_lag = 1000*((nsamp/2)/ring_rate);
 
 	convolve_factor = floor(nsamp/width) < 3 ? floor(nsamp/width) : 3 ;
 	if (convolve_factor == 0)
@@ -572,7 +562,7 @@ void ring_rate_changed()
 {
 	/* Fixes all adjustments that depend on sample rate */
 	gfloat val = 0.0;
-	gfloat low = 0.0;
+	gfloat lower = 0.0;
 	gfloat upper = 0.0;
 	gfloat percentage = 0.0;
 	gfloat newval = 0.0;
@@ -582,7 +572,7 @@ void ring_rate_changed()
 
 	/* The idea behind this is pretty cool.  
 	 * First off, if you increas the decimation or fft size, the
-	 * low limit goes lower.  What this does is gets the adjustments
+	 * lower limit goes lower.  What this does is gets the adjustments
 	 * position as a percentage of range, alters the limits of that 
 	 * range and recalculates a new value and moves the pointer.  This
 	 * way if the pointer was atthe min, and you increased the fft size
@@ -591,9 +581,9 @@ void ring_rate_changed()
 	 */
 	/* Store values BEFORE we change the limits... */
 	val = GTK_ADJUSTMENT(lf_adj)->value;
-	low = GTK_ADJUSTMENT(lf_adj)->lower;
+	lower = GTK_ADJUSTMENT(lf_adj)->lower;
 	upper = GTK_ADJUSTMENT(lf_adj)->upper;
-	percentage = (val-low)/(upper-low);
+	percentage = (val-lower)/(upper-lower);
 	/* Set new limits to the adjustment */
 	GTK_ADJUSTMENT(lf_adj)->lower = 
 			(float)ring_rate/(float)decimation_factor/(float)nsamp;
@@ -603,17 +593,18 @@ void ring_rate_changed()
 	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(lf_adj)->page_increment = (float)ring_rate/(float)nsamp;
 	/* Copy new values to temp vars for new calc (cleaner code) */
-	low = GTK_ADJUSTMENT(lf_adj)->lower;
+	lower = GTK_ADJUSTMENT(lf_adj)->lower;
 	upper = GTK_ADJUSTMENT(lf_adj)->upper;
-	newval = (percentage*(upper-low)) + low;
+	newval = (percentage*(upper-lower)) + lower;
 	/* Reset the value */
 	GTK_ADJUSTMENT(lf_adj)->value = newval;
 
+	low_freq = newval;
 	/* Store values BEFORE we change the limits... */
 	val = GTK_ADJUSTMENT(hf_adj)->value;
-	low = GTK_ADJUSTMENT(hf_adj)->lower;
+	lower = GTK_ADJUSTMENT(hf_adj)->lower;
 	upper = GTK_ADJUSTMENT(hf_adj)->upper;
-	percentage = (val-low)/(upper-low);
+	percentage = (val-lower)/(upper-lower);
 	/* Set new limits to the adjustment */
 	GTK_ADJUSTMENT(hf_adj)->lower = 
 			low_freq + 64.0*((float)ring_rate
@@ -624,9 +615,10 @@ void ring_rate_changed()
 	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(hf_adj)->page_increment = (float)ring_rate/(float)nsamp;
 	/* Copy new values to temp vars for new calc (cleaner code) */
-	low = GTK_ADJUSTMENT(hf_adj)->lower;
+	lower = GTK_ADJUSTMENT(hf_adj)->lower;
 	upper = GTK_ADJUSTMENT(hf_adj)->upper;
-	newval = (percentage*(upper-low)) + low;
+	newval = (percentage*(upper-lower)) + lower;
+	high_freq = newval;
 	/* Reset the value */
 	GTK_ADJUSTMENT(hf_adj)->value = newval;
 

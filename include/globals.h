@@ -64,7 +64,6 @@ gint		*pip_arr;	/* array of pip values for screen */
 gint		*disp_val;	/* Display level for screen */
 gint 		decimation_factor; /* for sub hertz resolution */
 gint 		lag;		/* delay between getting audio and displaying */
-gint 		fft_lag;	/* delay between getting audio and displaying */
 gint   		width;		/* Main window width */
 gint   		height;		/* Main window height */
 gint  		colortab[MAXBANDS][MAXBANDS];/* ugly, statically allocated to up to MAXBANDS bands */

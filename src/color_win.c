@@ -685,3 +685,7 @@ gint grad_win_save_state(GtkWidget *widget, GdkEventFocus *event)
 
 	return FALSE;
 }
+
+
+
+

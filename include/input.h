@@ -30,23 +30,31 @@ typedef gshort ring_type;
 
 ring_type *ringbuffer; /* Array of raw audio data from input source */
 int ring_end;          /* size of ring buffer in total samples */
-int ring_pos;          /* offset in ringbuffer that is most recently updated*/
-int ring_channels;     /* number of channels being read into input ring */
+int ring_pos;          /* offset of the most recent sample in ringbuffer */
+int ring_remainder;    /* if partial sample has been read, leftover bytes */
+int ring_ptr_size;     /* size, in bytes, of a sample */ 
+int ring_channels;     /* number of channels being read into input ring 
+			  This should be set with update_ring_channels(...); */
 float ring_rate;       /* samples read per second in each channel */
                        /* eventually, this should take over the functionality
 		       of RATE */
+
 /* Prototypes */
 int input_thread_starter(int );
 int input_thread_stopper(int );
 void *input_reader_thread(void *);
 int open_datasource(DataSource );
 int close_datasource(int );
+int update_ring_channels(int );
 void error_close_cb(GtkWidget *, gpointer * );
 
+int comedi_device_control_open(int handle_number);
+int comedi_device_control_close(GtkWidget *widget, gpointer *handle);
 /* Prototypes */
 
 
 
 #endif
+
 
 

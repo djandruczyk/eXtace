@@ -110,13 +110,13 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 			break;
 		case LOW_LIMIT:
 			low_freq = GTK_ADJUSTMENT(widget)->value;
-			display_markers = TRUE;
 			ring_rate_changed();
+			display_markers = TRUE;
 			break;
 		case HIGH_LIMIT:
 			high_freq = GTK_ADJUSTMENT(widget)->value;
-			display_markers = TRUE;
 			ring_rate_changed();
+			display_markers = TRUE;
 			break;
 		default:
 			break;
@@ -569,9 +569,9 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 		if (((long int)data > 0) && ((long int)data <= 16))
 		{
 			decimation_factor = (long int)data;
+			ring_rate_changed();
 			recalc_markers=TRUE;
 			display_markers=TRUE;
-			ring_rate_changed();
 		}
 	}
 	return (0);
@@ -601,4 +601,8 @@ gint scope_mode(GtkWidget *widget, gpointer *data)
 	}
 	return 0;
 }
+
+
+
+
 

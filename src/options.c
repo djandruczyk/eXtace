@@ -220,6 +220,7 @@ int setup_options()
 	
 	/*  END of General Options Tab (Options Panel) */
 
+
 	/*  BEGINNING of Low Res. FFT Options Tab (Options Panel) */
 	box = gtk_hbox_new(FALSE,0);
 
@@ -486,7 +487,13 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,0);
 
 	/* Low Frequency Limit slider */
-	lf_adj = gtk_adjustment_new(low_freq,ring_rate/nsamp,high_freq-64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp),ring_rate/nsamp,ring_rate/nsamp,10.0);
+	lf_adj = gtk_adjustment_new(
+		low_freq,ring_rate/nsamp,
+		high_freq-64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp),
+		ring_rate/nsamp,
+		ring_rate/nsamp,
+		10.0
+		);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(lf_adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),2);
 	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
@@ -497,7 +504,10 @@ int setup_options()
 
 
 	/* High Frequency Limit slider */
-	hf_adj = gtk_adjustment_new(high_freq,low_freq+64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp),(float)ring_rate/(float)(2.0*decimation_factor)+(float)ring_rate/(float)nsamp,ring_rate/nsamp,ring_rate/nsamp,10.0);
+	hf_adj = gtk_adjustment_new(
+		high_freq,low_freq+64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp),
+		(float)ring_rate/(float)(2.0*decimation_factor)+(float)ring_rate/(float)nsamp,ring_rate/nsamp,ring_rate/nsamp,10.0
+		);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(hf_adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),2);
 	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
