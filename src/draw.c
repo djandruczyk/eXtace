@@ -60,14 +60,16 @@ void draw_start()
 		}
 
 		if (mode == STARS)
-		{
-			display_id = gtk_timeout_add((int)((1.0/(float)refresh_rate)*1000.0),(GtkFunction)kt_stars_update_func, stars);
-		}
+			display_id = gtk_timeout_add(
+					(int)
+					((1.0/(float)refresh_rate)*1000.0),
+					(GtkFunction)kt_stars_update_func,
+					stars);
 		else
-		{
-
-			display_id = gtk_timeout_add((int)((1.0/(float)refresh_rate)*1000.0), (GtkFunction)draw, NULL);
-		}
+			display_id = gtk_timeout_add(
+					(int)
+					((1.0/(float)refresh_rate)*1000.0),
+					 (GtkFunction)draw, NULL);
 	}
 	else
 		printf("Display in paused state,  clik on \"Resume Display\" in Options Panel\n");

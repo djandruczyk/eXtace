@@ -475,9 +475,10 @@ read:
 			 */
 			if (runcount > 10) 
 			{	
-				// Only draw it if its visible.  Why waste CPU time ??? 
+				/* Only draw it if its visible.  
+				 * Why waste CPU time ??? 
+				 */
 				gdk_threads_enter();
-
 				gdk_draw_rectangle(buffer_pixmap,
 						buffer_area->style->black_gc,TRUE,
 						last, 20,
@@ -590,6 +591,7 @@ read:
 	if (gdk_window_is_visible(buffer_area->window))
 	{
 		// Only draw it if its visible.  Why waste CPU time ???
+		gdk_threads_enter();
 
 		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
 				TRUE,
@@ -606,6 +608,7 @@ read:
 			*((float)ring_pos/(float)ring_end);
 
 		gdk_window_clear(buffer_area->window);
+		gdk_threads_leave();
 	}
 }
 

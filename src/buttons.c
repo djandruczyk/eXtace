@@ -524,11 +524,13 @@ gint change_display_mode(GtkWidget *widget, gpointer *data)
 			if (!stars)
 			{
 				GdkPixmap *pm = NULL, *mk = NULL;
-
-				stars = (GtkWidget *)kt_stars_new(main_display,\
+				stars = (GtkWidget *)kt_stars_new(
+						main_display,
 						main_pixmap);
-				pm = gdk_pixmap_create_from_xpm_d(stars->\
-						window, &mk, NULL, logo_xpm);
+				pm = gdk_pixmap_create_from_xpm_d(
+						stars->
+						window, &mk, NULL, 
+						logo_xpm);
 				kt_stars_set_logo_pixmp(stars, pm, mk);
 			}
 			break;
