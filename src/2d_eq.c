@@ -40,7 +40,7 @@ void draw_2d_eq()
 	gint fragcount = 0;
 	gint bar_start=0;         /* start position for bars on graphic EQ */
 	gint pos = border;
-	gchar buff[20];
+	gchar *buff;
 
 	active_drawing_area = xdraw_width;
 
@@ -82,10 +82,14 @@ void draw_2d_eq()
 
 	gdk_threads_enter();
 
+	//gdk_draw_rectangle(main_pixmap,
+	//		main_display->style->black_gc,
+	//		TRUE, 0,height-maxlevel,
+	//		width,maxlevel);
 	gdk_draw_rectangle(main_pixmap,
 			main_display->style->black_gc,
-			TRUE, 0,height-maxlevel,
-			width,maxlevel);
+			TRUE, 0,0,
+			width,height);
 
 	for( i=0; i < bands; i++ )
 	{ 
@@ -134,12 +138,13 @@ void draw_2d_eq()
 			xdraw_width*0.66,0,
 			xdraw_width*0.33,10);
 
-	g_snprintf(buff,20,"%.2f hertz", freq_at_pointer);
+	buff = g_strdup_printf("%.2f hertz", freq_at_pointer);
 	gdk_draw_text(main_pixmap,main_display->style->font,
 			main_display->style->white_gc,
 			xdraw_width*.66,10,
 			buff,
 			strlen(buff));
+	g_free(buff);
 
 
 	gdk_window_clear_area(main_display->window,0,height-maxlevel,width,maxlevel);
