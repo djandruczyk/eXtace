@@ -56,6 +56,7 @@ extern gfloat left_amplitude;
 extern gfloat right_amplitude;
 extern GtkObject *lf_adj;
 extern GtkObject *hf_adj;
+extern GtkObject *lag_adj;
 
 void init()
 {
@@ -500,7 +501,7 @@ void mem_alloc()
 
 void mem_dealloc()
 {
-	free(ringbuffer);  ring_end=0;
+	free(ringbuffer);  
 	free(raw_fft_out);
 	free(raw_fft_in);
 	free(norm_fft);
@@ -511,6 +512,7 @@ void mem_dealloc()
 	free(audio_last_r);
 	free(pip_arr);
 	free(disp_val);
+	ring_end=0;
 
 	free(start);
 	free(pt2);
@@ -556,13 +558,8 @@ void reinit_extace(int new_nsamp)
 	recalc_markers = 1;
 	recalc_scale = 1;	
 	mem_alloc();
-	GTK_ADJUSTMENT(lf_adj)->lower = ring_rate/(float)nsamp;
-	GTK_ADJUSTMENT(lf_adj)->step_increment = ring_rate/(float)nsamp;
-	GTK_ADJUSTMENT(hf_adj)->lower = ring_rate/(float)nsamp;
-	GTK_ADJUSTMENT(hf_adj)->step_increment = ring_rate/(float)nsamp;
-	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
-	gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 	setup_datawindow(NULL,(WindowFunction)window_func);
+	ring_rate_changed();
 	ring_pos=0;
 	
 	/* only start if it has been stopped above */
@@ -571,4 +568,29 @@ void reinit_extace(int new_nsamp)
 	    input_thread_starter(data_handle);
 	    draw_start();
 	  }
+}
+
+void ring_rate_changed()
+{
+	/* Fixes all adjustments that depend on sample rate */
+	high_freq = ring_rate/2;
+
+	GTK_ADJUSTMENT(lf_adj)->lower = (float)ring_rate/(float)nsamp;
+	GTK_ADJUSTMENT(lf_adj)->upper = high_freq;
+	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)ring_rate/(float)nsamp;
+	GTK_ADJUSTMENT(lf_adj)->page_increment = (float)ring_rate/(float)nsamp;
+
+	GTK_ADJUSTMENT(hf_adj)->lower = 
+			low_freq + 33.0*((float)ring_rate/(float)nsamp);
+	GTK_ADJUSTMENT(hf_adj)->upper = 
+			ring_rate/2 + (float)ring_rate/(float)nsamp;
+	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)ring_rate/(float)nsamp;
+	GTK_ADJUSTMENT(hf_adj)->page_increment = (float)ring_rate/(float)nsamp;
+	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
+	gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
+
+	GTK_ADJUSTMENT(lag_adj)->upper = (int)(1000*ring_end/(ring_rate*sizeof(ring_type)));
+	gtk_adjustment_changed(GTK_ADJUSTMENT(lag_adj));
+
+	return;
 }

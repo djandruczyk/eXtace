@@ -28,6 +28,7 @@
 
 GtkObject *lf_adj;
 GtkObject *hf_adj;
+GtkObject *lag_adj;
 
 int setup_options()
 {
@@ -783,14 +784,14 @@ int setup_options()
 	label = gtk_label_new("Lag in Milliseconds");
 	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
-	adj = gtk_adjustment_new(lag,lag_min,(int)(1000*ring_end/ring_rate),
+	lag_adj = gtk_adjustment_new(lag,lag_min,(int)(1000*ring_end/ring_rate),
 				 1,1,1);
-	scale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
+	scale = gtk_hscale_new(GTK_ADJUSTMENT(lag_adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),0);
 	gtk_box_pack_start(GTK_BOX(vbox),scale,TRUE,TRUE,0);
 	gtk_range_set_update_policy(GTK_RANGE (scale),
 			GTK_UPDATE_CONTINUOUS);
-	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
+	gtk_signal_connect (GTK_OBJECT (lag_adj), "value_changed",
 			GTK_SIGNAL_FUNC (slider_changed), (gpointer)LAG);
 
 	label = gtk_label_new("Noise Floor");

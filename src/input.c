@@ -95,7 +95,8 @@ int open_datasource(DataSource source)
 			ring_rate=ESD_DEFAULT_RATE;
 			handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"extace");
 			ring_channels=2; /* since ESD_STEREO is set */
-			if (handles[i].esd > 0) handles[i].opened = 1;
+			if (handles[i].esd > 0) 
+				handles[i].opened = 1;
 			break;
 #endif
 #ifdef HAVE_COMEDI
@@ -104,11 +105,9 @@ int open_datasource(DataSource source)
 			comedi_loglevel(3); /* Set high log level for COMEDI */
 #endif
 			if((handles[i].dev = comedi_open(comedi_data_device)) == NULL)
-			{
 				comedi_perror(comedi_data_device);
-				break;
-			}
-			handles[i].opened = 1;
+			else
+				handles[i].opened = 1;
 			break;
 #endif
 		case ARTS:
@@ -125,6 +124,9 @@ int open_datasource(DataSource source)
 		plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 		handles[i].source=source;
 		handles[i].read_started = 0;
+		ring_rate_changed(); /* Fix all gui controls that depend on
+				      * ring_rate (adjustments and such
+				      */
 		return i;
 	}
 
@@ -413,15 +415,6 @@ void *input_reader_thread(void *input_handle)
 		pthread_testcancel();
 		if (gdk_window_is_visible(buffer_area->window))
 		{
-			/* Runcount is used to only update the buffer_area
-			 * monitor at about 1/10th the input rate.  This is
-			 * done to be nicer to the Xserver,  since we are 
-			 * making gtk_*() calls inside a PTHREAD, i.e. 
-			 * outside gtk's main loop. a call to XFlush is 
-			 * rewuired to keep updating the window properly.
-			 * XFlush is expensive, thus we try to do it less
-			 * here..
-			 */
 			gdk_threads_enter();
 			gdk_draw_rectangle(buffer_pixmap,
 					   buffer_area->style->black_gc,TRUE,

@@ -24,6 +24,7 @@ void make_extace_dirs(void);
 void mem_alloc(void);
 void mem_dealloc(void);
 void reinit_extace(int );
+void ring_rate_changed(void);
 /* Prototypes */
 
  #endif
