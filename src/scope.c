@@ -43,6 +43,10 @@ static GdkPoint	l_scope_points[2048];
 static GdkPoint	r_scope_points[2048];
 static GdkPoint	l_scope_points_last[2048];
 static GdkPoint	r_scope_points_last[2048];
+static gint top;
+static gint bottom;
+gfloat left_amplitude;
+gfloat right_amplitude;
 
 
 

@@ -32,10 +32,27 @@ static gfloat dir_angle_deg = 0.0;
 static gint factor = 0;
 static gint x_draw_width = 0;
 static gint y_draw_height = 0;
+static gint x_fudge = 0;
+static gfloat xaxis_tilt = 0.0;
+static gfloat yaxis_tilt = 0.0;
+static gfloat x_tilt = 0.0;
+static gfloat y_tilt = 0.0;
+static gint x_shift = 0;
+static gint x_shift_per_block = 0;
+static gint y_shift_per_block = 0;
+
+
+gfloat x3d_start;      /* The 3D X start point of axis (percentage) */
+gfloat y3d_start;      /* The 3D Y start point of axis (percentage) */
+gfloat x3d_end;        /* 3D fft X end point of axis (percentage) */
+gfloat y3d_end;        /* 3D fft Y end point of axis (percentage) */
+gint x3d_scroll;
+gint z3d_scroll;
 
 
 void draw_land3d_fft()
 {
+	extern gfloat land_axis_angle;
 	gdk_threads_enter();
 	/* Scroll the window */
 	gdk_window_copy_area(main_pixmap,gc,0,0,main_pixmap,

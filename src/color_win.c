@@ -26,7 +26,11 @@
 
 /* See globals.h for variable declarations and DEFINES */
 GtkWidget *grad_disp;
+GtkWidget *colorseldlg;
 GdkImlibImage *im;
+gint colortab_ready = 0;
+gint grad_x_origin;
+gint grad_y_origin;
 
 gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -499,13 +503,6 @@ void init_colortab()
 		grad[i]=gdk_imlib_move_image(im);
 	}
 	colortab_ready = 1;
-	//    if (ready)
-	//	grad_win_create();
-	//    else if ((!ready) && (grad_win_present)) /* from past run i.e. conf file */
-	//	grad_win_create();	
-	//    gdk_imlib_kill_image(im);
-
-	//    gradient_update();
 }
 
 void grad_win_create()

@@ -1,3 +1,10 @@
+2003-05-08 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	A lot of cleaning.  removed dead functions/variables. Started
+	moving a lot of the old cruft from globals, to their respective files.
+	Removed the backing pixmap option. (not worth it anymore..) Fixed
+	several small bugs with the markers,axis placements, consolidated a lot
+	of legacy code to streamline things making it easier to work on...
+
 2003-04-20 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	More work in audio_processing.c  split the audio copy routines
 	so it isn't doing things for the scope buffer when the scope ain't

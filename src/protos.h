@@ -39,7 +39,7 @@ gint scope_mode(GtkWidget *, gpointer *);
 /* init.c */
 void init(void);
 void read_config(void);
-void save_config(void);
+void save_config(GtkWidget *);
 void make_extace_dirs(void);
 void mem_alloc(void);
 void mem_dealloc(void);

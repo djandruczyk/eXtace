@@ -66,97 +66,38 @@ gdouble		*norm_fft;	/* normalized fft data */
 gdouble		*datawindow;	/* pointer to window function array */
 gint		*pip_arr;	/* array of pip values for screen */
 gint		*disp_val;	/* Display level for screen */
-gint		keep_reading;	/* keeps audio loop running */
 gint 		decimation_factor; /* for sub hertz resolution */
 gint 		lag;		/* delay between getting audio and displaying */
 gint 		fft_lag;	/* delay between getting audio and displaying */
 gint   		width;		/* Main window width */
 gint   		height;		/* Main window height */
 gint  		colortab[MAXBANDS][MAXBANDS];/* ugly, statically allocated to up to MAXBANDS bands */
-gint 		colortab_ready;	/* flag */
 gint		mode;		/* What display mode are we in */
 
-/* New stuff (configurables) */
 
-gint		seg_height;	/* height per segment in 2d spectrum analyzer */
-gint		seg_space;	/* space between segments in 2d analyzer */
 gint		peak_decay;	/* peak_decay and decay are tied together */
 gint		stabilized;	/* scope trace stabilizer option */
 gint		bar_decay;	/* bar_decay and decay are tied together */
 gint		bar_decay_speed;/* decay_speed ONLY works with bar_decay "on" (1) */
 gint		peak_decay_speed;/* decay_val ONLY works with peak_decay "on" (1) */
 gint		peak_hold_time;/* peak hold time ONLY works with peak_decay "on" (1) */
-gint		xdet_scroll;	/* 3D spike scroll in pixels */
-gint		zdet_scroll;	/* 3D spike scroll in pixels */
-gfloat		xdet_start;	/* The 3D SPIKE fft's amount of horizontal */
-gfloat		ydet_start;	/* 3D spike y axis start position (percent) */
-gfloat		x3d_start;	/* The 3D X start point of axis (percentage) */
-gfloat		y3d_start;	/* The 3D Y start point of axis (percentage) */
-gfloat		xdet_end;	/* The 3D DETAILED fft's amount of horizontal */
-gfloat		ydet_end;	/* detailed y axis start position (percent) */
-gfloat		x3d_end;	/* 3D fft X end point of axis (percentage) */
-gfloat		y3d_end;	/* 3D fft Y end point of axis (percentage) */
-gint		x3d_scroll;	/* 3D scroll in pixels x axis */
-gint		z3d_scroll;	/* 3D scroll in pixels z axis */
 gint		time_border;	/* border bottom of spectrogram */
 gint		x_border;	/* border on right side of display */
 gint		x_offset;	/* 3D X axis offset for centering */
-gint		x_shift;	/* 3D shift factor(x axis)depending on axis tilt */
-gint		x_shift_per_block;/* shift in pixels per block for 3D mode */
-gfloat		x_tilt;		/* Tilt factor for semi-perspective views */
-gfloat		y_tilt;		/* Tilt factor for semi-perspective views */
-gfloat		xaxis_tilt;	/* Tilt factor for semi-perspective views */
-gfloat		yaxis_tilt;	/* Tilt factor for semi-perspective views */
 
 gint		y_border;	/* border on right side of display */
 gint		y_offset;	/* 3D X axis offset for centering */
-gint		y_shift;	/* 3D shift factor(x axis)depending on axis tilt */
-gint		y_shift_per_block;/* shift in pixels per block for 3D mode */
 float		scale;
 gint		recalc_scale;	/* its NOT fixed YET. (done dynamically) */
 gint		recalc_markers;	/* flag for marker recalculation routine */
-float		scalefactor; 	/* dynamically figured out by the program */
 gint		show_leader;	/* show leading edge on 3D landscape fft */
 gfloat		multiplier;	/* Level multiplier, for fft routines */
-gint		x_fudge;	/* fudge factor */
-gint		y_fudge;	/* fudge factor */
-gint		top;		/* Top of window */
-gint		bottom;		/* Bottom or window */
-gint		maxlevel;	/* maximum level reached on Graphic Eq mode */
-gint		prevlevel;	/* maximum level reached on Graphic Eq mode */
-gfloat		pix_per_block;	/* pixels per block */
-gint		pix_int;	/* int version of above */
-gint		space_used;	/* space the display takes up */
-gint		extras;
-gint		last_is_full;	/* its initially ready ?? */
-gint		ready;		/* is everything initialized? */
-gfloat		x_disp;		/* X displacement */
-gfloat		y_disp; 	/* Y displacement */
-gfloat		old_x_disp;	/* X displacement */
-gfloat		old_y_disp;	/* Y displacement */
 gint		dir_win_present;/* Flag */
 gint		grad_win_present;/* Flag */
 
-//GtkObject	*x3d_start_ptr;	/* Pointer */
-//GtkObject	*x3d_end_ptr;	/* Pointer */
-//GtkObject	*y3d_start_ptr;	/* Pointer */
-//GtkObject	*y3d_end_ptr;	/* Pointer */
-//GtkObject	*xdet_start_ptr;/* Pointer */
-//GtkObject	*xdet_end_ptr;	/* Pointer */
-//GtkObject	*ydet_start_ptr;/* Pointer */
-//GtkObject	*ydet_end_ptr;	/* Pointer */
-//GtkObject	*x3d_scroll_ptr;/* Pointer */
-//GtkObject	*z3d_scroll_ptr;/* Pointer */
-//GtkObject	*xdet_scroll_ptr;/* Pointer */
-//GtkObject	*zdet_scroll_ptr;/* Pointer */
-GtkWidget	*main_win_ptr;	/* Pointer */
 GtkWidget	*dir_win_ptr;	/* Pointer */
-GtkWidget	*about_but_ptr;	/* Pointer */
 GtkWidget	*grad_win_ptr;	/* Pointer */
 GtkWidget	*options_win_ptr;/* pointer specific to that button */
-GtkWidget	*colorseldlg; 	/* Pointer */
-GtkObject	*lag_adj; 	/* Pointer */
-
 
 double		levels[MAXBANDS];/* Levels on screen for 3D and 3D Eq/spectral */
 double		plevels[MAXBANDS];/* Levels on screen for 3D and 3D Eq/spectral */
@@ -165,13 +106,8 @@ double		trailers[MAXBANDS];/* Levels for "trailers" in 2D EQ */
 double		ptrailers[MAXBANDS];/* Levels for "trailers" in 2D EQ */
 gfloat		freqmark[MAXBANDS];/* Frequency markers for 2D EQ */
 gfloat		freq_at_pointer;/* Frequency at mouse pointer */
-gint		pt_lock;	/* Lock variable for DND code */
 gint		window_func;	/* Which window function r we using? */
 gint		axis_type;	/* Linear or LOG (NOT SPIKE or SPECT modes) */
-gint		main_x_origin;	/* Coords of main window on screen */
-gint		main_y_origin;	/* Coords of main window on screen */
-gint		grad_x_origin;	/* Coords of gradient window */
-gint		grad_y_origin;	/* Coords of gradient window */
 gint		dir_x_origin;	/* Coords of direction window */
 gint		dir_y_origin;	/* Coords of direction window */
 gint		tape_scroll;
@@ -184,8 +120,6 @@ gint		cr[MAXBANDS],cg[MAXBANDS],cb[MAXBANDS];
 gint		scope_sub_mode;	/* Dot, line or gradient sub mode  */
 gint		sub_mode_3D;	/* sub mode for 3D modes */
 gint		sound_source;	/* ESD (work in progress) */
-gdouble		left_amplitude;	/* Scaler */
-gdouble		right_amplitude;/* Scaler */
 int		last_buf_l[CONVOLVE_SMALL];/* Convolve buffer */
 short		cur_buf_l[CONVOLVE_BIG];/* Convolve buffer */
 int		last_buf_r[CONVOLVE_SMALL];/* Convolve buffer */
@@ -220,8 +154,6 @@ struct		Color_map {
 fftw_plan	plan;		/* fft plan for fftw library */
 gint		landtilt;	/* flag */
 gint		spiketilt;	/* flag */
-gfloat		land_axis_angle;/* angle of 3D axis in degrees */
-gfloat		det_axis_angle;	/* angle of 3D axis in degrees */
 gint		tag;		/* Used by gdk_input_* */
 #ifdef HAVE_PTHREAD_H
 /* Temporarily depreciated.  may be needed in the future */

@@ -30,6 +30,20 @@ gint buffer_area_height;
 gint dir_width;
 gint dir_height;
 gint one_to_fix = 0;
+gint pt_lock = 0;
+
+extern gfloat xdet_start;
+extern gfloat xdet_end;
+extern gfloat x3d_start;
+extern gfloat x3d_end;
+extern gfloat ydet_start;
+extern gfloat ydet_end;
+extern gfloat y3d_start;
+extern gfloat y3d_end;
+extern gint xdet_scroll;    /* 3D spike scroll in pixels */
+extern gint zdet_scroll;    /* 3D spike scroll in pixels */
+extern gint x3d_scroll;     /* 3D scroll in pixels x axis */
+extern gint z3d_scroll;     /* 3D scroll in pixels z axis */
 
 
 gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)

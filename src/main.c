@@ -21,6 +21,7 @@
 #include <gtk/gtk.h>
 
 /* See globals.h for variable declarations and DEFINES */
+gint ready = 0;
 
 int main(int argc, char **argv)
 {
@@ -29,9 +30,12 @@ int main(int argc, char **argv)
 	GtkWidget *hbox;
 	GtkWidget *main_window;
 	GtkWidget *button;
+	GtkWidget *about_button;
 	GtkTooltips *tip;
 	extern gint dir_width;
 	extern gint dir_height;
+	extern gint main_x_origin;
+	extern gint main_y_origin;
 
 	g_thread_init(NULL);
 	gtk_init(&argc, &argv);
@@ -48,7 +52,6 @@ int main(int argc, char **argv)
 	gtk_widget_push_colormap(gdk_imlib_get_colormap());
 
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	main_win_ptr = main_window;
 	gtk_widget_set_uposition(main_window, main_x_origin, main_y_origin);
 	gtk_widget_set_usize(main_window,width,height);
 	gtk_window_set_title(GTK_WINDOW(main_window),"eXtace " VERSION);
@@ -132,11 +135,10 @@ int main(int argc, char **argv)
 			GTK_SIGNAL_FUNC(change_display),
 			(gpointer)VERT_SPECGRAM);
 
-	button=gtk_button_new_with_label("About");
-	about_but_ptr = button;
-	gtk_tooltips_set_tip(tip, button, "About eXtace", NULL);
-	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
-	gtk_signal_connect(GTK_OBJECT(button),"clicked",
+	about_button=gtk_button_new_with_label("About");
+	gtk_tooltips_set_tip(tip, about_button, "About eXtace", NULL);
+	gtk_box_pack_start(GTK_BOX(hbox),about_button,TRUE,TRUE,0);
+	gtk_signal_connect(GTK_OBJECT(about_button),"clicked",
 			GTK_SIGNAL_FUNC(change_display),
 			(gpointer)STARS);
 
@@ -244,7 +246,7 @@ int main(int argc, char **argv)
 		draw_start();
 	}
 	if (mode == STARS)/* gotta emit it by hand due to config file */
-		gtk_signal_emit_by_name(GTK_OBJECT(about_but_ptr),"clicked");
+		gtk_signal_emit_by_name(GTK_OBJECT(about_button),"clicked");
 	ready = 1;		/* All set */
 	gdk_threads_enter();
 	gtk_main();

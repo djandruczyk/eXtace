@@ -35,10 +35,26 @@ static GdkColor cl;
 static gint lvl;
 static gint x_draw_width = 0;
 static gint y_draw_height = 0;
+static gfloat xaxis_tilt = 0.0;
+static gfloat yaxis_tilt = 0.0;
+static gfloat x_tilt = 0.0;
+static gfloat y_tilt = 0.0;
+
+gfloat xdet_start;
+gfloat xdet_end;
+gfloat ydet_start;
+gfloat ydet_end;
+gint xdet_scroll;    /* 3D spike scroll in pixels */
+gint zdet_scroll;    /* 3D spike scroll in pixels */
+
+
+
+
 
 
 void draw_spike_3d()
 {
+	extern gint det_axis_angle;
 	gdk_threads_enter();
 	gdk_window_copy_area(main_pixmap,gc,
 			0,0,

@@ -28,6 +28,29 @@
 gint major_ver;
 gint minor_ver;
 gint micro_ver;
+gint main_x_origin;
+gint main_y_origin;
+
+extern gint seg_height;	/* from 2d_eq.c */
+extern gint seg_space;	/* from 2d_eq.c */
+extern gfloat xdet_start;
+extern gfloat xdet_end;
+extern gfloat x3d_start;
+extern gfloat x3d_end;
+extern gfloat ydet_start;
+extern gfloat ydet_end;
+extern gfloat y3d_start;
+extern gfloat y3d_end;
+extern gint xdet_scroll;    /* 3D spike scroll in pixels */
+extern gint zdet_scroll;    /* 3D spike scroll in pixels */
+extern gint x3d_scroll;     /* 3D scroll in pixels x axis */
+extern gint z3d_scroll;     /* 3D scroll in pixels z axis */
+extern gint grad_x_origin;
+extern gint grad_y_origin;
+extern gfloat left_amplitude;
+extern gfloat right_amplitude;
+
+
 
 void init()
 {
@@ -35,6 +58,8 @@ void init()
 	extern gint buffer_area_height;
 	extern gint dir_width;
 	extern gint dir_height;
+	extern gint seg_height;
+	extern gint seg_space;
 	/* Should actualy get these to/from a text file instead so settings 
 	 * persist between sessions.. :|  Ohh, how to do it..... :)
 	 * Initialize ALL variables, should be first functional called from main
@@ -42,7 +67,6 @@ void init()
 
 	sound_source = ESD;
 
-	keep_reading = 1;
 	use_rtc = 0;
 	refresh_rate = 29;	/* 25 frames per sec */
 	left_amplitude = 127.0/32768.0; /* Scaler for something */
@@ -51,7 +75,6 @@ void init()
 	landflip = 1;		/* Flip 3D axis over */
 	spikeflip = 1;		/* Flip 3D axis over */
 	axis_type = LOG;	/* Logarithmic display for 3D land and EQ modes */
-	ready = 0;		/* We're NOT ready yet until all main windows are up */
 	window_func = HAMMING;	/* Hamming window (see misc.c) */
 	winstyle = FULL;	/* use full window function, not cramped version */
 	nsamp = 2048;		/* number of samples per FFT/scope */
@@ -64,8 +87,6 @@ void init()
 	show_graticule = 1;	/* show scope graticule*/
 	lag = 360;		/* Lag (how many milliseconds behind) */
 	decimation_factor=1;	
-	last_is_full = 0;	/* its initially ready ?? */
-
 	seg_height = 2;		/* height per segment in 2d spectrum analyzer */
 	seg_space = 1;		/* space between segments in 2d analyzer */
 	stabilized = 1;		/* Scope stabilizer routine */
@@ -89,18 +110,13 @@ void init()
 	time_border = 30;	/* border on bottom of spectrogram display */
 	x_border = 8;		/* border on right side of display */
 	x_offset = 0;		/* 3D X axis offset for centering */
-	x_shift = 0;		/* 3D shift factor(x axis)depending on axis tilt */
-	x_shift_per_block = 0;	/* shift in pixels per block for 3D mode */
 	landtilt = 1;		/* Flag */
 	spiketilt = 0;		/* Flag */
 
 	y_border = 8;		/* border on right side of display */
 	y_offset = 0;		/* 3D X axis offset for centering */
-	y_shift = 0;		/* 3D shift factor(x axis)depending on axis tilt */
-	y_shift_per_block = 0;	/* shift in pixels per block for 3D mode */
 	recalc_scale = 1;	/* its NOT fixed YET. (done dynamically) */
 	recalc_markers = 1;	/* its NOT fixed YET. (done dynamically) */
-	scalefactor = 10.0;	/* dynamically figured out by the program */
 	show_leader = 0;	/* show leading edge on 3d landscape fft */
 	multiplier = 26.0;	/* Level multiplier, fft amplitude adj */
 	noise_floor = -80;	/* FFT noise floor position. (NEEDS WORK!!!) */
@@ -114,8 +130,8 @@ void init()
 	buffer_area_width  = 400;	/* Self explanitory */
 	dir_width = 100;	/* Self explanitory */
 	dir_height = 100;	/* Self explanitory */
-	main_x_origin = 0;	/* window locations on screen */
-	main_y_origin = 0;	/* window locations on screen */
+	main_x_origin = 40;	/* window locations on screen */
+	main_y_origin = 40;	/* window locations on screen */
 	dir_x_origin = width + 0;
 	dir_y_origin = 0;
 	grad_x_origin = width + 0;
@@ -126,7 +142,6 @@ void init()
 	sync_to_left = 1;	/* default to sync to left channel */
 	sync_to_right = 0; 	/* sync to right channel */
 	sync_independant = 0;	/* independtant sync */
-	colortab_ready = 0;	/* NOT READY */
 	paused = 0;		/* display running */
 	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
 	high_freq = RATE/2;	/* High frequency cutoff in hi-res displays */
@@ -266,7 +281,7 @@ void read_config(void)
 	g_free(filename);
 
 }
-void save_config(void)
+void save_config(GtkWidget *widget)
 {
 	gchar *filename;
 	ConfigFile *cfgfile;
@@ -337,7 +352,7 @@ void save_config(void)
 	cfg_write_int(cfgfile, "Global", "high_freq", high_freq);
 	cfg_write_int(cfgfile, "Window", "width", width);
 	cfg_write_int(cfgfile, "Window", "height", height);
-	gdk_window_get_root_origin((gpointer) main_win_ptr->window, &x, &y);
+	gdk_window_get_root_origin(widget->window, &x, &y);
 	cfg_write_int(cfgfile, "Window", "main_x_origin", x);
 	cfg_write_int(cfgfile, "Window", "main_y_origin", y);
 	//    cfg_write_int(cfgfile, "Window", "grad_win_present", grad_win_present);
@@ -496,10 +511,6 @@ void reinit_extace(int new_nsamp)
 	/* Stop drawing the display */
 	draw_stop();
 
-	/* Setting "keep_reading" to 0 causes the audio thread to break from its
-	 * loop and exit. We wait for flag to get set and spin till it exits 
-	 */
-	keep_reading = 0;
 	switch (sound_source)
 	{
 		case ESD:
@@ -534,7 +545,6 @@ void reinit_extace(int new_nsamp)
 	ring_pos=0;
 	if(open_sound() >= 0)
 	{
-		keep_reading = 1;
 		audio_thread_starter();
 		draw_start();
 	}

@@ -23,6 +23,11 @@
 /* See globals.h for variable declarations and DEFINES */
 static gint i=0;
 static GdkColor cl;
+gint seg_height;     /* height per segment in 2d spectrum analyzer */
+gint seg_space;      /* space between segments in 2d analyzer */
+static gint maxlevel;
+static gint prevlevel;
+
 
 void draw_2d_eq()
 {

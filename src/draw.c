@@ -34,6 +34,7 @@
  * gfloat elapsed_time_usec;
  * gfloat elapsed;
 */
+static gfloat scalefactor;
 
 extern GtkWidget *stars; /* From stars.c */
  
@@ -128,8 +129,9 @@ int draw(void)
 	{
 		/* Gives a "log-like" x axis (for 2D (EQ like analyzer))
 		 * hacking to make it work better with the various displays
-		 * the bin[i] deteremines how much data is summed together for the 
-		 * display since the display can't fit a 1024 point fft nicely.
+		 * the bin[i] determines how much data is summed together 
+		 * for the display since the display can't fit a 1024 
+		 * point fft nicely.
 		 */ 
 		if (axis_type == LINEAR)
 		{
@@ -163,33 +165,33 @@ recalc:
 				if (sum > nsamp/2)
 				{
 					if (sum > (2.0*(nsamp/2)))
-						scalefactor = scalefactor - .500;
+						scalefactor -= .500;
 					if (sum > (1.25*(nsamp/2)))
-						scalefactor = scalefactor - .150;
+						scalefactor -=  .150;
 					if (sum > (1.15*(nsamp/2)))
-						scalefactor = scalefactor - .025;
+						scalefactor -=  .025;
 					if (sum > (1.05*(nsamp/2)))
-						scalefactor = scalefactor - .010;
+						scalefactor -=  .010;
 					if (sum >= (1.02*(nsamp/2)))
-						scalefactor = scalefactor - .005;
+						scalefactor -=  .005;
 					if (sum >= (1.01*(nsamp/2)))
-						scalefactor = scalefactor - .002;
+						scalefactor -=  .002;
 					if (sum < (1.01*(nsamp/2)))
-						scalefactor = scalefactor - .001;
+						scalefactor -=  .001;
 					goto recalc;
 				}
 				if (sum < (nsamp/2)*.99)
 				{
 					if (sum < (nsamp/2)*.99)
-						scalefactor = scalefactor + .001;
+						scalefactor += .001;
 					if (sum < (nsamp/2)*.98)
-						scalefactor = scalefactor + .002;
+						scalefactor += .002;
 					if (sum < (nsamp/2)*.95)
-						scalefactor = scalefactor + .005;
+						scalefactor += .005;
 					if (sum < (nsamp/2)*.85)
-						scalefactor = scalefactor + .025;
+						scalefactor += .025;
 					if (sum < (nsamp/2)*.75)
-						scalefactor = scalefactor + .155;
+						scalefactor += .155;
 					goto recalc;
 				}
 #ifdef SCALEDEBUG
@@ -207,11 +209,12 @@ recalc:
 
 
 		/*
-		 * this function groups together the data from the FFT so that it can
-		 * fit into the smaller division displayed on screen, since a 1024 point
-		 * fft doesn't fit wwell into 32 or 64 divisions.  the lin/log_x_axis
-		 * arrays determine how the fft data is broken up for a linear or log 
-		 * based frequency axis
+		 * This function groups together the data from the 
+		 * FFT so that it can fit into the smaller division 
+		 * displayed on screen, since a 1024 point fft doesn't 
+		 * fit well into 32 or 64 divisions.  The lin/log_x_axis
+		 * arrays determine how the fft data is broken up for 
+		 * a linear or log based frequency axis
 		 */
 
 		j=0;
@@ -246,7 +249,9 @@ recalc:
 		for(i=0;i<bands;i++)
 		{
 			val=0;
-			/* sum it, then average it so the scaling doesn't go haywire */
+			/* sum it, then average it so the scaling 
+			 * doesn't go haywire 
+			 */
 			switch (axis_type)
 			{
 				case LINEAR:
@@ -359,7 +364,6 @@ recalc:
 		case HORIZ_SPECGRAM:
 			draw_horiz_specgram();
 			break;
-
 		default:
 			break;
 	}

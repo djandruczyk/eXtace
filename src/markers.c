@@ -120,6 +120,8 @@ void update_freq_markers()
 	gchar less_markers = 0;
 	gchar lot_less_markers = 0;
 	gint x1,x2,y1,y2;
+	extern gint ready;
+
 	if(!ready)
 		return;
 	if (clear_display == 1)

@@ -19,6 +19,26 @@
 #include <gtk/gtk.h>
 
 /* See globals.h for variable declarations and DEFINES */
+gfloat x_disp;         /* X displacement */
+gfloat y_disp;         /* Y displacement */
+gfloat old_x_disp;     /* X displacement */
+gfloat old_y_disp;     /* Y displacement */
+gfloat land_axis_angle;/* angle of 3D axis in degrees */
+gfloat det_axis_angle; /* angle of 3D axis in degrees */
+
+extern gfloat xdet_start;
+extern gfloat xdet_end;
+extern gfloat x3d_start;
+extern gfloat x3d_end;
+extern gfloat ydet_start;
+extern gfloat ydet_end;
+extern gfloat y3d_start;
+extern gfloat y3d_end;
+extern gint xdet_scroll;    /* 3D spike scroll in pixels */
+extern gint zdet_scroll;    /* 3D spike scroll in pixels */
+extern gint x3d_scroll;     /* 3D scroll in pixels x axis */
+extern gint z3d_scroll;     /* 3D scroll in pixels z axis */
+
 
 
 gint dir_save_state(GtkWidget *widget, GdkEventFocus *event)

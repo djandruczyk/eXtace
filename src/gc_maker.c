@@ -30,7 +30,7 @@ void init_gc(GtkWidget *widget)
 	GdkColor trace_color;
 	GdkColor latency_monitor;
 
-	cmap = gtk_widget_get_colormap(main_win_ptr);
+	cmap = gtk_widget_get_colormap(widget);
 
 	graticule_color.red = RASTER_COLOR_RED << 8;
 	graticule_color.green = RASTER_COLOR_GREEN << 8;
