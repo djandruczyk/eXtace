@@ -220,7 +220,8 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
 		cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 
-		elements_to_get = nsamp/2;/* how many samples to read at a time */
+		//elements_to_get = nsamp/2;/* how many samples to read at a time */
+		elements_to_get = nsamp/8;/* how many samples to read at a time */
 		copy_window = nsamp < 2048 ? 4096 : nsamp *2;
 		/* fft_lag is an added delay because the fft looks most synced to
 		 * audio when viewing the "middle" of the datawindow. i.e. 

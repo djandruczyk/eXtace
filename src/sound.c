@@ -205,7 +205,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		/* Need to read in two parts */
 		bytes_to_read = (ring_end - ring_pos)*2;
 		count = read(source,audio_ring + ring_pos,bytes_to_read);
-		/*	printf("LOOP requesting %i bytes,  Read %i bytes to ring_position %i\n",bytes_to_read,count,ring_pos); */
+		/* printf("requesting %i bytes,  Read %i bytes\n",bytes_to_read,count);  */
 
 		if (count < bytes_to_read)
 		{
@@ -229,7 +229,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		}
 		bytes_to_read = elements_to_get*2;
 		count = read(source,audio_ring,bytes_to_read);
-		/*printf("LOOP read %i bytes to ring_position %i\n",count,ring_pos); */
+		/* printf("requesting %i bytes,  Read %i bytes\n",bytes_to_read,count); */
 		ring_pos = (count/2);	/*ELEMENTS not bytes */
 		elements_to_get = nsamp/2;
 		/* printf("Wrap complete, read in %i more bytes\n",count); */
@@ -237,9 +237,8 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 	else 	/*normal read, no risk of wrapping the buffer */
 	{
 		bytes_to_read = elements_to_get*2;
-		/* printf("Requesting %i bytes\n",bytes_to_read); */
 		count = read(source,audio_ring + ring_pos,bytes_to_read);
-		/* printf("NORM read %i bytes to ring_position %i\n",count,ring_pos); */
+		/* printf("requesting %i bytes,  Read %i bytes\n",bytes_to_read,count); */
 		if (count == bytes_to_read)
 		{
 			/* printf("Full good read\n"); */
@@ -256,7 +255,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		{
 			/* printf("Partial good read\n"); */
 			ring_pos += (count/2);	/*ELEMENTS not bytes */
-			elements_to_get = nsamp/2 ;
+			elements_to_get = nsamp/2;
 			/* printf("Partial read complete, read in %i more bytes\n",count); */
 		}
 	}
@@ -265,7 +264,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 	gettimeofday(&audio_arrival, NULL);
 	//    printf("Moved %i bytes of input data\n",count);
 
-	//    printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000);
+	/*printf("-- Audio READER: current at %.6f, diff %.2fms\n", audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000,((audio_arrival.tv_sec +(double)audio_arrival.tv_usec/1000000)-(audio_arrival_last.tv_sec +(double)audio_arrival_last.tv_usec/1000000))*1000); */
 
 	if (gdk_window_is_visible(buffer_area->window))
 	{

@@ -152,7 +152,7 @@ void split_and_decimate()
 	 * in best visual sync when delaying by 1/2 it's length in 
 	 * "sample time". It's computed as follows:
 	 *      init.c: fft_lag = 1000*((nsamp/2)/(float)RATE);
-	 * so for a 4096 point fft, this adds  another 46.43 milliseconds.
+	 * so for a 4096 point fft, this adds  another 46.44 milliseconds.
 	 */
 	delay = (int)(((float)(fft_lag+lag)/1000.0)*(float)RATE);
 
@@ -180,16 +180,31 @@ void split_and_decimate()
 			-(audio_arrival.tv_sec\
 				+(audio_arrival.tv_usec/1000000.0)))*1000;
 
+
+	/*
+	printf("Draw Time %f, Audio read Time %f\n",draw_win_time.tv_sec \
+                                +(draw_win_time.tv_usec/1000000.0),audio_arrival.tv_sec
+                                +(audio_arrival.tv_usec/1000000.0));
 	printf("Audio offset lag in milliseconds %f\n",audio_offset_lag);
+	printf("Draw Time delay %f\n",((draw_win_time.tv_sec \
+                                +(double)draw_win_time.tv_usec/1000000.0)-(draw_win_time_last.tv_sec \
+                                +(double)draw_win_time_last.tv_usec/1000000.0))*1000.0);
+	*/
 
 	/* Need this in sample elements not in milliseconds.... */
 	audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)\
 			*(float)RATE);
 
+	
+	//audio_offset_delay = 0;
+
+
 	/* Set pointer to be offset from the beginning of the ring + the 
 	 * position of the audio reader thread + the buffer size - the 
 	 * time delay (lag compensation).
 	 */
+
+	/* printf("Total Delay factor is %i\n",delay+audio_offset_delay);*/
 
 	/* Must add "BUFFER" to the ring value to make sure that raw_ptr
 	 * OVERFLOWS, otherwise it never gets to the end and wraps. 
