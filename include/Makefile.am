@@ -1,5 +1,6 @@
 
 headers = \
+	2d_eq.h \
 	audio_processing.h \
 	buttons.h \
 	color_win.h \
