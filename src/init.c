@@ -357,7 +357,7 @@ void save_config(GtkWidget *widget)
 	cfg_write_float(cfgfile, "Global", "low_freq", low_freq);
 	cfg_write_float(cfgfile, "Global", "high_freq", high_freq);
 	cfg_write_int(cfgfile, "Window", "width", width);
-	cfg_write_int(cfgfile, "Window", "height", height);
+	cfg_write_int(cfgfile, "Window", "height", height+22);
 	gdk_window_get_root_origin(widget->window, &x, &y);
 	cfg_write_int(cfgfile, "Window", "main_x_origin", x);
 	cfg_write_int(cfgfile, "Window", "main_y_origin", y);
@@ -575,15 +575,15 @@ void ring_rate_changed()
 	if (!ready)
 		return;
 
-	GTK_ADJUSTMENT(lf_adj)->lower = (float)ring_rate/(float)nsamp;
-	GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (64.0*(ring_rate/(2.0*decimation_factor))/(float)nsamp);
+	GTK_ADJUSTMENT(lf_adj)->lower = (float)ring_rate/(float)decimation_factor/(float)nsamp;
+	GTK_ADJUSTMENT(lf_adj)->upper = high_freq - 64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp);
 	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(lf_adj)->page_increment = (float)ring_rate/(float)nsamp;
 
 	GTK_ADJUSTMENT(hf_adj)->lower = 
-			low_freq + (64.0*(ring_rate/(2.0*decimation_factor))/(float)nsamp);
+			low_freq + 64.0*((float)ring_rate/(float)decimation_factor/(float)nsamp);
 	GTK_ADJUSTMENT(hf_adj)->upper = 
-			ring_rate/(2.0*decimation_factor) + (float)ring_rate/(float)nsamp;
+			(float)ring_rate/(float)(2*decimation_factor) + (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(hf_adj)->page_increment = (float)ring_rate/(float)nsamp;
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));

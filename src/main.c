@@ -256,6 +256,7 @@ int main(int argc, char **argv)
 	if (mode == STARS)/* gotta emit it by hand due to config file */
 		gtk_signal_emit_by_name(GTK_OBJECT(about_button),"clicked");
 	ready = 1;		/* All set */
+	ring_rate_changed();
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
