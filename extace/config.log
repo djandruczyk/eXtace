@@ -1,0 +1,77 @@
+This file contains any messages produced by compilers while
+running configure, to aid debugging if configure makes a mistake.
+
+configure:770: checking for a BSD compatible install
+configure:823: checking whether build environment is sane
+configure:880: checking whether make sets ${MAKE}
+configure:926: checking for working aclocal
+configure:939: checking for working autoconf
+configure:952: checking for working automake
+configure:965: checking for working autoheader
+configure:978: checking for working makeinfo
+configure:995: checking whether to enable maintainer-specific portions of Makefiles
+configure:1027: checking for Cygwin environment
+configure:1060: checking for mingw32 environment
+configure:1089: checking how to run the C preprocessor
+configure:1244: checking host system type
+configure:1265: checking build system type
+configure:1285: checking for gcc
+configure:1398: checking whether the C compiler (gcc  ) works
+configure:1414: gcc -o conftest    conftest.c  1>&5
+configure:1440: checking whether the C compiler (gcc  ) is a cross-compiler
+configure:1445: checking whether we are using GNU C
+configure:1473: checking whether gcc accepts -g
+configure:1516: checking for ld used by GCC
+configure:1584: checking if the linker (/usr/bin/ld) is GNU ld
+configure:1601: checking for /usr/bin/ld option to reload object files
+configure:1613: checking for BSD-compatible nm
+configure:1651: checking whether ln -s works
+configure:1672: checking how to recognise dependant libraries
+configure:1845: checking for object suffix
+configure:1871: checking for executable suffix
+configure:1912: checking command to parse /usr/bin/nm -B output
+configure:2088: checking for dlfcn.h
+configure:2266: checking for ranlib
+configure:2333: checking for strip
+configure:2569: checking for objdir
+configure:2596: checking for gcc option to produce PIC
+configure:2748: checking if gcc PIC flag              -fPIC works
+configure:2814: checking if gcc static flag -static works
+configure:2856: checking if gcc supports -c -o file.o
+configure:2904: checking if gcc supports -c -o file.lo
+configure:2969: checking if gcc supports -fno-rtti -fno-exceptions
+configure:2982: gcc -c -g -O2 -fno-rtti -fno-exceptions -c conftest.c  conftest.c 1>&5
+configure:3009: checking whether the linker (/usr/bin/ld) supports shared libraries
+configure:3625: checking how to hardcode library paths into programs
+configure:3653: checking whether stripping libraries is possible
+configure:3667: checking dynamic linker characteristics
+configure:4053: checking if libtool supports shared libraries
+configure:4546: checking whether -lc should be explicitly linked in
+configure:5147: checking for gcc
+configure:5260: checking whether the C compiler (gcc -g -O2 ) works
+configure:5276: gcc -o conftest -g -O2   conftest.c  1>&5
+configure:5302: checking whether the C compiler (gcc -g -O2 ) is a cross-compiler
+configure:5307: checking whether we are using GNU C
+configure:5335: checking whether gcc accepts -g
+configure:5378: checking for a BSD compatible install
+configure:5431: checking whether ln -s works
+configure:5452: checking whether make sets ${MAKE}
+configure:5528: checking for gtk-config
+configure:5563: checking for GTK - version >= 1.2.0
+configure:5664: gcc -o conftest -g -O2 -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT -I/usr/X11R6/include   conftest.c -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lgthread -lglib -lpthread -ldl -lXi -lXext -lX11 -lm  1>&5
+configure:5799: checking for glib-config
+configure:5834: checking for GLIB - version >= 1.2.0
+configure:5933: gcc -o conftest -g -O2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT   conftest.c -L/usr/lib -lgthread -lglib -lpthread  1>&5
+configure:6057: checking for esd-config
+configure:6092: checking for ESD - version >= 0.2.8
+configure:6174: gcc -o conftest -g -O2    conftest.c  -L/usr/lib -lesd -laudiofile -lm 1>&5
+configure:6259: checking for fcntl.h
+configure:6259: checking for sys/ioctl.h
+configure:6259: checking for sys/time.h
+configure:6259: checking for unistd.h
+configure:6259: checking for pthread.h
+configure:6469: checking for pthread_create in -lpthread
+configure:6560: checking for alsa version
+configure:6618: checking for rfftw_one in -lrfftw
+configure:6661: checking for rfftw_one in -lrfftw
+configure:6722: checking for gdk_imlib_render in -lgdk_imlib
