@@ -27,7 +27,7 @@ extace_SOURCES = \
 	land3d.c \
 	gc_maker.c \
 	dir.c \
-	getfft.c \
+	audio_processing.c \
 	events.c \
 	configfile.c \
 	buttons.c \

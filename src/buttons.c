@@ -293,6 +293,9 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 			case COMPOSITE:
 				fft_signal_source=COMPOSITE;
 				break;
+			case DIFFERENCE:
+				fft_signal_source=DIFFERENCE;
+				break;
 			case 512:
 				reinit_extace(512);
 				break;

@@ -49,7 +49,7 @@ void draw_start(void);
 void change_spec_start(gint);
 void change_x_start(gint,gint);
 void change_x_end(gint,gint);
-int GetFFT(void);
+int audio_chewer(void);
 
 gint configure_event(GtkWidget *, GdkEventConfigure *, gpointer );
 gint expose_event(GtkWidget *, GdkEventExpose *, gpointer );

@@ -104,7 +104,7 @@ sine_LDADD = -lm
 
 bin_PROGRAMS = extace
 
-extace_SOURCES =  	Makefile 	globals.h 	enums.h 	defaults.h 	defines.h 	protos.h 	convolve.h 	configfile.h 	stars.h 	logo.xpm    	stars.c 	init.c 	main.c 	draw.c 	land3d.c 	gc_maker.c 	dir.c 	getfft.c 	events.c 	configfile.c 	buttons.c 	color_win.c 	reducer.c 	convolve.c 	win_func.c 	2d_eq.c 	scope.c 	markers.c 	spike_3d.c 	sound.c 	vert_specgram.c 	horiz_specgram.c  	options.c 
+extace_SOURCES =  	Makefile 	globals.h 	enums.h 	defaults.h 	defines.h 	protos.h 	convolve.h 	configfile.h 	stars.h 	logo.xpm    	stars.c 	init.c 	main.c 	draw.c 	land3d.c 	gc_maker.c 	dir.c 	audio_processing.c 	events.c 	configfile.c 	buttons.c 	color_win.c 	reducer.c 	convolve.c 	win_func.c 	2d_eq.c 	scope.c 	markers.c 	spike_3d.c 	sound.c 	vert_specgram.c 	horiz_specgram.c  	options.c 
 
 
 extace_LDADD = @EFENCE@ @GTK_LIBS@ @ESD_LIBS@ @EXTRA_LIBS@ @ALSA_LIBS@ -lgdk_imlib 
@@ -133,7 +133,7 @@ CPPFLAGS = @CPPFLAGS@
 LDFLAGS = @LDFLAGS@
 extace_OBJECTS =  stars.$(OBJEXT) init.$(OBJEXT) main.$(OBJEXT) \
 draw.$(OBJEXT) land3d.$(OBJEXT) gc_maker.$(OBJEXT) dir.$(OBJEXT) \
-getfft.$(OBJEXT) events.$(OBJEXT) configfile.$(OBJEXT) \
+audio_processing.$(OBJEXT) events.$(OBJEXT) configfile.$(OBJEXT) \
 buttons.$(OBJEXT) color_win.$(OBJEXT) reducer.$(OBJEXT) \
 convolve.$(OBJEXT) win_func.$(OBJEXT) 2d_eq.$(OBJEXT) scope.$(OBJEXT) \
 markers.$(OBJEXT) spike_3d.$(OBJEXT) sound.$(OBJEXT) \
@@ -158,9 +158,9 @@ DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
 TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/2d_eq.P .deps/buttons.P .deps/color_win.P \
-.deps/configfile.P .deps/convolve.P .deps/dir.P .deps/draw.P \
-.deps/events.P .deps/gc_maker.P .deps/getfft.P .deps/horiz_specgram.P \
+DEP_FILES =  .deps/2d_eq.P .deps/audio_processing.P .deps/buttons.P \
+.deps/color_win.P .deps/configfile.P .deps/convolve.P .deps/dir.P \
+.deps/draw.P .deps/events.P .deps/gc_maker.P .deps/horiz_specgram.P \
 .deps/init.P .deps/land3d.P .deps/main.P .deps/markers.P \
 .deps/options.P .deps/reducer.P .deps/scope.P .deps/sine.P \
 .deps/sound.P .deps/spike_3d.P .deps/stars.P .deps/vert_specgram.P \

@@ -103,12 +103,13 @@
 
 /* General FFT Options */
 #define COMPOSITE	0x80
-#define LEFT		0x81
-#define RIGHT		0x82
-#define FULL		0x83
-#define HALF		0x84
-#define QUARTER		0x85
-#define EIGHTH		0x86
+#define DIFFERENCE	0x81
+#define LEFT		0x82
+#define RIGHT		0x83
+#define FULL		0x84
+#define HALF		0x85
+#define QUARTER		0x86
+#define EIGHTH		0x87
 /* General FFT Options */
 
 /* Color Controls */

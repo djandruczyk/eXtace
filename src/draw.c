@@ -86,7 +86,7 @@ int draw(void)
 	gint count=0;
 	gfloat resolution=0.0;
 
-	if (!GetFFT()) return (TRUE);
+	if (!audio_chewer()) return (TRUE);
 
 	if (!main_display->window) return (TRUE);
 

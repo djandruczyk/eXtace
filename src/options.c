@@ -552,13 +552,20 @@ int setup_options()
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)RIGHT);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group,"Both Channels");
+	button = gtk_radio_button_new_with_label(group,"Left+Right (Composite)");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
 	if(fft_signal_source == COMPOSITE)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)COMPOSITE);
 
+	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	button = gtk_radio_button_new_with_label(group,"Left-Right (Difference)");
+	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
+	if(fft_signal_source == DIFFERENCE)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
+	gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			GTK_SIGNAL_FUNC (button_handle), (gpointer)DIFFERENCE);
 
 	frame = gtk_frame_new("FFT Width");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
