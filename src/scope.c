@@ -68,59 +68,6 @@ void draw_scope()
 				TRUE, 0,top,
 				width,bottom);
 
-	if (show_graticule)
-	{
-		max = (height_per_scope < 128) ? height_per_scope : 128;
-		for (i=0;i<=max;i+=32)
-		{
-
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					0,\
-					height-height_per_scope+i,\
-					lo_width,\
-					height-height_per_scope+i);
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					0,\
-					height-height_per_scope-i,\
-					lo_width,\
-					height-height_per_scope-i);
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					0,\
-					height_per_scope+i,\
-					lo_width,\
-					height_per_scope+i);
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					0,\
-					height_per_scope-i,\
-					lo_width,\
-					height_per_scope-i);
-		}
-		i-=32;
-
-		for (j=0;j<lo_width/2;j+=32)
-		{
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					lo_width/2+j,\
-					height_per_scope-i,\
-					lo_width/2+j,\
-					height_per_scope+i);
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					lo_width/2-j,\
-					height_per_scope-i,\
-					lo_width/2-j,\
-					height_per_scope+i);
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					lo_width/2+j,\
-					height-height_per_scope-i,\
-					lo_width/2+j,\
-					height-height_per_scope+i);
-			gdk_draw_line(main_pixmap,graticule_gc,\
-					lo_width/2-j,\
-					height-height_per_scope-i,\
-					lo_width/2-j,\
-					height-height_per_scope+i);
-		}
-	}
 	if ((!stabilized) || (nsamp <=1024))
 	{
 		scope_begin_l = old_scope_begin_l = 0;
@@ -137,6 +84,59 @@ void draw_scope()
 		{
 			scope_begin_l=scope_begin_r;
 			old_scope_begin_l=old_scope_begin_r;
+		}
+	}
+	if (show_graticule)
+	{
+		max = (height_per_scope < 128) ? height_per_scope : 128;
+		for (i=0;i<=max;i+=32)
+		{
+
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					0,\
+					height-height_per_scope+i,\
+					width,\
+					height-height_per_scope+i);
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					0,\
+					height-height_per_scope-i,\
+					width,\
+					height-height_per_scope-i);
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					0,\
+					height_per_scope+i,\
+					width,\
+					height_per_scope+i);
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					0,\
+					height_per_scope-i,\
+					width,\
+					height_per_scope-i);
+		}
+		i-=32;
+
+		for (j=0;j<width/2;j+=32)
+		{
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					width/2+j,\
+					height_per_scope-i,\
+					width/2+j,\
+					height_per_scope+i);
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					width/2-j,\
+					height_per_scope-i,\
+					width/2-j,\
+					height_per_scope+i);
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					width/2+j,\
+					height-height_per_scope-i,\
+					width/2+j,\
+					height-height_per_scope+i);
+			gdk_draw_line(main_pixmap,graticule_gc,\
+					width/2-j,\
+					height-height_per_scope-i,\
+					width/2-j,\
+					height-height_per_scope+i);
 		}
 	}
 	//    printf("drawing scope of %i points\n",lo_width);

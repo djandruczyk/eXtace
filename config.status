@@ -26,7 +26,7 @@ do
 done
 
 ac_given_srcdir=.
-ac_given_INSTALL="/usr/bin/install -c"
+ac_given_INSTALL="/bin/install -c"
 
 trap 'rm -fr 
 Makefile 
@@ -67,7 +67,7 @@ s%@INSTALL_PROGRAM@%${INSTALL}%g
 s%@INSTALL_SCRIPT@%${INSTALL_PROGRAM}%g
 s%@INSTALL_DATA@%${INSTALL} -m 644%g
 s%@PACKAGE@%extace%g
-s%@VERSION@%1.7.0%g
+s%@VERSION@%1.8.06%g
 s%@ACLOCAL@%aclocal%g
 s%@AUTOCONF@%autoconf%g
 s%@AUTOMAKE@%automake%g
@@ -77,6 +77,8 @@ s%@SET_MAKE@%%g
 s%@MAINTAINER_MODE_TRUE@%#%g
 s%@MAINTAINER_MODE_FALSE@%%g
 s%@MAINT@%#%g
+s%@CC@%gcc%g
+s%@LN_S@%ln -s%g
 s%@host@%i686-pc-linux-gnu%g
 s%@host_alias@%i686-pc-linux-gnu%g
 s%@host_cpu@%i686%g
@@ -87,14 +89,12 @@ s%@build_alias@%i686-pc-linux-gnu%g
 s%@build_cpu@%i686%g
 s%@build_vendor@%pc%g
 s%@build_os@%linux-gnu%g
-s%@CC@%gcc%g
-s%@LN_S@%ln -s%g
 s%@OBJEXT@%o%g
 s%@EXEEXT@%%g
 s%@ECHO@%echo%g
 s%@RANLIB@%ranlib%g
 s%@STRIP@%strip%g
-s%@CPP@%cc -E%g
+s%@CPP@%gcc -E%g
 s%@LIBTOOL@%$(SHELL) $(top_builddir)/libtool%g
 s%@GTK_CONFIG@%/usr/bin/gtk-config%g
 s%@GTK_CFLAGS@%-I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT -I/usr/X11R6/include%g
@@ -104,17 +104,17 @@ s%@GLIB_CFLAGS@%-I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT%g
 s%@GLIB_LIBS@%-L/usr/lib -lgthread -lglib -lpthread%g
 s%@ESD_CONFIG@%/usr/bin/esd-config%g
 s%@ESD_CFLAGS@%%g
-s%@ESD_LIBS@%-L/usr/lib -lesd -laudiofile -lm%g
+s%@ESD_LIBS@%-L/usr/lib -lesd -laudiofile -lm -lasound%g
 s%@EFENCE@%%g
 s%@EXTRA_LIBS@%-lrfftw -lfftw -lm%g
 s%@DFLAGS@%%g
 s%@PFLAGS@%%g
 s%@EXTACE_DATADIR@%NONE/share/eXtace%g
 s%@EXTACE_MAJOR_VERSION@%1%g
-s%@EXTACE_MINOR_VERSION@%7%g
-s%@EXTACE_MICRO_VERSION@%0%g
-s%@EXTACE_VERSION@%1.7.0%g
-s%@ALSA_LIBS@% %g
+s%@EXTACE_MINOR_VERSION@%8%g
+s%@EXTACE_MICRO_VERSION@%06%g
+s%@EXTACE_VERSION@%1.8.06%g
+s%@ALSA_LIBS@%%g
 
 CEOF
 
@@ -251,9 +251,9 @@ for ac_file in .. $CONFIG_HEADERS; do if test "x$ac_file" != x..; then
 ${ac_dA}PACKAGE${ac_dB}PACKAGE${ac_dC}"extace"${ac_dD}
 ${ac_uA}PACKAGE${ac_uB}PACKAGE${ac_uC}"extace"${ac_uD}
 ${ac_eA}PACKAGE${ac_eB}PACKAGE${ac_eC}"extace"${ac_eD}
-${ac_dA}VERSION${ac_dB}VERSION${ac_dC}"1.7.0"${ac_dD}
-${ac_uA}VERSION${ac_uB}VERSION${ac_uC}"1.7.0"${ac_uD}
-${ac_eA}VERSION${ac_eB}VERSION${ac_eC}"1.7.0"${ac_eD}
+${ac_dA}VERSION${ac_dB}VERSION${ac_dC}"1.8.06"${ac_dD}
+${ac_uA}VERSION${ac_uB}VERSION${ac_uC}"1.8.06"${ac_uD}
+${ac_eA}VERSION${ac_eB}VERSION${ac_eC}"1.8.06"${ac_eD}
 ${ac_dA}HAVE_DLFCN_H${ac_dB}HAVE_DLFCN_H${ac_dC}1${ac_dD}
 ${ac_uA}HAVE_DLFCN_H${ac_uB}HAVE_DLFCN_H${ac_uC}1${ac_uD}
 ${ac_eA}HAVE_DLFCN_H${ac_eB}HAVE_DLFCN_H${ac_eC}1${ac_eD}
@@ -290,21 +290,18 @@ ${ac_eA}HAVE_PTHREAD_H${ac_eB}HAVE_PTHREAD_H${ac_eC}1${ac_eD}
 ${ac_dA}HAVE_LIBPTHREAD${ac_dB}HAVE_LIBPTHREAD${ac_dC}1${ac_dD}
 ${ac_uA}HAVE_LIBPTHREAD${ac_uB}HAVE_LIBPTHREAD${ac_uC}1${ac_uD}
 ${ac_eA}HAVE_LIBPTHREAD${ac_eB}HAVE_LIBPTHREAD${ac_eC}1${ac_eD}
-${ac_dA}HAVE_ALSA_09${ac_dB}HAVE_ALSA_09${ac_dC}1${ac_dD}
-${ac_uA}HAVE_ALSA_09${ac_uB}HAVE_ALSA_09${ac_uC}1${ac_uD}
-${ac_eA}HAVE_ALSA_09${ac_eB}HAVE_ALSA_09${ac_eC}1${ac_eD}
 ${ac_dA}HAVE_LIBRFFTW${ac_dB}HAVE_LIBRFFTW${ac_dC}1${ac_dD}
 ${ac_uA}HAVE_LIBRFFTW${ac_uB}HAVE_LIBRFFTW${ac_uC}1${ac_uD}
 ${ac_eA}HAVE_LIBRFFTW${ac_eB}HAVE_LIBRFFTW${ac_eC}1${ac_eD}
+${ac_dA}HAVE_LIBGDK_IMLIB${ac_dB}HAVE_LIBGDK_IMLIB${ac_dC}1${ac_dD}
+${ac_uA}HAVE_LIBGDK_IMLIB${ac_uB}HAVE_LIBGDK_IMLIB${ac_uC}1${ac_uD}
+${ac_eA}HAVE_LIBGDK_IMLIB${ac_eB}HAVE_LIBGDK_IMLIB${ac_eC}1${ac_eD}
 CEOF
   sed -f conftest.frag conftest.in > conftest.out
   rm -f conftest.in
   mv conftest.out conftest.in
 
   cat > conftest.frag <<CEOF
-${ac_dA}HAVE_LIBGDK_IMLIB${ac_dB}HAVE_LIBGDK_IMLIB${ac_dC}1${ac_dD}
-${ac_uA}HAVE_LIBGDK_IMLIB${ac_uB}HAVE_LIBGDK_IMLIB${ac_uC}1${ac_uD}
-${ac_eA}HAVE_LIBGDK_IMLIB${ac_eB}HAVE_LIBGDK_IMLIB${ac_eC}1${ac_eD}
 s%^[ 	]*#[ 	]*undef[ 	][ 	]*[a-zA-Z_][a-zA-Z_0-9]*%/* & */%
 CEOF
   sed -f conftest.frag conftest.in > conftest.out

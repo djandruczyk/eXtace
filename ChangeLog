@@ -1,3 +1,6 @@
+2003-06-14 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	More cleanups, released version 1.8.06 from Sourceforge...
+
 2003-05-08 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	A lot of cleaning.  removed dead functions/variables. Started
 	moving a lot of the old cruft from globals, to their respective files.

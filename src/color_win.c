@@ -38,7 +38,6 @@ gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 
 	gdouble colsel_colors[3];
 	gint handled = FALSE;
-	//    printf("Color_event()\n");
 
 
 	/* Check if we've received a button pressed event */
@@ -65,7 +64,6 @@ gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 int color_button(GtkWidget *widget, gpointer data)
 {
 	GtkWidget * filew;
-	//    printf("Color_button()\n");
 	switch ((gint)data)
 	{
 		case SET_COLOR:
@@ -190,7 +188,6 @@ void create_initial_colormaps(void)
 			/*Winter*/   5,    0,  0,255,  0, 64,223,  0,128,191,  0,191,159,  0,255,128 };
 
 	gchar * names[] = {"Authors_Favorite","Autumn","Black_n_White","Bone","Cool","Copper", "Default","Fire_Engine_Red","Flag","Green_Screen","Hot","HSV","Inverse_BW","Jet","Pink","Spring","Summer","The_Blues","Winter","NULL"};
-	//    printf("create_initial_colormaps()\n");
 
 	/* Setup at least one default one */
 	start->red=30;start->green=0;start->blue=160;
@@ -251,7 +248,6 @@ void save_colormap(GtkWidget * widget, GtkFileSelection *filesel)
 	gint steps = 0;
 	gchar val[20];
 	ConfigFile *cfgfile;
-	//    printf("save_colormap\n");
 
 	filename = g_strconcat(gtk_file_selection_get_filename(GTK_FILE_SELECTION(filesel)),NULL);
 
@@ -295,12 +291,12 @@ void save_colormap(GtkWidget * widget, GtkFileSelection *filesel)
 void load_colormap(GtkWidget * widget, GtkFileSelection *filesel)
 {
 	gchar * filename;
-	//    printf("load_colormap\n");
 	filename = g_strdup(gtk_file_selection_get_filename(GTK_FILE_SELECTION(filesel)));
 	read_colormap(filename);
-	gtk_widget_hide(GTK_WIDGET(filesel));
+	gtk_widget_destroy(GTK_WIDGET(filesel));
 	init_colortab();
 	gradient_update();
+	selection_open = 0;
 }
 void read_colormap(char * filename)
 {
@@ -316,7 +312,6 @@ void read_colormap(char * filename)
 	gint *trip_ptr=NULL;
 	gfloat *loc_ptr=NULL;
 	gchar val[20];
-	//    printf("read_colormap\n");
 
 
 	cfgfile = cfg_open_file(filename);
@@ -391,28 +386,24 @@ void read_colormap(char * filename)
 				sprintf(val,"step_%i",i);
 				cfg_read_float(cfgfile, "General",val , loc_ptr);
 				*loc_ptr = *loc_ptr < 1.0 ? *loc_ptr :1.0;
-				//		printf("%s, %f\n",val,*loc_ptr);
 				loc_ptr++;
 
 				/* Red Value for above location pt */
 				sprintf(val,"red_%i",i);
 				cfg_read_int(cfgfile, "Colormap",val , trip_ptr);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
-				//		printf("%s, %i\n",val,*trip_ptr);
 				trip_ptr++;
 
 				/* Green Value for above location pt */
 				sprintf(val,"green_%i",i);
 				cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
-				//		printf("%s, %i\n",val,*trip_ptr);
 				trip_ptr++;
 
 				/* Blue Value for above location pt */
 				sprintf(val,"blue_%i",i);
 				cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
-				//		printf("%s, %i\n",val,*trip_ptr);
 				trip_ptr++;
 			}
 
@@ -433,8 +424,6 @@ void read_colormap(char * filename)
 void update_gradient(GtkWidget *widget, int y)
 {
 	gdouble color[3];
-
-	//    printf("update_gradient\n");
 
 	/* Get current color where we clicked */
 	gtk_color_selection_get_color (GTK_COLOR_SELECTION(colorseldlg),color);
@@ -470,12 +459,8 @@ void init_colortab()
 	gint amount;
 	gushort this_red,this_green,this_blue,next_red,next_green,next_blue;
 	unsigned char *data;
-	//    printf("init_colortab\n");
 
 	j=0;
-	//    if ((Color_map.filename) && (!force))
-	//	read_colormap(Color_map.filename);
-	//    printf("rgb endpts, %i,%i,%i\n",pt2->red,pt2->green,pt2->blue);
 
 	/* This section is ONLY valid if all points are evenly spaced in the map */
 	/* divisor is the number of times we need to run thru the interpolator
@@ -493,9 +478,7 @@ void init_colortab()
 		next_red=Color_map.triplets[((i+1)*3)+0];
 		next_green=Color_map.triplets[((i+1)*3)+1];
 		next_blue=Color_map.triplets[((i+1)*3)+2];
-		//	printf("Colormap point %i is at %i%% \n",i+1,(gint)(100*Color_map.locations[i]));
 		amount = (gint)(1.0/(Color_map.locations[i+1]-Color_map.locations[i]));
-		//	printf("Amount is %i%% of the colormap \n",100/amount);
 		for(ii=0;ii<(MAXBANDS/amount);ii++)
 		{
 			cr[j]=(((((MAXBANDS/amount)-1)-ii)*this_red)+(ii*next_red))/((MAXBANDS/amount)-1);
@@ -559,8 +542,6 @@ void grad_win_create()
 	GtkWidget *	frame = NULL;
 	GtkWidget * button = NULL;
 	GtkWidget * sep = NULL;
-
-	//    printf("grad_win_create\n");
 
 	if(!grad_win)
 	{
@@ -656,10 +637,8 @@ void grad_win_create()
 
 void gradient_update()
 {
-	//    gdk_imlib_flip_image_vertical(im);
 	int h = MAXBANDS;
 	int w = MAXBANDS;
-	//    printf("gradient_update()\n");
 
 	if (grad_win_ptr)
 	{
@@ -692,7 +671,6 @@ void gradient_update()
 gint grad_win_save_state(GtkWidget *widget, GdkEventFocus *event)
 {
 	int x,y;
-	//    printf("grad_win_save_state\n");
 	if(!grad_win_present)
 		return TRUE;
 	if (!event->in)

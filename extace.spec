@@ -1,15 +1,12 @@
 %define name     extace
 %define title    eXtace
 %define mainname %{name}
-%define alsaname %{name}-alsa
-%define version  1.7.0
+%define version  1.8.06
 %define release  1
 %define descr    %{title} - An Extace Waveform Viewer
-%define summalsa %{descr} with ALSA support
-%define summoss  %{descr} without ALSA support
+%define summary  %{descr} That utilizes Esound
 %define descrfr    %{title} - Un visualisateur de forme d'onde
-%define summalsafr %{descr} avec le support ALSA
-%define summossfr  %{descr} sans le support ALSA
+%define summaryfr  %{descr} le support Esound
 %define group    Sound
 %define section  Multimedia/%{group}
 
@@ -24,8 +21,8 @@
 # %{_libdir}/menu -> %{_exec_prefix}/%{_lib}/menu -> /usr/lib/menu
 %define menudir_ %{_menudir}
 
-Summary:         %{summoss}
-Summary(fr):     %{summossfr}
+Summary:         %{summary}
+Summary(fr):     %{summaryfr}
 Name:            %{name}
 Version:         %{version}
 Release:         %{release}
@@ -34,23 +31,22 @@ Copyright:       GPL
 Group:           %{group}
 BuildRoot:       %{tmppath_}/%{name}-%{version}-%{release}-buildroot
 Requires:        gnome-libs >= 1.0.11, fftw, esound
-BuildRequires:   fftw, fftw-devel, alsa-lib, fileutils
-Obsoletes:       %{alsaname}
+BuildRequires:   fftw, fftw-devel, esound-devel, fileutils
 
 %description
 eXtace is a visual sound display/analysis program for the Gnome Desktop
 environment (though it works under other environments as long as gnome/esd
-or ALSA is installed and used). Requires ESD or ALSA to function. Includes
+is installed and used). Requires ESD to function. Includes
 various fourier transforms of the audio data in real-time. Displays include
 3D textured flying landscape, 16-256 channel graphic EQ, scope 3D pointed 
 flying landscape, and a Spectragram. All aspects of the display are fully 
 configurable, even the axis placement. 
 
-This version is for users who don't use ALSA.
+This version is for users who use OSS or ALSA with OSS emulation.
 
 %description -l fr
 eXtace est un program d'analyse/affichage de son pour l'environnement
-GNOME. Il nécessite ESD ou ALSA pour fonctionner. Il inclus différentes
+GNOME. Il nécessite ESD pour fonctionner. Il inclus différentes
 transformations de Fourier des données audio en temps réel. L'affichage
 inclus des vues en 3D, un égaliseur graphique 16-256 canaux, et un
 spectrogramme. Tous les aspects de l'affichage sont complètement 
@@ -58,78 +54,30 @@ configurable, même la position des axes.
  
 Cette version est pour les utilisateurs qui n'utilisent pas ALSA.
 
-%package alsa
-Summary:         %{summalsa}
-Summary(fr):     %{summalsafr}
-Group:           %{group}
-Requires:        gnome-libs >= 1.0.11, fftw, alsa
-Obsoletes:       %{mainname}
-
-%description alsa
-eXtace is a visual sound display/analysis program for the Gnome Desktop
-environment (though it works under other environments as long as gnome/esd
-or ALSA is installed and used). Requires ESD or ALSA to function. Includes
-various fourier transforms of the audio data in real-time. Displays include
-3D textured flying landscape, 16-256 channel graphic EQ, scope 3D pointed 
-flying landscape, and a Spectragram. All aspects of the display are fully 
-configurable, even the axis placement. 
-
-This version is for users who use ALSA.
-
-%description -l fr
-eXtace est un program d'analyse/affichage de son pour l'environnement
-GNOME. Il nécessite ESD ou ALSA pour fonctionner. Il inclus différentes
-transformations de Fourier des données audio en temps réel. L'affichage
-inclus des vues en 3D, un égaliseur graphique 16-256 canaux, et un
-spectrogramme. Tous les aspects de l'affichage sont complètement 
-configurable, même la position des axes.
- 
-Cette version est pour les utilisateurs qui utilisent ALSA.
-
 %prep
 # remove build directories.  better do it by hand as I later on move
 # them around
-rm -fr $RPM_BUILD_DIR/%{name}-%{version} $RPM_BUILD_DIR/%{mainname}-alsa
+rm -fr $RPM_BUILD_DIR/%{name}-%{version}
 
 # Unpack main source
 %setup -q
 
-# Copy source tree to dir %{alsaname} for later building the alsa version
-cp -a $RPM_BUILD_DIR/%{name}-%{version} $RPM_BUILD_DIR/%{alsaname}
 
 %build
-# First build the normal/OSS version, and force to ignore ALSA even if present
-%configure --disable-alsa
+# First build the normal/OSS version,
+%configure 
 %make
-
-# Now build the ALSA version.  ALSA support is built by default if available
-cd $RPM_BUILD_DIR/%{alsaname}
-%configure
-%make
-
 %install
 rm -rf %buildroot
 
-# First install the OSS version
 %makeinstall
 
-# Use /etc/alternatives to have it point to the right binary
-# The "normal" one is named extace-oss, the alsa bin is called extace-alsa
-mv %buildroot%{_bindir}/%{name} %buildroot%{_bindir}/%{name}-oss
-
-# And now install the alsa version
-cd $RPM_BUILD_DIR/%{alsaname}
-%makeinstall
-# Rename the binary so that it doesn't overwrite the pointer to /etc/alternatives
-mv %buildroot%{_bindir}/%{name} %buildroot%{_bindir}/%{alsaname}
-
-ln -sf %{_sysconfdir}/alternatives/%{name} %buildroot%{_bindir}/%{name}
 
 # Copy another nice utility.  This one creates a sine-wave.  Turn you phones to
 # LOUD when you use this.... :-]
 # Or, maybe not....
 mkdir -p %buildroot%{bindir_}
-cp extace/sine %buildroot%{bindir_}
+cp $RPM_BUILD_DIR/%{name}-%{version}/src/sine %buildroot%{bindir_}
 
 # Only needed in Mandrake:
 # Create menu entry for the package
@@ -137,70 +85,37 @@ mkdir -p %buildroot%{menudir_}
 cat - << EOF > %buildroot%{menudir_}/%{name}
 ?package(%{name}):command="%{bindir_}/%{name}" \
                  needs="X11" section="%{section}" title="%{title}" \
-                 longtitle="%{summoss}"
-EOF
-
-cat - << EOF > %buildroot%{menudir_}/%{alsaname}
-?package(%{alsaname}):command="%{bindir_}/%{name}" \
-                 needs="X11" section="%{section}" title="%{title}" \
-                 longtitle="%{summalsa}"
+                 longtitle="%{summary}"
 EOF
 
 %post
-# Update /etc/alternatives to point to the right binary file
-[ ! -d %{_sysconfdir}/alternatives ] && mkdir -p %{_sysconfdir}/alternatives
-ln -sf %{_bindir}/%{name}-oss %{_sysconfdir}/alternatives/%{name}
-ln -sf %{_sysconfdir}/alternatives/%{name} %{_bindir}/%{name}
 # Only in Mandrake:
 # Update menus
 #% {update_menus}
 
 %postun
-rm -f %{_sysconfdir}/alternatives/%{name}
-# Only in Mandrake:
-# Remove the menu entry
-#% {clean_menus}
-
-%post alsa
-# Update /etc/alternatives to point to the right binary file
-[ ! -d %{_sysconfdir}/alternatives ] && mkdir -p %{_sysconfdir}/alternatives
-ln -sf %{_bindir}/%{name}-alsa %{_sysconfdir}/alternatives/%{name}
-ln -sf %{_sysconfdir}/alternatives/%{name} %{_bindir}/%{name}
-# Only in Mandrake:
-# Update menus
-#% {update_menus}
-
-%postun alsa
-rm -f %{_sysconfdir}/alternatives/%{name}
 # Only in Mandrake:
 # Remove the menu entry
 #% {clean_menus}
 
 %clean
 rm -rf %buildroot
-rm -fr $RPM_BUILD_DIR/%{name}-%{version} $RPM_BUILD_DIR/%{alsaname}
+rm -fr $RPM_BUILD_DIR/%{name}-%{version} 
 
 %files
 %defattr(-,root,root,0755)
 %doc TODO AUTHORS CREDITS NEWS ChangeLog README
 %{bindir_}/extace
-%{bindir_}/extace-oss
 %{bindir_}/sine
 %{datadir_}/gnome/apps/Multimedia/extace.desktop
 # Only Mandrake:
 #% {menudir_}/%{name}
 
-%files alsa
-%defattr(-,root,root,0755)
-%doc TODO AUTHORS CREDITS NEWS ChangeLog README
-%{bindir_}/extace
-%{bindir_}/extace-alsa
-%{bindir_}/sine
-%{datadir_}/gnome/apps/Multimedia/extace.desktop
-# Only Mandrake:
-#% {menudir_}/%{alsaname}
-
 %changelog
+* Wed Jan 29 2003 Dave Andruczyk <djandruczyk@yahoo.com>
+- Removed ALSA support as ALSA 0.9.x no longer offers the functionality 
+  that eXace requires...
+
 * Wed Nov 21 2001 Eric Lassauge <lassauge@mail.dotcom.fr>
 - Added french translations
 

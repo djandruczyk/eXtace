@@ -1,10 +1,6 @@
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
-/* Define if the ALSA output driver is used */
-/* #undef HAVE_ALSA_05 */
-#define HAVE_ALSA_09 1
-
 #define HAVE_ESD 1
 
 /* Define if you have the <dlfcn.h> header file.  */
@@ -25,6 +21,9 @@
 /* Define if you have the <unistd.h> header file.  */
 #define HAVE_UNISTD_H 1
 
+/* Define if you have the drfftw library (-ldrfftw).  */
+/* #undef HAVE_LIBDRFFTW */
+
 /* Define if you have the efence library (-lefence).  */
 /* #undef HAVE_LIBEFENCE */
 
@@ -41,5 +40,5 @@
 #define PACKAGE "extace"
 
 /* Version number of package */
-#define VERSION "1.7.0"
+#define VERSION "1.8.06"
 

@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # libtool - Provide generalized library-building support services.
-# Generated automatically by  (GNU extace 1.7.0)
+# Generated automatically by  (GNU extace 1.8.06)
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #
 # Copyright (C) 1996-2000 Free Software Foundation, Inc.
@@ -43,11 +43,11 @@ SHELL="/bin/sh"
 # Whether or not to build shared libraries.
 build_libtool_libs=yes
 
-# Whether or not to add -lc for building shared libraries.
-build_libtool_need_lc=no
-
 # Whether or not to build static libraries.
 build_old_libs=yes
+
+# Whether or not to add -lc for building shared libraries.
+build_libtool_need_lc=no
 
 # Whether or not to optimize for fast installation.
 fast_install=yes
@@ -70,7 +70,7 @@ CC="gcc"
 with_gcc=yes
 
 # The linker used to build libraries.
-LD="/usr/bin/ld"
+LD="/usr/i686-pc-linux-gnu/bin/ld"
 
 # Whether we need hard or soft links.
 LN_S="ln -s"
@@ -113,7 +113,7 @@ libext="a"
 exeext=""
 
 # Additional compiler flags for building library objects.
-pic_flag=" -fPIC"
+pic_flag="   -fPIC"
 pic_mode=default
 
 # Does compiler simultaneously support -c and -o options?
@@ -213,6 +213,9 @@ global_symbol_pipe="sed -n -e 's/^.*[ 	]\\([ABCDGISTW][ABCDGISTW]*\\)[ 	][ 	]*\\
 
 # Transform the output of nm in a proper C declaration
 global_symbol_to_cdecl="sed -n -e 's/^. .* \\(.*\\)\$/extern char \\1;/p'"
+
+# Transform the output of nm in a C name address pair
+global_symbol_to_c_name_address="sed -n -e 's/^: \\([^ ]*\\) \$/  {\\\"\\1\\\", (lt_ptr) 0},/p' -e 's/^[BCDEGRST] \\([^ ]*\\) \\([^ ]*\\)\$/  {\"\\2\", (lt_ptr) \\&\\2},/p'"
 
 # This is the shared library runtime path variable.
 runpath_var=LD_RUN_PATH
