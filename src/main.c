@@ -190,7 +190,6 @@ int main(int argc, char **argv)
     dir_area = gtk_drawing_area_new();
     gtk_container_add(GTK_CONTAINER(dir_win), dir_area);
     gtk_widget_realize(dir_area);
-    //    gtk_widget_set_usize(dir_area, dir_width, dir_height);
     gtk_drawing_area_size (GTK_DRAWING_AREA (dir_area), 
 	    dir_win->allocation.width, 
 	    dir_win->allocation.height);

@@ -37,21 +37,21 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 	switch ((gint)data)
 	{
 	    case BUFFER_AREA:
-		//	    printf("Selected BUFFER_AREA pixmap\n");
+//			    printf("Selected BUFFER_AREA pixmap\n");
 		w = buffer_area_width;
 		h = buffer_area_height;
 		pixmap = buffer_pixmap;
 		break;
 
 	    case DIR_AREA:
-		//	    printf("Selected DIR_AREA pixmap\n");
+//			    printf("Selected DIR_AREA pixmap\n");
 		w = dir_width;
 		h = dir_height;
 		pixmap = dir_pixmap;
 		break;
 
 	    case MAIN_DISPLAY:
-		//	    printf("Selected MAIN_DISPLAY pixmap\n");
+//			    printf("Selected MAIN_DISPLAY pixmap\n");
 		w = width;
 		h = height;
 		pixmap = main_pixmap;
@@ -65,13 +65,10 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 	if ((w!=event->width)||(h!=event->height))
 	{
 	    if (pixmap)
-	    {
 		gdk_pixmap_unref(pixmap);
-	    }
 
 	    w=event->width;
 	    h=event->height;
-
 	    pixmap=gdk_pixmap_new(widget->window,
 		    w,h,
 		    gtk_widget_get_visual(widget)->depth);
@@ -95,15 +92,13 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 		dir_pixmap = pixmap;
 		dir_width = w;
 		dir_height = h;
-		setup_dircontrol(widget);
-		dir_axis_update();
-		update_pointer();
+		update_dircontrol(dir_area);
 		break;
 
 	    case MAIN_DISPLAY:
+		main_pixmap = pixmap;
 		width = w;
 		height = h;
-		main_pixmap = pixmap;
 
 		switch (mode)
 		{
@@ -152,16 +147,17 @@ gint expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
     switch ((gint)data)
     {
 	case BUFFER_AREA:
-	    //	    printf("Selected BUFFER_AREA EXPOSE pixmap\n");
+//	    	    printf("Selected BUFFER_AREA EXPOSE pixmap\n");
 	    pixmap = buffer_pixmap;
 	    break;
 
 	case DIR_AREA:
-	    //	    printf("Selected DIR_AREA EXPOSE pixmap\n");
+//	    	    printf("Selected DIR_AREA EXPOSE pixmap\n");
 	    pixmap = dir_pixmap;
+	    break;
 
 	case MAIN_DISPLAY:
-	    //	    printf("Selected MAIN_DISPLAY EXPOSE pixmap\n");
+//	    	    printf("Selected MAIN_DISPLAY EXPOSE pixmap\n");
 	    pixmap = main_pixmap;
 	    break;
 
@@ -190,7 +186,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
     {
 	pt_lock = 0;
 	one_to_fix = 0;
-//	spec_drag = 0;
+	//	spec_drag = 0;
 #ifdef DND_DEBUG
 	g_print("BUTTON 1 RELEASED!! releasing lock\n");
 #endif
@@ -215,7 +211,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	return TRUE;
     }
 
-     /* If your press button 1 (left one) */
+    /* If your press button 1 (left one) */
     if (event->button == 1 )
     {
 #ifdef DND_DEBUG
@@ -242,7 +238,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	    pt_lock = 1;
 	    one_to_fix = EQ_2D;
 	}
-	    
+
 	/* Test if close to an endpoint on 3D modes, or near the beginning
 	 * of the scrolled regins on hte specgram modes
 	 */
@@ -303,7 +299,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 				     * This place is where the images is being
 				     * drawn "from". (i.e. start of spectrogram)
 				     */
-	switch ((gint)result)
+	switch (result)
 	{
 	    case OFF_THE_LINE:
 #ifdef DND_DEBUG
@@ -348,7 +344,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 		{
 		    int band_num =0;
 		    int x_draw_width = width-2*x_border;
-		    
+
 		    if (x < x_border)
 			x = x_border;
 		    if (x > width-x_border)
@@ -366,7 +362,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 #endif
 		    change_x_start(x,y);
 		    update_dircontrol(dir_area);
-//
+		    //
 		    break;
 		}
 	    case CHANGE_X_END:
@@ -435,86 +431,78 @@ int test_if_close(int x_fed, int y_fed)
     switch (mode)
     {
 	case (LAND_3D):
-	    {
-		x_draw_width = width - abs(x3d_scroll)-2*x_border;
-		y_draw_height = height - abs(z3d_scroll)-2*y_border;
-		start.x = (x3d_start*x_draw_width);
-		start.y = ((1.0-y3d_start)*y_draw_height);
-		end.x = (x3d_end*x_draw_width);
-		end.y = ((1.0-y3d_end)*y_draw_height);
-		x_rel = x_fed - x_border - abs(x3d_scroll); 
-		if (x3d_scroll < 0)
-		    x_rel -= x3d_scroll;
-		y_rel = y_fed - 3*y_border - (abs(z3d_scroll)/2);
+	    x_draw_width = width - abs(x3d_scroll)-2*x_border;
+	    y_draw_height = height - abs(z3d_scroll)-2*y_border;
+	    start.x = (x3d_start*x_draw_width);
+	    start.y = ((1.0-y3d_start)*y_draw_height);
+	    end.x = (x3d_end*x_draw_width);
+	    end.y = ((1.0-y3d_end)*y_draw_height);
+	    x_rel = x_fed - x_border - abs(x3d_scroll); 
+	    if (x3d_scroll < 0)
+		x_rel -= x3d_scroll;
+	    y_rel = y_fed - 3*y_border - (abs(z3d_scroll)/2);
 #ifdef DND_DEBUG
-		g_print("Mouse Position, %i,%i Axis-start %i,%i Axis-end %i,%i\n",x_rel,y_rel,start.x,start.y, end.x,end.y);
+	    g_print("Mouse Position, %i,%i Axis-start %i,%i Axis-end %i,%i\n",x_rel,y_rel,start.x,start.y, end.x,end.y);
 #endif
 
-		/* tests to see if the mouse pointer is close to an end of an */
+	    /* tests to see if the mouse pointer is close to an end of an */
 
-		if (abs((start.x-x_rel)) < 40)
+	    if (abs((start.x-x_rel)) < 40)
+	    {
+		if (abs((start.y-y_rel)) < (40 + abs(z3d_scroll/2)))
 		{
-		    if (abs((start.y-y_rel)) < (40 + abs(z3d_scroll/2)))
-		    {
-			return (CHANGE_X_START);
-		    }
+		    return (CHANGE_X_START);
 		}
-		if (abs((end.x-x_rel)) < 40)
-		{
-		    if (abs((end.y-y_rel)) < 40); /* + levels[0]) */
-		    {
-			return (CHANGE_X_END);
-		    }
-		}
-
-		break;
 	    }
+	    if (abs((end.x-x_rel)) < 40)
+	    {
+		if (abs((end.y-y_rel)) < 40); /* + levels[0]) */
+		{
+		    return (CHANGE_X_END);
+		}
+	    }
+
+	    break;
 	case (SPIKE_3D):
-	    {
-		x_draw_width = width - abs(xdet_scroll)-2*x_border;
-		y_draw_height = height - abs(zdet_scroll)-2*y_border;
-		start.x = (xdet_start*x_draw_width);
-		start.y = ((1.0-ydet_start)*y_draw_height);
-		end.x = xdet_end*x_draw_width;
-		end.y = (1.0-ydet_end)*y_draw_height;
-		x_rel = x_fed - x_border - xdet_scroll/2; 
-		if (xdet_scroll < 0)
-		    x_rel += xdet_scroll;
-		y_rel = y_fed-3*y_border - abs((zdet_scroll/2));
+	    x_draw_width = width - abs(xdet_scroll)-2*x_border;
+	    y_draw_height = height - abs(zdet_scroll)-2*y_border;
+	    start.x = (xdet_start*x_draw_width);
+	    start.y = ((1.0-ydet_start)*y_draw_height);
+	    end.x = xdet_end*x_draw_width;
+	    end.y = (1.0-ydet_end)*y_draw_height;
+	    x_rel = x_fed - x_border - xdet_scroll/2; 
+	    if (xdet_scroll < 0)
+		x_rel += xdet_scroll;
+	    y_rel = y_fed-3*y_border - abs((zdet_scroll/2));
 
 #ifdef DND_DEBUG
-		g_print("fed coords, %i,%i, end %i,%i start %i,%i\n",x_rel,y_rel,end.x,end.y, start.x,start.y);
+	    g_print("fed coords, %i,%i, end %i,%i start %i,%i\n",x_rel,y_rel,end.x,end.y, start.x,start.y);
 #endif
-		/* tests to see if the mouse pointer is close to an end of an */
+	    /* tests to see if the mouse pointer is close to an end of an */
 
-		if (abs((start.x-x_rel)) < 40)
+	    if (abs((start.x-x_rel)) < 40)
+	    {
+		if (abs((start.y-y_rel)) < 40)
 		{
-		    if (abs((start.y-y_rel)) < 40)
-		    {
-			return (CHANGE_X_START);
-		    }
+		    return (CHANGE_X_START);
 		}
-		if (abs((end.x-x_rel)) < 40)
-		{
-		    if (abs((end.y-y_rel)) < 40)
-		    {
-			return (CHANGE_X_END);
-		    }
-		}
-		break;
 	    }
+	    if (abs((end.x-x_rel)) < 40)
+	    {
+		if (abs((end.y-y_rel)) < 40)
+		{
+		    return (CHANGE_X_END);
+		}
+	    }
+	    break;
 	case HORIZ_SPECGRAM:
-	    {
-		if (abs(((width-horiz_spec_start) - x_fed)) < 20)
-		    return (CHANGE_SPEC_START);
-		break;
-	    }
+	    if (abs(((width-horiz_spec_start) - x_fed)) < 20)
+		return (CHANGE_SPEC_START);
+	    break;
 	case VERT_SPECGRAM:
-	    {
-		if (abs(((height-vert_spec_start) - y_fed+45)) < 27)
-		    return (CHANGE_SPEC_START);
-		break;
-	    }
+	    if (abs(((height-vert_spec_start) - y_fed+45)) < 27)
+		return (CHANGE_SPEC_START);
+	    break;
     }
 
     return -1;
@@ -577,17 +565,13 @@ void change_x_start(gint x_rel, gint y_rel)
     switch (mode)
     {
 	case (LAND_3D):
-	    {
-		x3d_start = abs(abs(0.5*x3d_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
-		y3d_start = 1.0-(abs(abs(0.5*z3d_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
-		break;
-	    }
+	    x3d_start = abs(abs(0.5*x3d_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
+	    y3d_start = 1.0-(abs(abs(0.5*z3d_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
+	    break;
 	case (SPIKE_3D):
-	    {
-		xdet_start = abs(abs(0.5*xdet_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
-		ydet_start = 1.0-(abs(abs(0.5*zdet_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
-		break;
-	    }
+	    xdet_start = abs(abs(0.5*xdet_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
+	    ydet_start = 1.0-(abs(abs(0.5*zdet_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
+	    break;
     }
 }
 
@@ -621,17 +605,13 @@ void change_x_end(gint x_rel, gint y_rel)
     switch (mode)
     {
 	case (LAND_3D):
-	    {
-		x3d_end = abs(abs(0.5*x3d_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
-		y3d_end = 1.0-(abs(abs(0.5*z3d_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
-		break;
-	    }
+	    x3d_end = abs(abs(0.5*x3d_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
+	    y3d_end = 1.0-(abs(abs(0.5*z3d_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
+	    break;
 	case (SPIKE_3D):
-	    {
-		xdet_end = abs(abs(0.5*xdet_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
-		ydet_end = 1.0-(abs(abs(0.5*zdet_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
-		break;
-	    }
+	    xdet_end = abs(abs(0.5*xdet_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
+	    ydet_end = 1.0-(abs(abs(0.5*zdet_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
+	    break;
     }
 
 }

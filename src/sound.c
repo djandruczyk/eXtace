@@ -59,7 +59,6 @@ pthread_t alsa_thread;
 int open_sound(void)
 {
     int handle = -1;
-    int esd_latency = 0;
 #ifdef HAVE_ALSA_05
     int err = 0;
     format = malloc(sizeof(snd_pcm_format_t));
