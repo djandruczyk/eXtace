@@ -18,7 +18,7 @@
 
 typedef enum
 {
-	HAMMING,
+	HAMMING = 1,
 	HANNING,
 	BLACKMAN,
 	BLACKMAN_HARRIS,
@@ -30,7 +30,7 @@ typedef enum
 
 typedef enum
 {
-	BANDS,
+	BANDS = 1,
 	SENSITIVITY,
 	BAR_DECAY,
 	PEAK_DECAY,
@@ -45,7 +45,7 @@ typedef enum
 
 typedef enum
 {
-	OPTIONS,
+	OPTIONS = 1,
 	LEADING_EDGE,
 	USE_BAR_DECAY,
 	USE_PEAK_DECAY,
@@ -61,14 +61,14 @@ typedef enum
 		
 typedef enum
 {
-	SYNC_LEFT,
+	SYNC_LEFT = 1,
 	SYNC_RIGHT,	
 	SYNC_INDEP
 }ScopeSyncSource;
 
 typedef enum
 {
-	LEFT,
+	LEFT = 1,
 	RIGHT,
 	LEFT_PLUS_RIGHT,
 	LEFT_MINUS_RIGHT
@@ -76,7 +76,7 @@ typedef enum
 
 typedef enum
 {
-	LOG,
+	LOG = 1,
 	LINEAR
 }AxisType;
 
@@ -84,7 +84,7 @@ typedef enum
 
 typedef enum
 {
-	ESD,
+	ESD = 1,
 	COMEDI,
 	ARTS,
 	GSTREAMER,
@@ -94,7 +94,7 @@ typedef enum
 
 typedef enum
 {	
-	FULL,
+	FULL = 1,
 	HALF,
 	QUARTER,
 	EIGHTH
@@ -102,7 +102,7 @@ typedef enum
 
 typedef enum
 {
-	S_512,
+	S_512 = 1,
 	S_1024,
 	S_2048,
 	S_4096,
@@ -113,7 +113,7 @@ typedef enum
 	
 typedef enum
 {
-	LAND_3D,
+	LAND_3D = 1,
 	WIRE_3D,
 	FILL_3D,
 	EQ_2D,
@@ -126,34 +126,34 @@ typedef enum
 
 typedef enum
 {
-	DOT_SCOPE,
+	DOT_SCOPE = 1,
 	LINE_SCOPE,
 	GRAD_SCOPE
 }ScopeMode;
 
 typedef enum
 {
-	MAIN_DISPLAY,
+	MAIN_DISPLAY = 1,
 	BUFFER_AREA,
 	DIR_AREA
 }DrawableArea;
 
 typedef enum
 {	
-	CHANGE_SPEC_START,
+	CHANGE_SPEC_START = 1,
 	CHANGE_X_START,
 	CHANGE_X_END
 }EventOperation;
 
 typedef enum
 {	
-	ON_THE_LINE,
+	ON_THE_LINE = 1,
 	OFF_THE_LINE
 }EventStatus;
 
 typedef enum
 {
-	CLOSE,
+	CLOSE = 1,
 	SAVE,
 	LOAD,
 	SET_COLOR

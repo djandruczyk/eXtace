@@ -364,6 +364,7 @@ void *esd_starter_thread(void *esd_handle)
 #if !OLD_THREAD
 	static gint last;
 	int count = 0;
+	int runcount = 0;
 #endif
 
 	/* reset data ring buffer */
@@ -396,6 +397,7 @@ void *esd_starter_thread(void *esd_handle)
 	{
 read:
 		/* in linux, there are no automatic test points yet */
+		runcount++;
 		pthread_testcancel();
 		if (elements_to_get + ring_pos > ring_end)
 		{
@@ -462,25 +464,39 @@ read:
 #endif
 		if (gdk_window_is_visible(buffer_area->window))
 		{
-			// Only draw it if its visible.  Why waste CPU time ??? 
-			gdk_threads_enter();
+			/* Runcount is used to only update the buffer_area
+			 * monitor at about 1/10th the input rate.  This is
+			 * doen to be nicer to the Xserver,  since we are 
+			 * making gtk_*() calls inside a PTHREAD, i.e. 
+			 * outside gtk's main loop. a call to XFlush is 
+			 * rewuired to keep updating the window properly.
+			 * XFlush is expensive, thus we try to do it less
+			 * here..
+			 */
+			if (runcount > 10) 
+			{	
+				// Only draw it if its visible.  Why waste CPU time ??? 
+				gdk_threads_enter();
 
-			gdk_draw_rectangle(buffer_pixmap,
-					buffer_area->style->black_gc,TRUE,
-					last, 20,
-					2,15);
+				gdk_draw_rectangle(buffer_pixmap,
+						buffer_area->style->black_gc,TRUE,
+						last, 20,
+						2,15);
 
-			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-					TRUE,
-					(float)buffer_area->allocation.width\
-					*((float)ring_pos/(float)ring_end), 20,
-					2,15);
+				gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
+						TRUE,
+						(float)buffer_area->allocation.width\
+						*((float)ring_pos/(float)ring_end), 20,
+						2,15);
 
-			last = (float)buffer_area->allocation.width\
-				*((float)ring_pos/(float)ring_end);
+				last = (float)buffer_area->allocation.width\
+					*((float)ring_pos/(float)ring_end);
 
-			gdk_window_clear(buffer_area->window);
-			gdk_threads_leave();
+				gdk_window_clear(buffer_area->window);
+				gdk_flush();
+				gdk_threads_leave();
+				runcount = 0; /* reset counter.... */
+			}
 		}
 
 	}while(1);
@@ -574,7 +590,6 @@ read:
 	if (gdk_window_is_visible(buffer_area->window))
 	{
 		// Only draw it if its visible.  Why waste CPU time ???
-		gdk_threads_enter();
 
 		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
 				TRUE,
@@ -591,7 +606,6 @@ read:
 			*((float)ring_pos/(float)ring_end);
 
 		gdk_window_clear(buffer_area->window);
-		gdk_threads_leave();
 	}
 }
 

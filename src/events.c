@@ -211,7 +211,6 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	{
 		pt_lock = 0;
 		one_to_fix = 0;
-		//	spec_drag = 0;
 #ifdef DND_DEBUG
 		g_print("BUTTON 1 RELEASED!! releasing lock\n");
 #endif
