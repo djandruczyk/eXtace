@@ -23,21 +23,13 @@
 /* Prototypes */
 /* Lame initialization function */
 #ifdef HAVE_COMEDI
-int prepare_cmd_lib(comedi_t *dev,int *subdevice, comedi_cmd *cmd);
+int default_comedi_cmd(comedi_t *dev, comedi_cmd *cmd, float *rate);
+int read_comedi_cmd(comedi_cmd *cmd, float *rate);
+int write_comedi_cmd(comedi_cmd *cmd, float rate);
+int free_comedi_cmd(comedi_cmd *cmd);
 #endif
 GtkWidget *comedi_device_control_open(int input_handle);
-int comedi_device_control_close(GtkWidget *widget, gpointer *dummy);
+
 /* Prototypes */
 
 #endif
-
-
-
-
-
-
-
-
-
-
-

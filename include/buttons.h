@@ -27,19 +27,21 @@ void leave(GtkWidget *, gpointer *);
 gint close_dir_win(GtkWidget *, gpointer *);
 gint close_grad_win(GtkWidget *, gpointer *);
 gint close_options(GtkWidget *, gpointer *);
-gint scope_sync_source_set(GtkWidget *, gpointer *);
-gint change_display_mode(GtkWidget *, gpointer *);
-gint set_data_source(GtkWidget *, gpointer *);
+gint scope_sync_source_set(GtkWidget *, gpointer);
+gint change_display_mode(GtkWidget *, gpointer);
+gint set_data_source(GtkWidget *, gpointer);
 gint comedi_control_window_toggle(GtkWidget *, gpointer *);
-gint set_window_width(GtkWidget *, gpointer *);
-gint set_fft_data_to_display(GtkWidget *, gpointer *);
-gint set_fft_size(GtkWidget *, gpointer *);
-gint fft_set_axis_type(GtkWidget * , gpointer *);
-gint slider_changed(GtkWidget *, gpointer *);
-gint button_handle(GtkWidget *, gpointer *);
+gint set_window_width(GtkWidget *, gpointer);
+gint set_fft_data_to_display(GtkWidget *, gpointer);
+gint set_fft_size(GtkWidget *, gpointer);
+gint fft_set_axis_type(GtkWidget * , gpointer);
+gint slider_changed(GtkWidget *, gpointer);
+gint button_handle(GtkWidget *, gpointer);
 gint change_display(GtkWidget *, gpointer *);
-gint set_decimation_factor(GtkWidget *, gpointer *);
-gint scope_mode(GtkWidget *, gpointer *);
+gint set_decimation_factor(GtkWidget *, gpointer);
+gint scope_mode(GtkWidget *, gpointer);
+gint comedi_window_close(GtkWidget *, gpointer *);
+
 /* Prototypes */
 
 #endif

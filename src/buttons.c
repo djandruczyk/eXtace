@@ -74,9 +74,9 @@ gint close_options(GtkWidget *widget, gpointer *data)
 	return TRUE;
 }
 
-gint slider_changed(GtkWidget *widget, gpointer *data)
+gint slider_changed(GtkWidget *widget, gpointer data)
 {
-	switch ((Slider)data)
+	switch ((Slider) GPOINTER_TO_INT(data))
 	{
 		case BANDS:
 			bands = GTK_ADJUSTMENT(widget)->value;
@@ -126,11 +126,11 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 	return 0;
 }
 
-gint fft_set_axis_type(GtkWidget * widget, gpointer *data)
+gint fft_set_axis_type(GtkWidget * widget, gpointer data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		switch((AxisType)data)
+		switch((AxisType) GPOINTER_TO_INT(data))
 		{
 			case LOG:
 				axis_type = LOG; 
@@ -145,11 +145,11 @@ gint fft_set_axis_type(GtkWidget * widget, gpointer *data)
 	return TRUE;
 }
 
-gint scope_sync_source_set(GtkWidget * widget, gpointer *data)
+gint scope_sync_source_set(GtkWidget * widget, gpointer data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		scope_sync_source = (ScopeSyncSource)data;
+		scope_sync_source = (ScopeSyncSource) GPOINTER_TO_INT(data);
 
 		gdk_draw_rectangle(main_display->window,
 				main_display->style->black_gc,
@@ -159,16 +159,21 @@ gint scope_sync_source_set(GtkWidget * widget, gpointer *data)
 	return TRUE;
 }
 
-gint set_data_source(GtkWidget *widget, gpointer *data)
+gint set_data_source(GtkWidget *widget, gpointer data)
 {
   
   if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
     draw_stop();
-    if(data_source == COMEDI && comedi_window_open)
-	    comedi_device_control_close(widget,NULL);
+    if(data_source == COMEDI && comedi_window_open){
+	    gtk_toggle_button_set_active(
+		    GTK_TOGGLE_BUTTON(comedi_button), 
+		    FALSE);
+	    comedi_window_open=TRUE;  /* reopen when comedi is chosen later */
+    }
     input_thread_stopper(data_handle);
     close_datasource(data_handle);
-    data_source = (DataSource) data;
+
+    data_source = (DataSource) GPOINTER_TO_INT(data);
     /* start even if none previously opened 
        (in case previous sound source was bad) */
     if ((data_handle=open_datasource(data_source)) >= 0)
@@ -186,19 +191,36 @@ gint set_data_source(GtkWidget *widget, gpointer *data)
   return TRUE;
 }
 
+gint comedi_window_close(GtkWidget *widget, gpointer *data)
+{
+	gtk_toggle_button_set_active(
+		GTK_TOGGLE_BUTTON(comedi_button),
+		FALSE
+		);	   
+	return TRUE;
+}
+
 gint comedi_control_window_toggle(GtkWidget *widget, gpointer *data)
 { 
-	static GtkWidget *window;
+	static GtkWidget *ww;
+
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) /* its pressed */
 	{
-		window=comedi_device_control_open(data_handle);
+		ww=comedi_device_control_open(data_handle);
+		gtk_signal_connect(GTK_OBJECT(ww),"delete_event",
+				   GTK_SIGNAL_FUNC(comedi_window_close),
+				   NULL);
+		gtk_signal_connect(GTK_OBJECT(ww),"destroy_event",
+				   GTK_SIGNAL_FUNC(comedi_window_close),
+				   NULL);
+
 		gtk_label_set_text(GTK_LABEL(GTK_BIN(widget)->child),
 						"Close control window");
 		comedi_window_open = TRUE;
 	}
 	else
 	{
-		comedi_device_control_close(widget,NULL);
+		gtk_widget_destroy(ww);
 		gtk_label_set_text(GTK_LABEL(GTK_BIN(widget)->child),
 						"Open control window");
 		comedi_window_open = FALSE;
@@ -206,11 +228,11 @@ gint comedi_control_window_toggle(GtkWidget *widget, gpointer *data)
 	return TRUE;
 }
 
-gint set_window_width(GtkWidget *widget, gpointer *data)
+gint set_window_width(GtkWidget *widget, gpointer data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		switch((WindowWidth)data)
+		switch((WindowWidth) GPOINTER_TO_INT(data))
 		{
 			case FULL:
 				win_width = FULL;
@@ -233,11 +255,11 @@ gint set_window_width(GtkWidget *widget, gpointer *data)
 	return TRUE;
 }
 
-gint set_fft_data_to_display(GtkWidget *widget, gpointer *data)
+gint set_fft_data_to_display(GtkWidget *widget, gpointer data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		switch((FftDataPacking)data)
+		switch((FftDataPacking) GPOINTER_TO_INT(data))
 		{
 			case LEFT:
 				fft_signal_source=LEFT;
@@ -255,11 +277,11 @@ gint set_fft_data_to_display(GtkWidget *widget, gpointer *data)
 	}
 	return TRUE;
 }
-gint set_fft_size(GtkWidget *widget, gpointer *data)
+gint set_fft_size(GtkWidget *widget, gpointer data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		switch((FftSize)data)
+		switch((FftSize) GPOINTER_TO_INT(data))
 		{
 			case S_512:
 				reinit_extace(512);
@@ -287,11 +309,11 @@ gint set_fft_size(GtkWidget *widget, gpointer *data)
 	return TRUE;
 }
 
-gint button_handle(GtkWidget *widget, gpointer *data)
+gint button_handle(GtkWidget *widget, gpointer data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		switch((ToggleButton)data)
+		switch((ToggleButton) GPOINTER_TO_INT(data))
 		{
 			case OPTIONS:
 				gtk_widget_show(options_win_ptr);
@@ -369,7 +391,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 	}
 	else
 	{
-		switch((ToggleButton)data)
+		switch((ToggleButton) GPOINTER_TO_INT(data))
 		{
 			case OPTIONS:
 				gtk_widget_hide(options_win_ptr);
@@ -464,7 +486,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 	return 0;
 }
 	
-gint change_display_mode(GtkWidget *widget, gpointer *data)
+gint change_display_mode(GtkWidget *widget, gpointer data)
 {
 	gint enable_dir_win = 0;
 
@@ -479,7 +501,7 @@ gint change_display_mode(GtkWidget *widget, gpointer *data)
 			TRUE, 0,0,
 			width,height);
 	gdk_window_clear(main_display->window);
-	switch ((DisplayMode)data)
+	switch ((DisplayMode) GPOINTER_TO_INT(data))
 	{
 		case WIRE_3D:
 			mode = LAND_3D;
@@ -564,13 +586,14 @@ gint change_display_mode(GtkWidget *widget, gpointer *data)
 
 }
 
-gint set_decimation_factor(GtkWidget *widget, gpointer *data)
+gint set_decimation_factor(GtkWidget *widget, gpointer data)
 {
 	if (GTK_TOGGLE_BUTTON (widget)->active)
 	{
-		if (((long int)data > 0) && ((long int)data <= 16))
+		if (((long int) GPOINTER_TO_INT(data) > 0) && 
+		    ((long int) GPOINTER_TO_INT(data) <= 16))
 		{
-			decimation_factor = (long int)data;
+			decimation_factor = (long int) GPOINTER_TO_INT(data);
 			ring_rate_changed();
 			recalc_markers=TRUE;
 			display_markers=TRUE;
@@ -579,18 +602,19 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 	return (0);
 }
 
-gint scope_mode(GtkWidget *widget, gpointer *data)
+gint scope_mode(GtkWidget *widget, gpointer data)
 {
-	switch((ScopeMode)data)
+	int i=GPOINTER_TO_INT(data);
+	switch((ScopeMode) i)
 	{
 		case DOT_SCOPE:
-			scope_sub_mode = (ScopeMode)data;
+			scope_sub_mode = (ScopeMode) i;
 			break;
 		case LINE_SCOPE:
-			scope_sub_mode = (ScopeMode)data;
+			scope_sub_mode = (ScopeMode) i;
 			break;
 		case GRAD_SCOPE:
-			scope_sub_mode = (ScopeMode)data;
+			scope_sub_mode = (ScopeMode) i;
 			break;
 	}
 	if (mode == SCOPE)

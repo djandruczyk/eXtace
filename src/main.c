@@ -253,6 +253,7 @@ int main(int argc, char **argv)
 	    input_thread_starter(data_handle);
 	    draw_start();
 	  }
+	/* This will open comedi window on startup when approprate */
 	if(data_source == COMEDI)
 		gtk_toggle_button_set_active(
 			GTK_TOGGLE_BUTTON(comedi_button), 

@@ -31,6 +31,7 @@ extace_SOURCES = \
 	horiz_specgram.c \
 	init.c \
 	input.c \
+	comedi_input.c \
 	input_processing.c \
 	land3d.c \
 	main.c \

@@ -69,13 +69,9 @@ int close_datasource(int );
 int update_ring_channels(int );
 void error_close_cb(GtkWidget *, gpointer * );
 #ifdef HAVE_COMEDI
-comedi_t *comedi_dev(int handle);
-int *comedi_subdevice(int handle);
+comedi_t *comedi_dev_pointer(int handle);
+comedi_cmd *comedi_cmd_pointer(int handle);
 #endif
 /* Prototypes */
 
 #endif
-
-
-
-

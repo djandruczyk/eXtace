@@ -33,7 +33,7 @@ gint buffer_area_width;
 gint buffer_area_height;
 gint dir_width;
 gint dir_height;
-gint one_to_fix = 0;
+gint one_to_fix = -1;
 gboolean pt_lock = FALSE;
 
 extern gfloat xdet_start;
@@ -210,7 +210,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	if(event->state & (GDK_BUTTON1_MASK))
 	{
 		pt_lock = FALSE;
-		one_to_fix = 0;
+		one_to_fix = -1;
 #ifdef DND_DEBUG
 		g_print("BUTTON 1 RELEASED!! releasing lock\n");
 #endif
@@ -251,7 +251,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 
 		{
 			result = test_if_close(x,y);
-			if (result > 0)
+			if (result != -1)
 			{
 #ifdef DND_DEBUG
 				g_print("mouse is close enough to an endpoint\n");
@@ -270,7 +270,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 				g_print("releasing lock\n");
 #endif
 				pt_lock = FALSE;
-				one_to_fix = 0;
+				one_to_fix = -1;
 			}
 		}
 	}

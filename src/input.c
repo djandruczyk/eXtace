@@ -41,7 +41,7 @@ static struct {
 #endif
 #ifdef HAVE_COMEDI
 	comedi_t *dev; 
-	int subdevice;
+	comedi_cmd cmd;
 #endif
 	pthread_t input_thread;
 	DataSource source;
@@ -109,6 +109,11 @@ int open_datasource(DataSource source)
 			else
 			{
 				handles[i].opened = 1;
+				/* read config file or set default values */
+				if(read_comedi_cmd(&handles[i].cmd,&ring_rate))
+					default_comedi_cmd(handles[i].dev,
+							   &handles[i].cmd,&ring_rate);
+				update_ring_channels(handles[i].cmd.chanlist_len);
 			}
 			break;
 #endif
@@ -159,7 +164,6 @@ int input_thread_starter(int i)
 	int err = -1;  
 #ifdef HAVE_COMEDI
 	int ret;
-	comedi_cmd cmd;
 #endif
 
 
@@ -201,13 +205,12 @@ int input_thread_starter(int i)
 #endif
 #ifdef HAVE_COMEDI
 		case COMEDI:
-			/* configure and start the comedi device */
-			ret=prepare_cmd_lib(handles[i].dev,&handles[i].subdevice,&cmd);
+                        ret = comedi_command_test(handles[i].dev, &handles[i].cmd);
 			if(ret != 0){
 				fprintf(stderr,__FILE__ ":  second COMEDI command_test returned %i\n     See kernel system messages (dmesg)\n",ret);
 						
 			}
-			ret = comedi_command(handles[i].dev,&cmd);
+			ret = comedi_command(handles[i].dev,&handles[i].cmd);
 			if(ret<0){
 				fprintf(stderr,__FILE__":  comedi_command failed for handle %i.\n    ",i);
 						
@@ -277,9 +280,10 @@ int input_thread_stopper(int i)
 				fprintf(stderr,"No thread could be found corresponding to that\nspecified by the thread ID.\n");
 
 #if 0 /* maybe later add this */
-			comedi_unlock(handles[i].dev,handles[i].subdevice);
+			comedi_unlock(handles[i].dev,handles[i].cmd.subdev);
 #endif
-			err=comedi_cancel(handles[i].dev,handles[i].subdevice);
+			err=comedi_cancel(handles[i].dev,
+					  handles[i].cmd.subdev);
 			if(err){
 				fprintf(stderr,__FILE__":  comedi_cancel failed\n    ");
 				comedi_perror("comedi_cancel");
@@ -324,6 +328,9 @@ int close_datasource(int i)
 #endif
 #ifdef HAVE_COMEDI
 		case COMEDI:
+			write_comedi_cmd(&handles[i].cmd,ring_rate);
+			/* free memory used by handle */
+			free_comedi_cmd(&handles[i].cmd);
 			err=comedi_close(handles[i].dev);
 			if(err)
 			{
@@ -469,7 +476,7 @@ void error_close_cb(GtkWidget *widget, gpointer *data)
 }
 
 #ifdef HAVE_COMEDI
-comedi_t *comedi_dev(int i)
+comedi_t *comedi_dev_pointer(int i)
 {
 	if(handles[i].opened)
 		return handles[i].dev;
@@ -477,10 +484,10 @@ comedi_t *comedi_dev(int i)
 		return NULL;
 }
 
-int *comedi_subdevice(int i)
+comedi_cmd *comedi_cmd_pointer(int i)
 {
 	if(handles[i].opened)
-		return &handles[i].subdevice;
+		return &handles[i].cmd;
 	else
 		return NULL;
 }
