@@ -22,6 +22,6 @@ const float	multiplier_max = 50.0;	/* Sensivity max allowed */
 const float	bar_decay_max = 20.0;
 const float	peak_hold_max = 20.0;
 const float	peak_decay_max = 20.0;
-const float	refresh_max = 51.0;
+const float	refresh_max = 101.0;
 const float	tape_scroll_max = 12.0;
 

@@ -24,6 +24,9 @@
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H
 
+/* Define if you have the drfftw library (-ldrfftw).  */
+#undef HAVE_LIBDRFFTW
+
 /* Define if you have the efence library (-lefence).  */
 #undef HAVE_LIBEFENCE
 

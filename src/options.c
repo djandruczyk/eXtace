@@ -652,6 +652,15 @@ int setup_options()
     gtk_signal_connect (GTK_OBJECT (button), "toggled",
 	    GTK_SIGNAL_FUNC (button_handle), (gpointer)16384);
 
+/*    group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+ *    button = gtk_radio_button_new_with_label(group,"32768");
+ *    gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
+ *    if(nsamp == 32768)
+ *	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
+ *    gtk_signal_connect (GTK_OBJECT (button), "toggled",
+ *	    GTK_SIGNAL_FUNC (button_handle), (gpointer)32768);
+ */
+
     gtk_widget_show_all(hbox);
 
     box = gtk_vbox_new(FALSE,0);

@@ -129,7 +129,7 @@ ln -sf %{_sysconfdir}/alternatives/%{name} %buildroot%{_bindir}/%{name}
 # LOUD when you use this.... :-]
 # Or, maybe not....
 mkdir -p %buildroot%{bindir_}
-cp extace/sine %buildroot%{bindir_}
+cp $RPM_BUILD_DIR/%{name}-%{version}/src/sine %buildroot%{bindir_}
 
 # Only needed in Mandrake:
 # Create menu entry for the package

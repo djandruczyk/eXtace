@@ -488,6 +488,8 @@ void mem_dealloc()
     free(pt3);
     free(pt4);
     free(end);
+//	free(Color_map.triplets);
+//	free(Color_map.locations);
 
     if (plan)
 	rfftw_destroy_plan(plan);

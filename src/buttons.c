@@ -22,6 +22,9 @@
 #ifdef HAVE_LIBRFFTW
 #include <rfftw.h>
 #endif
+#ifdef HAVE_LIBDRFFTW
+#include <drfftw.h>
+#endif
 #include "logo.xpm"
 #include "convolve.h"
 

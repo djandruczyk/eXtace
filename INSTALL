@@ -51,6 +51,11 @@ The simplest way to compile this package is:
      all sorts of other programs in order to regenerate files that came
      with the distribution.
 
+  6. With recent versions of autoconf you may get warnings about missing
+     files with a .Po extension (dependancy files), in that case just delete
+	 the config.cache file and rerun ./configure with any options you used
+	 earlier and recompile.
+
 Compilers and Options
 =====================
 

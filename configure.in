@@ -3,7 +3,7 @@ AC_INIT(src/main.c)
 
 EXTACE_MAJOR_VERSION=1
 EXTACE_MINOR_VERSION=7
-EXTACE_MICRO_VERSION=3
+EXTACE_MICRO_VERSION=4
 
 EXTACE_VERSION=$EXTACE_MAJOR_VERSION.$EXTACE_MINOR_VERSION.${EXTACE_MICRO_VERSION}
 
@@ -193,11 +193,25 @@ fi
 
 if test "$have_fftw" = "no" 
 then
-echo "
-!!! FFTW libraries NOT found. eXtace will NOT compile without them!!!
-"
+	AC_CHECK_LIB(drfftw, rfftw_one, have_fftw=yes,,[-ldfftw] )
+
+	if test "$have_fftw" = "yes"
+	then
+		AC_CHECK_LIB(drfftw, rfftw_one,, )
+		PROGRAMS_EXTACE=extace
+		EXTRA_LIBS="-ldrfftw -ldfftw -lm"
+		AC_SUBST(EXTRA_LIBS)
+	
+	fi
+fi
+
+if test "$have_fftw" = "no" 
+then
+	echo "!!! FFTW libraries NOT found. eXtace will NOT compile without them!!!"
+
 exit 1
 fi
+
 LIBS=""
 AC_CHECK_LIB(gdk_imlib, gdk_imlib_render,,echo "Imlib not found!"; exit 0,[`gtk-config --libs` ])
 

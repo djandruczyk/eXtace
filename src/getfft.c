@@ -25,6 +25,9 @@
 #ifdef HAVE_LIBRFFTW
 #include <rfftw.h>
 #endif 
+#ifdef HAVE_LIBDRFFTW
+#include <drfftw.h>
+#endif 
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif

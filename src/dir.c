@@ -48,6 +48,7 @@ gint update_dircontrol(GtkWidget *widget)
     dir_axis_update();
     update_pointer();
     gdk_window_clear(dir_area->window);
+	return 0;
 }
 
 
