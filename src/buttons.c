@@ -532,6 +532,7 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 		if (((gint)data > 0) && ((gint)data <= 16))
 		{
 			decimation_factor = (gint)data;
+			recalc_markers=1;
 		}
 	}
 	return (0);

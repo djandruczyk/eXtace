@@ -229,7 +229,7 @@ recalc:
 			if (axis_type == LINEAR)
 				resolution = ((float)RATE/2.0)/(float)bands;
 			else if (axis_type == LOG)
-				resolution = ((float)RATE/2.0)/((float)nsamp/2.0);
+				resolution = ((float)RATE)/((float)nsamp*decimation_factor);
 			switch (axis_type)
 			{
 				case LINEAR:
