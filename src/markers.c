@@ -117,9 +117,11 @@ void update_freq_markers()
 	int l_length = 10;
 	int i = 0;
 	gchar buff[10];
-	gchar less_markers = 0;
-	gchar lot_less_markers = 0;
+	gint less_markers = 0;
+	gint num_markers = 0;
 	gint x1,x2,y1,y2;
+	gint bandwidth = high_freq-low_freq;
+	const gint pixels_per_marker = 50;	/* constant */
 	extern gint ready;
 
 	if(!ready)
@@ -198,21 +200,10 @@ void update_freq_markers()
 					TRUE,0,bord-5,
 					width,2*l_length+35);
 		}
-		if (width < 820)
-			less_markers = 1;
-		if (width < 410)
-			lot_less_markers = 1;
-		for (i = 1; i <= (bandwidth/1000);i++) 
+		num_markers = (width-time_border)/pixels_per_marker;
+		for (i=1; i<=num_markers;i++) 
 		{
-			if ((less_markers) && ((i+1)%2))
-			{
-				continue;
-			}
-			if ((lot_less_markers) && ((i+1)%4))
-			{
-				continue;
-			}
-			x1 = ((float)i/(bandwidth/1000.0)*(width-time_border));
+			x1 = (((float)i/(float)num_markers)*(width-time_border));
 			y1 = bord;
 			x2 = x1;
 			y2 = y1+l_length;
@@ -221,6 +212,7 @@ void update_freq_markers()
 					style->white_gc,\
 					x1,y1,x2,y2);
 
+/*
 			g_snprintf(buff,10,"%i kHz",i);
 			x2 -= 16;
 			y2 = y1+l_length + 2*gdk_text_height(main_display->\
@@ -237,6 +229,7 @@ void update_freq_markers()
 			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y2,x1,y2+l_length);
 
+*/
 		}
 	}
 	gdk_window_clear(main_display->window);

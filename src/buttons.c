@@ -114,13 +114,13 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 			break;
 		case LOW_LIMIT:
 			low_freq = GTK_ADJUSTMENT(widget)->value;
-			GTK_ADJUSTMENT(hf_adj)->lower = low_freq + (10*RATE/nsamp);
-			gtk_adjustment_changed(hf_adj);
+			GTK_ADJUSTMENT(hf_adj)->lower = low_freq + (33*RATE/nsamp);
+			gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 			break;
 		case HIGH_LIMIT:
 			high_freq = GTK_ADJUSTMENT(widget)->value;
-			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (10*RATE/nsamp);
-			gtk_adjustment_changed(lf_adj);
+			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33*RATE/nsamp);
+			gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
 			break;
 		default:
 			break;
@@ -312,36 +312,6 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 						"Resume Display");
 				paused = 1;
 				draw_stop();
-				break;
-			case 1378:
-				bandwidth = 1378;
-				bandwidth_change = 1;
-				update_freq_markers();
-				update_time_markers();
-				break;
-			case 2756:
-				bandwidth = 2756.25;
-				bandwidth_change = 1;
-				update_freq_markers();
-				update_time_markers();
-				break;
-			case 5512:
-				bandwidth = 5512.5;
-				bandwidth_change = 1;
-				update_freq_markers();
-				update_time_markers();
-				break;
-			case 11025:
-				bandwidth = 11025;
-				bandwidth_change = 1;
-				update_freq_markers();
-				update_time_markers();
-				break;
-			case 22050:
-				bandwidth = 22050;
-				bandwidth_change = 1;
-				update_freq_markers();
-				update_time_markers();
 				break;
 
 			default:
@@ -555,6 +525,11 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 		{
 			decimation_factor = (gint)data;
 			recalc_markers=1;
+			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33.0*(float)RATE/(2.0*decimation_factor));
+			GTK_ADJUSTMENT(hf_adj)->upper = (float)RATE/(2.0*decimation_factor)+RATE/nsamp;
+			gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
+			gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
+
 		}
 	}
 	return (0);

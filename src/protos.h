@@ -111,7 +111,7 @@ GtkWidget * kt_stars_new(GtkWidget *, GdkPixmap *);
 void kt_stars_set_logo_pixmp(GtkWidget *, GdkPixmap *, GdkPixmap *);
 
 /* reducer.c */
-void reducer(int, int, int);
+void reducer(gfloat, gfloat, int);
 /* reducer.c */
 
 /* land_3d.c */

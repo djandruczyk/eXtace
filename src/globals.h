@@ -169,17 +169,14 @@ gshort 		*raw_ptr;
 gshort 		copywindow;	/* size of intermediate buffer for processing */
 gint 		copy_window;	/* intermediate buffer size */
 gfloat		update_factor;
-gint 		rtc_fd;		/* Real Time Clock Filedescriptor */
-gint 		use_rtc;
 gint 		draw_running;
 gint 		winstyle;	/* window function options */	
 gint		active_drawing_area;
 gfloat 		noise_floor;
-gint 		paused;
+gint 		paused;			/* Flag */
 gfloat		low_freq;
 gfloat		high_freq;
-gfloat		bandwidth;
-gint 		bandwidth_change; /* Flag */
-gint 		clear_display;
+gint 		bandwidth_change;	/* Flag */
+gint 		clear_display;		/* Flag */
 
 #endif

@@ -67,7 +67,6 @@ void init()
 
 	sound_source = ESD;
 
-	use_rtc = 0;
 	refresh_rate = 29;	/* 25 frames per sec */
 	left_amplitude = 127.0/32768.0; /* Scaler for something */
 	right_amplitude = 127.0/32768.0; /* Scaler for something */
@@ -146,7 +145,6 @@ void init()
 	paused = 0;		/* display running */
 	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
 	high_freq = RATE/2;	/* High frequency cutoff in hi-res displays */
-	bandwidth = 22050;	/* frequency bandwidth in hi res modes */
 	clear_display = 0;	/* Flag for markers */
 
 	/*	Color presets (default colormap) */
@@ -206,7 +204,6 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Window", "dir_y_origin", &dir_y_origin);
 
 		cfg_read_int(cfgfile, "Global", "mode", &mode);
-		cfg_read_float(cfgfile, "Global", "bandwidth", &bandwidth);
 		cfg_read_int(cfgfile, "Global", "sound_source", &sound_source);
 		cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
 		cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
@@ -302,7 +299,6 @@ void save_config(GtkWidget *widget)
 	else
 		cfg_write_string(cfgfile, "Global", "last_colormap",g_strconcat(g_get_home_dir(),"/.eXtace/ColorMaps/","Default",NULL));
 	cfg_write_int(cfgfile, "Global", "mode", mode);
-	cfg_write_float(cfgfile, "Global", "bandwidth", bandwidth);
 	cfg_write_int(cfgfile, "Global", "sound_source", sound_source);
 	cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
 	cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
@@ -544,10 +540,10 @@ void reinit_extace(int new_nsamp)
 	recalc_markers = 1;
 	recalc_scale = 1;	
 	mem_alloc();
-	GTK_ADJUSTMENT(lf_adj)->lower = RATE/nsamp;
-	GTK_ADJUSTMENT(lf_adj)->step_increment = RATE/nsamp;
-	GTK_ADJUSTMENT(hf_adj)->lower = RATE/nsamp;
-	GTK_ADJUSTMENT(hf_adj)->step_increment = RATE/nsamp;
+	GTK_ADJUSTMENT(lf_adj)->lower = (float)RATE/(float)nsamp;
+	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)RATE/(float)nsamp;
+	GTK_ADJUSTMENT(hf_adj)->lower = (float)RATE/(float)nsamp;
+	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)RATE/(float)nsamp;
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
 	gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 	setup_datawindow(NULL,(WindowFunction)window_func);

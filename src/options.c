@@ -456,7 +456,8 @@ int setup_options()
 	hbox = gtk_hbox_new(TRUE,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,0);
 
-	lf_adj = gtk_adjustment_new(low_freq,RATE/nsamp,RATE/2,RATE/nsamp,RATE/nsamp,10.0);
+	/* Low Frequency Limit slider */
+	lf_adj = gtk_adjustment_new(low_freq,RATE/nsamp,high_freq,RATE/nsamp,RATE/nsamp,10.0);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(lf_adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),2);
 	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
@@ -466,7 +467,8 @@ int setup_options()
 			GTK_SIGNAL_FUNC (slider_changed), (gpointer)LOW_LIMIT);
 
 
-	hf_adj = gtk_adjustment_new(high_freq,low_freq+10*(RATE/nsamp),RATE/2,RATE/nsamp,RATE/nsamp,10.0);
+	/* High Frequency Limit slider */
+	hf_adj = gtk_adjustment_new(high_freq,low_freq+33.0*(RATE/nsamp),RATE/2+RATE/nsamp,RATE/nsamp,RATE/nsamp,10.0);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(hf_adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),2);
 	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
