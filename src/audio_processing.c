@@ -181,24 +181,11 @@ void split_and_decimate()
 				+(audio_arrival.tv_usec/1000000.0)))*1000;
 
 
-	/*
-	printf("Draw Time %f, Audio read Time %f\n",draw_win_time.tv_sec \
-                                +(draw_win_time.tv_usec/1000000.0),audio_arrival.tv_sec
-                                +(audio_arrival.tv_usec/1000000.0));
-	printf("Audio offset lag in milliseconds %f\n",audio_offset_lag);
-	printf("Draw Time delay %f\n",((draw_win_time.tv_sec \
-                                +(double)draw_win_time.tv_usec/1000000.0)-(draw_win_time_last.tv_sec \
-                                +(double)draw_win_time_last.tv_usec/1000000.0))*1000.0);
-	*/
-
 	/* Need this in sample elements not in milliseconds.... */
 	audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)\
 			*(float)RATE);
 
 	
-	//audio_offset_delay = 0;
-
-
 	/* Set pointer to be offset from the beginning of the ring + the 
 	 * position of the audio reader thread + the buffer size - the 
 	 * time delay (lag compensation).
@@ -437,11 +424,12 @@ void split_and_decimate()
 	}
 #endif
 	/* Buffer Latency Monitor update */
+
 	if (gdk_window_is_visible(buffer_area->window))
 	{
 		tmp = (float)buffer_area->allocation.width\
 			*((float)start_offset/(float)ring_end);
-		if (end_offset < start_offset)	/* wrap condition*/
+		if (end_offset < start_offset)	// wrap condition
 		{
 			length = buffer_area->allocation.width-tmp;
 			wrap = 1;
@@ -487,6 +475,7 @@ void split_and_decimate()
 		gdk_window_clear(buffer_area->window);
 		gdk_threads_leave();
 	}
+
 
 	/* printf("Number of samples put into fft_in buffer:%i\n",count) */;
 

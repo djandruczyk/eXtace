@@ -465,19 +465,19 @@ read:
 			// Only draw it if its visible.  Why waste CPU time ??? 
 			gdk_threads_enter();
 
-			gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,
-					TRUE,
+			gdk_draw_rectangle(buffer_pixmap,
+					buffer_area->style->black_gc,TRUE,
 					last, 20,
+					2,15);
+
+			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
+					TRUE,
+					(float)buffer_area->allocation.width\
+					*((float)ring_pos/(float)ring_end), 20,
 					2,15);
 
 			last = (float)buffer_area->allocation.width\
 				*((float)ring_pos/(float)ring_end);
-
-			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-					TRUE,
-					last, 20,
-					2,15);
-
 
 			gdk_window_clear(buffer_area->window);
 			gdk_threads_leave();
@@ -593,7 +593,6 @@ read:
 		gdk_window_clear(buffer_area->window);
 		gdk_threads_leave();
 	}
-	/* unset predicate */
 }
 
 #endif
