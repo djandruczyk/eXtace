@@ -1,0 +1,500 @@
+2001-10-14 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Fixed numerous bugs in reducer.c so that it no longer craps out
+	  when bins_per_pip=1.0000.  Also fixed the bug of half data missing
+	  when bins_per_pip=0.5000.  Changed lag control to actually be in 
+	  milliseconds.  will make it easier when I add the proper lag
+	  compensation code later. (to allow auto-display stop when the
+	  audio stops.  (saves CPU, among other things..))  Changed the audio
+	  ring-buffer to be of a fixed size. (4 seconds of audio). Fixed
+	  the lag compensator s othat it adjusts properly when changing
+	  the FFT length, so the fft display stays in sync with the audio.
+2001-10-07 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Added variable bandwidth for hi-res displays as per users' requests.
+	  Did some rework on the reducer algoritm and the marker functions.
+	  Lots of other little fixes here and there.  Too many to mention.
+	    Released 1.6.3
+2001-09-11 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Incorporated all of Rolf Muellers Colormaps that he sent over. 
+	  Thanks again... So now everyone else can enjoy them too.  Began
+	  the workings of the new colormap file format.  eXtace currently
+	  understands both formats (the new format is not complete yet)
+	  Don't try to use the new format yet, until I get it written. (unless
+	  you write it before I get a chance to... )
+	    Released 1.6.1
+
+2001-09-01 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Spelling fixes (Rolf Mueller). Colormap suggestions for better 
+	  display ability..
+	    Released 
+2001-08-24 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Major cleanups in the code.  Trying to remove the redundnat
+	  functions to make the code cleaner and tighter. Added two new header
+	  files to clean up the DEF's used in the code..  Fixed some minor
+	  bugs in the display code (And prolly added some new ones).
+	  Reorganized to options panel to make more sense and look much
+	  cleaner. Various little bugfixes and code reorgs.  Options controls
+	  now in a seperate files.  modularized some of the event handlers to
+	  remove the excess code.  Added the buffer latency monitor to
+	  visualize how the data comes in and is processed.  should make it
+	  easier to adjust the Lag factor for visual sync to the audio being
+	  heard.
+
+	  eXtace will warn about options being out of date and will blindly
+	  delete them, but it will warn you. It is better off to delete them
+	  and spend a couple minutes resetting the controls to get used to the
+	  different layout.  You have been WARNED!
+		Released 1.6.0
+
+2001-05-17 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Rewrote colormap generator section to use pointers instead of 
+	  static declarations.  Fixed a lot of little things here and there.
+	  Too many to list here..
+		Released 1.5.0
+2001-01-20 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Code cleanups, added new header with defauts for options easily set.
+		Released 1.4.6
+2001-01-01 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Minor code cleanups here and there. 
+		Released 1.4.5
+2000-12-14 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Fixed the segfault when changing sample widths. Added an auto-lag
+	  adjust that should eliminate the meed to modify the lag when 
+	  changing fft widths.  
+		Released 1.4.4
+2000-12-11 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Fixed some bugs in the convolve code with segfaults on small FFT
+	  sizes.  Fixed the lag control. (It was backwards). Now readjusting
+	  the lag when changing fft width is not necessary. convolve code
+	  disabled on fft sizes of 1024 points and smaller, due to buffer
+	  overruns, making the convolve not worth it for the small window.
+	  (Use 2048 or larger fft widths for convolve to work normally)
+		Released 1.4.3 
+2000-12-10 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Fixed a major buffering problem. The harmonics should be much cleaner
+	  now, as the previous version was chewing the sound input all to hell
+	  the blips in the scope will also be gone..
+		Released 1.4.2
+2000-12-07 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Removed mixdown function, and combined its functionality into GetFFT
+	  to help improve performance and make the code easier to read. 
+	  Fixed some severe memory leaks, (And probably added some more...)
+	  Found that using gtk_timeouts to give the variable frame rate is
+	  CPU costly. Know of any other high-resolution timer on the system?
+	  (need 1 millisecond resolution MINIMUM, versus the 10 msec or the 
+	  kernel jiffies timer)
+		Released 1.4.1
+2000-11-29 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Complete Sound I/O rewritten from scratch. Now fully multi-threaded
+	  in both Esound, and ALSA. (thanks to tips/code from ecasound).
+	  The display now runs as a seperate thread at a constant speed.
+	  The fft size is now configurable (via config file only so far).
+	  Tested it works properly up to 32768 point FFT's (though it eats my
+	  processor completely) and the display is rather like slow motion,
+	  due to the releative lack of data to makea 32768 point fft run at 
+	  20 frames per sec, so data is somewhat reused to allow for smooth
+	  screen motion, instead of the jerky motion of other large point
+	  fft's.
+		Release 1.4.0
+2000-11-04 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Fixed Colormap code somewhat. Made eXtace auto-generate 5 
+	  colormaps on first startup... Other misc little fixes here and
+	  there...
+		Released 1.3.11
+2000-10-31 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Between funerals, sick cats and the project managers from hell, 
+	  I've managed another release. This is a simple twist (literally)
+	  on the good ol' Spectragram, a new mode has been added, Vertical
+	  spectrogram, which includes a hi-res 2D spike FFT with axis markers
+	  Performance should be as fast as any other modes. The frequency
+	  marker bar can be dragged to almost any position (within 125 pixels
+	  from the bottom to make sure there's space for the 2D display.
+		Released 1.3.10
+2000-10-16 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Fixed various coding bugs on the 2D Graphic EQ Analyzer.  Added
+	  clickable markers to see what pip is what frequency in the 2D EQ. 
+	  Fixed the ALSA detection so that it actually works properly. Added 
+	  RPM spec file from Alexander Skwar. (Thanks again, Alexander...)
+		Released 1.3.9
+2000-10-11 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Cleanups in scope.c. Removed a whole lotta redundant code. Dropped
+	  cpu usages by a whopping 2% (woohoo!). Much easier to read anyway,
+	  so it was worth the effort.
+2000-10-07 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Imprevements to 2D EQ scaler. Markers now auto-scale resonably.
+	  Looking for suggestions to make the markers look "right"...
+	  Thread fixes,  (still a deadlock in the sound-switching functions)
+2000-10-02 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Made 2D Graphic Eq Auto-scale much better than before.  Fixed a
+	  bad code problem and potential memory leak. Preparing for Axis
+	  markers for 2D EQ.  Added Peak and hold for trailers a-la xmms.
+	  Looks cool. Added slider to control panel to adjust peak hold, and 
+	  falloff speed.
+
+2000-09-26 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Incorporated patch from Eric Lassauge which fixes colormap bugs,
+	  ALSA related bugs, and adds the version to the titlebar.
+		Released 1.3.8
+2000-09-22 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Fixed several threading bugs in the code. should be less likely
+	  to lockup on close. (something to do with gdk_threads_enter/leave)
+	  Broke out all drawing routines into their own files.  This makes
+	  it a whole lot easier to add new routines in the future.  Fixed
+	  colormap saving (had my own home dir hard-coded into the code, oops.)
+	  Tested the conditions where ifa user deletes the colormaps so 
+	  that eXtace doesn't freak with a scrambled colormap...
+		Released 1.3.7
+2000-09-21 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Added flip Y-axis button, to invert display. Fixed several math
+	  core dump bugs with sound source. (Thanks to Eric Lassauge for 
+	  the patch). 
+		Released 1.3.6
+2000-09-20 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Added ability to select ALSA card, device and subdevice interactively
+	  The changes take effect IMMEDIATELY, which I think is just plain cool
+	  Fixed several thread related bugs.  eXtace should no longer freeze
+	  up when momentarily pausing it in ALSA mode. The lockups  that
+	  sometimes happened on exit no longer should happen, if so let me 
+	  know.  There is stil the posibility of freezing when switching the 
+	  ALSA card/device/subdevice while its running. It is a timing issue
+	  somewhere, and I haven't got it yet. if you don't try to make it 
+	  show you'll prolly never see it. Hopefully I can have it fixed by
+	  the next release.
+		Released 1.3.5
+2000-09-16 Dave J. Andruzyk <djandruczyk@yahoo.com>
+	  Added ALSA loopback support.  Extace now requires pthreads, due to
+	  alsa's kernel callbacks.  Added choice in options panel to choose
+	  ALSA or ESD for the audio source.. Its getting close to the point
+	  where a full reqrite should be done to make it easier to thread for
+	  multiple displays and other cool stuff. There are the slight chances
+	  for race conditions or segfaults due to my complete lack of knowledge
+	  of using threads the Right Way...
+		Released 1.3.4
+
+2000-09-05 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  NEarly complete proper perspective tilting of the 3D spike axis'
+	  to a give a much more correct and eye-pleasing display.  The
+	  axis can now be flipped over properly and dragged to any direction
+	  with the proper tilting or the y axis with respect to the X and
+	  Z axes.  Still needs a little work, but much better that ever.
+	  Hopefully the extra trig won't hurt performance..
+		Relased 1.3.3
+	    
+2000-08-27 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Fixed fftw tests due to change in fftw RPM compilation made in
+	  fftw 2.1.3.  Thanks to Alexander Skwar <ASkwar@DigitalProjects.com>
+	  for pointing out the changes to fftw.
+		Released 1.3.2
+2000-08-26 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Rewrite of 3D landform routines.  Added semi-perspective tilting.
+	  Works fairly well, though the math ain't right... Split off the
+	  main draw routine into its own file to make for easier maintenance.
+	  Will prolly do this to all major graphical routines as draw.c was
+	  over 1000 lines long. The display over-writing itself is FINALLY
+	  fixed. (very very long-standing bug). it should no longer draw 
+	  over itself corrupting the display anymore no matter what direction
+	  you aim it..
+		Released 1.3.1
+2000-07-22 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Added colormap read/write support. (Asked for feature). eXtace 
+	  remebers your last one you used and defaults to it when running the
+	  next time.  An arbritary number of colormaps may be saved and re-used.
+	  If you run into problems, close eXtace delete your config file;
+	  ~/.eXtace/config adn rerun extace to rebuild theconfig file.
+		Released 1.3.0
+2000-06-11 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Removed GSL support as it seems to no longer be used much, and it
+	  has three major versions all of which act differently making it a 
+	  rela bitch to support.  Redid config routine to handle the various
+	  possible installations of fftw (double/single precision versions)
+	  Should make it work on other systems who have isntalled the BINARY
+	  release of fftw 2.1.3 properly.  The configure script also CORRECTLY
+	  recognizes the missing libs and reacts accordingly.
+	  Thoroughly tested with single/double precisions fftw libs and the
+	  none versioned one (normally double precision) 
+	       Released 1.2.25 (1.2.24 never made it to the server...)
+2000-05-03 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  REALLY fixed the memory leak in convolve code, thanks to Ralph Loader
+	  (author of convolve code) for the fix.  Added backing pixmap to all
+	  scroling displays. It may or may not eat lots fo extra cpu with it
+	  turned on.  Seems to depend on how much accelleration X has for your
+	  vid card plus the amount of ram avail on the card (for pixmaps and 
+	  such)
+		Released 1.2.23
+2000-04-24 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Fixed the memory leak in the convolve code thanks to mike perry
+	  of njamd fame, and Ralph Loader who originally wrote hte convole code.
+	  Increased the window used to match patterns for scope stabilixer to
+	  triple its original size, making the scope stable down to 60hz. 
+	  Below that I run out of samples.. and the display will tend to want
+	  to scroll. (use the "sine" program to see for yourself)
+		Released 1.2.22
+2000-4-09 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Todays my birthday, Happy Birthday to me.. :)  Added graticule to
+	  the scope. It auto-sizes too.  Fixed several memory leaks, Found 
+	  a small bug in convolve code. still working on that one.  
+		Released 1.2.21 
+2000-4-04 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	* Added trailing peaksto Graphic EQ, as per users request.  Added
+	  more controls to the control panel to turn the peaks on or off as 
+	  desired and control their decay speed.  As usual all settings are 
+	  stored between sessions. Added trace stabilizer control to the scope
+	  controls to see the difference it makes...
+		Released 1.2.20
+2000-3-31 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	* Added convolve routine into the scope from Alsaplayer designed by
+	  Andy La Foe.  Now the scope is a million times more stable making
+	  it far easier to read.  
+		Released 1.2.19
+2000-3-20 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	* Been busier than I'd like.  Found some severe code problems, which 
+	  have been resolved and created some new ones. (4096 point mode goes
+	  twice as slow now. (I was only crunchin on 1/2 the data as I was 
+	  supposed to.  Fixed now.)  Scope now goes to 1024 points instead of 
+	  512 and it will self-truncate is you switch number of points as it
+	  should have previously.   Fixed the hopefully LAST bug in the window
+	  function code, due to the above 1/2 data problem..  The window 
+	  functions now work better than I ever expected... (use the "sine" 
+	  program to see what I mean (sine |esdcat)
+	
+	  The 3D Spike mode now has semi-perspective axis tilting, which sorta-
+	  works, but not quite the way I want.  If ANYONE knows howto get a 
+	  3D object to look write in 2D space teach me howto do it...
+		Released 1.2.18
+2000-2-6 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	* Been busy working for money....  Several minor fixes.  Moved the 
+	  project over to sourceforge.net (extace.sourceforge.net)  Cool site!
+		Released 1.2.16
+1999-12-12 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c.  Stereo scopes completed. Seems to be working fairly well, 
+	  though X intensive. (non-accelerated X servers may be kinda sluggish)
+		Released 1.2.15 (.14 had severe bugs)
+1999-12-9 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* all files. Rewrote audio gathering routine to be stereo freidnly for
+	  soon to be made changes. (synaethesia sort of modes coming)
+	  Added and internal mixdown routine for the ffts (as they still want
+	  mono data until I figure out how to make em faster.) Also ALSA ready
+	  thanks to the new mixdown routine.
+
+1999-11-22 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c, globals.h main.c  Rewrote the options panel to use GTK's 
+	  notebook widget. (looks a LOT better). Added new scope modes. 
+	  Rewrote scope routine so its faster, and uses less CPU. Now there
+	  are three scopes, selectable via the options panel.
+	  Getting ready for an Alsa capable version. (won't require ESD)
+		Released 1.2.13
+1999-11-05 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c reducer.c  Wrote a newer far more functional reduction algo
+	  rithm that actually does what I intended it to.  Now you can reduce
+	  the number of samples in ~./eXtace/config (nsamp) to 1024 or less and
+	  still get a decent display. (less resolution and faster of course.)
+	  Added "-Wall" to CFLAGS to clean up the code.
+		Released 1.2.12
+1999-11-04 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* dir.c main.c	STUPID bug fixed that cause GDK bad window error
+	  message. (missing safety check.)
+		Released 1.2.11
+1999-11-04 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* dir.c main.c globals. protos.h.  Additions so that gradient
+	  window and direction window remeber their positions when they 
+	  are moved, and then disappear when changing modes..
+		Released 1.2.10
+1999-10-25 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c globals.h color_win.c Various bugfixes to color picker
+	  to make changing colors a bit easier.. Added a new mode "Wire_3D"
+	  which is pretty close to LAND_3D.
+		Released 1.2.9
+1999-10-17 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* globals.h main.c  Updated number of buffers to 12 to compensate
+	  for the newer esound (0.2.14) which seems to have greater lag (RH 6.1)
+		Released 1.2.7 and 1.2.8 (quickie fix)
+1999-10-15 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c, misc.c, main.c, globals.h. Added a time scale to the 
+	  spectrogram. (user suggestion.) Various other optimizations to 
+	  improve performance.
+		Released 1.2.6
+1999-10-13 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* all files.  Major rewrite of the display engine. Squashed MANY
+	  bugs.  Thanks again to Rolf Mueller for helping me debug the window
+	  function code. That part is fully functional and working properly.
+	  Fixed DnD (crag n drop) code bug in 3D spike mode.  Display 
+	  optimization code fixed. (should be much faster) even with more 
+	  data points in the fft (up to 4096). I noticed redhat incorporated
+	  eXtace into redhat 6.1 (woohoo!!). 
+		Released 1.2.5
+
+1999-10-05 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* Removed Gnome dependancies, and other unneeded cruft. Thanksa million
+	  to Andy Lo A Foe, for the patch, and the advice.  Other configure
+	  cleanups.  Should configure about 4 times faster...
+		Released 1.2.4
+
+1999-10-04 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* window functions acting screwy. Looking for assistance...
+	  Minor code improvements to spectrogram for moving the axis smoothly
+		Release 1.2.3
+1999-09-20 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* window functions improved slightly.  Now are user selectable on 
+	  the fly from the options menu.  Settings are saved between sessions.
+	  Found a bug/featurwith the window function where it ONLY has the 
+	  desired behavior when setup for 1024 points.  who the hell knows...
+	  the display is still cool, and accurate, so what the hell...
+		Released 1.2.2
+1999-09-16 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* Window Functions FIXED!!. Thanks to Rolf Mueller for the insight
+	  into window functions. It was mistakenly used on the freq domain
+	  data along with the time domain data giving a rather weird view.
+	  7 Window functions are avail, and will be added to a menu soon.
+	
+	  misc.c Signifcant speedups accomplished by moving some code around.
+	  Now uses 10% less CPU time as prior releases.  Scope mode now uses
+	  50% less cpou time. (fft was being computed when it didn't need to be)
+1999-09-15 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* misc.c globals.h.  Upped the number of samples per fft block to
+	  4096. (gives a 2048 point fft (i think :)) Need to rewrite display
+	  sections for spike and spectrogram to reduce redndant writes to the 
+	  same pixel location. (who's running wiht 2048 pixels across?) Should
+	  dramatically reduce CPU especially on slow machines (I hope).
+	  Fixed a bug in the audio buffering routine, where old data seemed
+	  to slip in and mess up the display. Now the buffer is zeroed before
+	  being refilled.
+1999-09-07 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* color_win.c misc.c main.c, and others. Wrote color picker routine
+	  so you can change colors on the fly. (slow as hell when it has to 
+	  regenerate the entire colormap each time you change it). Any 
+	  suggestions to improve this (lousy) method are welcomed. NOTE:
+	  color choices are NOT savced on closing (yet). Hopefully the next
+	  release will address that. 
+		Released 1.2.0
+	
+1999-08-29 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+        * dir.c, misc.c Fixed color routine so you doin't get duplicate color
+          spectrum when over 64 bands. Minor changes to direction control 
+          widget to make it less sensitive and easier to control.
+	       Released 1.1.16
+
+1999-08-16 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* init.c globals.h events.c misc.c Changed spec_start to a float
+	  so it doesn;t mess up when you shrink the window. (stored as a 
+	  percentage instead of an pixel value)
+		Released 1.1.15
+1999-08-10 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* misc.c events.c. Minor fixes, the new spectrogram mode is now
+	  draggable to anywhere on the window. Axis markers are now standard
+	  on the spectrogram. Full autoscaling as usual...
+		Released 1.1.14
+1999-08-05 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c main.c.  Fixes for a stupid error that caused eXtace to
+	  segfault due to doing a "bad thing". Added a new mode called
+	  Spectragram. submitted by Gregor Leusch 
+	  <gleusch@Pool.Informatik.RWTH-Aachen.DE> 
+		Released 1.1.13
+
+1999-07-28 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* init.c Damn axis type was set to "linear" instead of log, made
+	  the landscape view and graphic eq look like crap..  fixed
+		Released 1.1.12
+1999-07-28 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* main.c globals.h, init.c:  Now window position is saved between 
+	  sessions. so it comes up whereever you had it last.  Thanks to the
+	  Alsaplayer code for that tidbit..
+		Released 1.1.11
+1999-07-22 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c misc.c init.c: Fixes in init.c for not saving/restoring the
+	  sensitivity setting.  Fixed window function routines, and added
+	  six more window functions from the "freq51" package.  Will add them
+	  to the menus in hte next release. (you can manually pick them 
+	  by editing the "config" file in ~/eXtace/ )
+		Released 1.1.10
+1999-07-19 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* configure.in events.c: Added additional debugging code with 
+	  regards to the DND code.  Minor fixes causing the 3D Pointed
+	  fft to be undraggable fixed. (typo :( )
+	-- later that evening....
+	  main.c Fix for display coming up and not doing anything.
+	  cause was leaving it in the "stars mode" (about button). 
+	  missing function so it wouldn't restart on rerunning now fixed.
+		    Released 1.1.9
+1999-07-16 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* configure.in Fix to accomatate missing esd-config scripts
+		    Released 1.1.8
+1999-07-15 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* configfile.c configfile.h  Copied and hacked from the xmms
+	  tree. (thanks guys, saved me tons of work!!). Now extace
+	  auto-saves options upon close, and restores them at next run.
+		    Released 1.1.6
+1999-07-14 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* events.c Reqrote DND routine for moving the trace around.
+	  Now implements locking so you can move as fast as you want.
+	  Also fixed  numerous  positional bugs when grabbing and
+	  moving the the traces. If any bugs are noticed email them
+	  to me ASAP. (I need the start and end points for X and Y and
+	  the X and Z speeds (from the control panel))
+		    Released 1.1.5
+
+1999-07-13 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* dir.c buttons.c logo.xpm Redid the logo to include
+	  Raster and Michael Fulbright of Redhat (original authors of
+	  extace). minor bugfixes..
+1999-07-12 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* main.c draw.c minor fixes to the decay routines to prevent
+	  "yellow spot syncdrome" on the 3D landscape view. Extended
+	  decay amount slider up to 10, (makes the Graphic eq more 
+	  like my home stereo). 
+	  buttons.c Made the direction controller disappear when its
+	  note needed. (i.e. when graphic eq, scope, or "about" is up)
+1999-07-12 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* configure.in  MAJOR BUGFIX!!.  Now compiles PROPERLY again with
+	  with FFTW library. missing library check in the script.
+			Released 1.1.3
+
+1999-07-11 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	*  configure.in misc.c: Fixed broken configure tests in regards
+	  to the fftw and gsl libraries and headers. Got some bug reports
+	  regarding particular version of the gsl library.  need to do more
+	  tests.	Released 1.1.2
+1999-07-09 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* dir.c gc_maker.c Wrote 3D direction controller.  Works
+	  REALLY well.  just hold the button down and drag in the 
+	  direction you wanna go.  Auto-udates the control panel
+	  as well.  A touch sensitive on the 3D spike view.
+
+1999-07-09 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c main.c events.c  Fixed broken defines for gsl due to
+	  working in the wrong build tree :) Put stubs in place
+          for 3D directional control window.	Released 1.0.4
+
+1999-07-09 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c events.c Fixed DND routine so that its more lenient
+	  as to how close you have to get to get a lock on it.
+	  removed persepctive tilt stuff as it will require a rewrite
+	  of the main drawing routines, due to the lack or proper trig 
+	  calculations. :(	Released 1.0.3
+1999-07-09 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c main.c Fixe improper defines, added tests for older
+	  version of gsl which seemed to put the headers in a different
+	  location. Released 1.0.2
+
+1999-07-07 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* draw.c Working on proper slant of the trace and leading edge.
+	  Sorta works, but proportions are way off.  Time to dig out 
+	  the trig books... :(  Released 1.1alpha1
+
+1999-07-06 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* events.c Minor fixes in DND code.  Disbaled triangle-old-data
+	  remover. too many bugs in it.. :( Released 1.0.1
+
+1999-07-06 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* Numerous fixes in configure scripts.  Added DND for the axis's
+	  Now the axis's can be dragged and placed wherever you want on the 
+	  window. You have to "go slow" as I haven't made it "lock onto"
+	  the trace while you're moving it. (so it ain't really true DND) but
+	  its still a cool feature... :) Released 1.0
+
+	  Configured configure.in so that the whole thing is now standalone.
+
+1999-07-02 Dave J. Andruczyk <dave@techdev.buffalostate.edu>
+	* Now the official maintainer of extace.  Broke it out of the gnome-
+	  media tree and made it standalone as its beginning to grow.  
+	  Has a self configuring "automake" system now which detects the 
+	  gsl, and fftw libs, and configures appropriately. Works well so far
+

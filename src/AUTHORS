@@ -1,0 +1,23 @@
+Dave J. Andruczyk    <djandruczyk@yahoo.com>
+
+Based on code from:
+    The Rasterman        <raster@redhat.com>
+    Michael Fulbright    <msf@redhat.com>
+
+Spectragram (originally called "tape") submitted by:
+    Gregor Leusch <gleusch@Pool.Informatik.RWTH-Aachen.DE>
+
+    and hacked by Dave J. Andruczyk to be fully scalable...
+
+Thanks goes out to Andy Lo A Foe who created Alsaplayer for his excellent
+advice on autoconf, and helping me streamline the configure process.
+
+Thanks again to Rolf Mueller, for helping me extensively with the window
+functions section, and the color picker parts.
+
+Thanks to Ralph Loader <suckfish@ihug.co.nz> for the convolve pattern
+matching routines making the scope INCREDIBLY stable, evern at low freqs.
+
+Thanks to Eric Lassauge for the patches to the Colormap code, ALSA support, and 
+fixes here and there....
+
