@@ -26,8 +26,8 @@ static gfloat dir_angle_deg = 0.0;
 static gfloat det_axis_angle_deg = 0.0;
 static gfloat weight = 0.0;
 static gfloat invweight = 0.0;
-static gint factor=0;
 static gfloat loc_bins_per_pip=0;
+static gfloat tmpf = 0.0;
 static gint start_x = 0;
 static gint end_x = 0;
 static gint start_y = 0;
@@ -115,7 +115,7 @@ void draw_spike_3d()
 		dir_angle_rad = (float)atan2((float)zdet_scroll,-(float)xdet_scroll);
 		dir_angle_deg = dir_angle_rad*90/M_PI_2;
 
-//		g_print ("dir_angle_deg = %f\n",dir_angle_deg);
+		//		g_print ("dir_angle_deg = %f\n",dir_angle_deg);
 
 		if ((dir_angle_deg >= -45.0) && (dir_angle_deg < 45.0))
 		{
@@ -142,37 +142,45 @@ void draw_spike_3d()
 			x_tilt = -cos(dir_angle_rad);
 			y_tilt = -sin(dir_angle_rad);
 		}
-//		g_print("det_axis_angle is %f degrees\n",det_axis_angle);
+		//		g_print("det_axis_angle is %f degrees\n",det_axis_angle);
 	}
 	xaxis_tilt = sin(det_axis_angle);
 	yaxis_tilt = cos(det_axis_angle);
 
-	det_axis_angle_deg = det_axis_angle*90/M_PI_2;
+	tmpf = (det_axis_angle*90/M_PI_2);
+	tmpf+=180;
+	if (tmpf >180)
+		tmpf-=360;
+	det_axis_angle_deg = tmpf;
+	printf("axis angle %f\n",det_axis_angle_deg);
 
-        if ((det_axis_angle_deg >= 0.0) && (det_axis_angle_deg < 90.0))
-        {
-//      printf("QUAD 1\n");
-                weight = det_axis_angle_deg/90;
-                invweight = 1.0-weight;
-        }
-        else if ((det_axis_angle_deg >= 90.0) && (det_axis_angle_deg < 180.0))
-        {
-//      printf("QUAD 2\n");
-                weight = 1.0-((det_axis_angle_deg-90)/90);
-                invweight = -(1.0-weight);
-        }
-        else if ((det_axis_angle_deg >= -180.0) && (det_axis_angle_deg < -90.0))
-        {
-//      printf("QUAD 3\n");
-                weight = -(det_axis_angle_deg+180)/90;
-                invweight = -1.0-weight;
-        }
-        else if ((det_axis_angle_deg >= -90.0) && (det_axis_angle_deg < 0.0))
-        {
-//      printf("QUAD 4\n");
-                weight = det_axis_angle_deg/90;
-                invweight = 1.0+weight;
-        }
+	if ((det_axis_angle_deg >= 0.0) && (det_axis_angle_deg < 90.0))
+	{
+		printf("QUAD 1\n");
+		weight = det_axis_angle_deg/90;
+		invweight = 1.0-weight;
+	}
+	else if ((det_axis_angle_deg >= 90.0) && (det_axis_angle_deg <= 180.0))
+	{
+		printf("QUAD 2\n");
+		weight = 1.0-((det_axis_angle_deg-90)/90);
+		invweight = -(1.0-weight);
+	}
+	else if ((det_axis_angle_deg >= -180.0) && (det_axis_angle_deg < -90.0))
+	{
+		printf("QUAD 3\n");
+		weight = (det_axis_angle_deg+180)/90;
+		invweight = -(1.0-weight);
+		//weight = 0.0;
+	}
+	else if ((det_axis_angle_deg >= -90.0) && (det_axis_angle_deg < 0.0))
+	{
+		printf("QUAD 4\n");
+		weight = det_axis_angle_deg/90;
+		invweight = 1.0+weight;
+	}
+
+	printf("weight %f, invweight %f\n",weight,invweight);
 
 
 	/* in pixels */
@@ -201,22 +209,22 @@ void draw_spike_3d()
 
 	reducer(low_freq, high_freq, axis_length);
 	gdk_threads_enter();
-//	printf("axis angle %f\n",det_axis_angle);
-//	printf("x_tilt = %f, xaxis_tilt %f, y_tilt %f, yaxis_tile %f\n",x_tilt,xaxis_tilt, y_tilt,yaxis_tilt);
+	printf("x_tilt %f, xaxis_tilt %f, y_tilt %f, yaxis_tilt %f\n",x_tilt,xaxis_tilt, y_tilt,yaxis_tilt);
 	for( i=0; i < axis_length; i++ )
 	{
 		pt[0].x=width-(((i*x_draw_width)*(1-xdet_start))/axis_length)\
-			-((((axis_length-i)*x_draw_width)*(1-xdet_end))\
-					/(axis_length))-x_offset;
+				-((((axis_length-i)*x_draw_width)*(1-xdet_end))\
+				/(axis_length))-x_offset;
 		pt[0].y=height-(((i*loc_bins_per_pip)*y_draw_height*ydet_start)\
 				/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))\
-					*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
+				*y_draw_height*ydet_end)/(nsamp/2))\
+				-y_offset;
 		pt[1].x=pt[0].x\
-			-(gint)pip_arr[i]*(xaxis_tilt)\
-			-(gint)pip_arr[i]*(x_tilt*weight);
+			-(gint)pip_arr[i]*3*(xaxis_tilt)\
+			-(gint)pip_arr[i]*3*(x_tilt*weight);
 		pt[1].y=pt[0].y
-			-(gint)pip_arr[i]*(yaxis_tilt)\
-			-(gint)pip_arr[i]*(y_tilt*invweight);
+			-(gint)pip_arr[i]*3*(yaxis_tilt)\
+			-(gint)pip_arr[i]*3*(y_tilt*invweight);
 		lvl=abs((gint)pip_arr[i]*4);
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
