@@ -573,17 +573,19 @@ void reinit_extace(int new_nsamp)
 void ring_rate_changed()
 {
 	/* Fixes all adjustments that depend on sample rate */
-	high_freq = ring_rate/2;
+	if (high_freq <= 0)
+		high_freq = ring_rate/nsamp;
 
 	GTK_ADJUSTMENT(lf_adj)->lower = (float)ring_rate/(float)nsamp;
-	GTK_ADJUSTMENT(lf_adj)->upper = high_freq;
+	GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33.0*(ring_rate/(2.0*decimation_factor))/(float)nsamp);
+//	GTK_ADJUSTMENT(lf_adj)->upper = high_freq;
 	GTK_ADJUSTMENT(lf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(lf_adj)->page_increment = (float)ring_rate/(float)nsamp;
 
 	GTK_ADJUSTMENT(hf_adj)->lower = 
 			low_freq + 33.0*((float)ring_rate/(float)nsamp);
 	GTK_ADJUSTMENT(hf_adj)->upper = 
-			ring_rate/2 + (float)ring_rate/(float)nsamp;
+			ring_rate/(2.0*decimation_factor) + (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(hf_adj)->step_increment = (float)ring_rate/(float)nsamp;
 	GTK_ADJUSTMENT(hf_adj)->page_increment = (float)ring_rate/(float)nsamp;
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));

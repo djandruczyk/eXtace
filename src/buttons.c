@@ -110,13 +110,11 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 			break;
 		case LOW_LIMIT:
 			low_freq = GTK_ADJUSTMENT(widget)->value;
-			GTK_ADJUSTMENT(hf_adj)->lower = low_freq + (33*ring_rate/nsamp);
-			gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
+			ring_rate_changed();
 			break;
 		case HIGH_LIMIT:
 			high_freq = GTK_ADJUSTMENT(widget)->value;
-			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33*ring_rate/nsamp);
-			gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
+			ring_rate_changed();
 			break;
 		default:
 			break;
@@ -570,10 +568,11 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 		{
 			decimation_factor = (long int)data;
 			recalc_markers=1;
-			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33.0*ring_rate/(2.0*decimation_factor));
-			GTK_ADJUSTMENT(hf_adj)->upper = ring_rate/(2.0*decimation_factor)+ring_rate/nsamp;
-			gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
-			gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
+			ring_rate_changed();
+//			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33.0*ring_rate/(2.0*decimation_factor));
+//			GTK_ADJUSTMENT(hf_adj)->upper = ring_rate/(2.0*decimation_factor)+ring_rate/nsamp;
+//			gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
+//			gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 
 		}
 	}
