@@ -1,3 +1,12 @@
+2003-04-20 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	More work in audio_processing.c  split the audio copy routines
+	so it isn't doing things for the scope buffer when the scope ain't
+	being drawn,  vice versus when running the fft's. no point in moving
+	data to the scope buffers it it ain't being drawn.  Seemed to be good
+	for a couple percent lower CPU usage when using the scope, and only
+	about a 0.25 percent savings on the fft based displays, but I guess
+	every little bit helps..
+
 2003-04-19 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	Modified the audio_processing function to update the buffer window
 	with a rectangle showing the amount of data processed. This shows

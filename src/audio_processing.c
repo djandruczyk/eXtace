@@ -66,16 +66,16 @@ void run_fft(void)
 
 		// Alternatives. 
 		// 	Normalized???  Not sure...
-		//	*fft_ptr=multiplier*(noise_floor+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
+//			*fft_ptr=multiplier*(noise_floor+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
 		//
 		 	/* Phase and Real Components combined */
 		*fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))));
 		
 		//	Real Components ONLY 
-	 	//	fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*real_fft_out * *real_fft_out)))));
+	 	//*fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*real_fft_out * *real_fft_out)))));
 		 /* Phase Components ONLY  */
 
- 	 	/*fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*imag_fft_out * *imag_fft_out)))));*/
+ 	 	// *fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*imag_fft_out * *imag_fft_out)))));
 
 		if (*fft_ptr < 0) 
 			*fft_ptr=0;
@@ -142,78 +142,78 @@ void split_and_decimate()
 	 *    that is stable to sub 30 hertz ranges without having to use a 
 	 *    large convolution function.
 	 */
-	
+
 	/* determine how much to offset our virtual centerpoint from the 
 	 * where the input routine last put data into the buffer
 	 */
 
 	/* Lag is in milliseconds from the options panel.
-         * fft_lag is a delay based on fft size, as the fft seems to be
-         * in best visual sync when delaying by 1/2 it's length in 
-         * "sample time". It's computed as follows:
-         *      init.c: fft_lag = 1000*((nsamp/2)/(float)RATE);
-         * so for a 4096 point fft, this adds  another 46.43 milliseconds.
-         */
-        delay = (int)(((float)(fft_lag+lag)/1000.0)*(float)RATE);
+	 * fft_lag is a delay based on fft size, as the fft seems to be
+	 * in best visual sync when delaying by 1/2 it's length in 
+	 * "sample time". It's computed as follows:
+	 *      init.c: fft_lag = 1000*((nsamp/2)/(float)RATE);
+	 * so for a 4096 point fft, this adds  another 46.43 milliseconds.
+	 */
+	delay = (int)(((float)(fft_lag+lag)/1000.0)*(float)RATE);
 
 	/* Set pointer position to be offset from the reader pointer by
-         * amount specified by "fft_lag" (user adjustable). fft_lag is in 
-         * milliseconds, and is converted to samples above (see delay)
-         */
-        draw_win_time_last = draw_win_time;
-        gettimeofday(&draw_win_time, NULL); 
+	 * amount specified by "fft_lag" (user adjustable). fft_lag is in 
+	 * milliseconds, and is converted to samples above (see delay)
+	 */
+	draw_win_time_last = draw_win_time;
+	gettimeofday(&draw_win_time, NULL); 
 
-        /* cur_time is the absolute time NOW when this function runs.  Its 
-         * needed to calculate how much time has past since the last chunk
-         * of audio came in. (Most usefull with LARGE ft sizes (8192 points 
-         * or more..)
-         */
-        cur_time = draw_win_time.tv_sec\
-			+((double)draw_win_time.tv_usec/1000000.0);
+	/* cur_time is the absolute time NOW when this function runs.  Its 
+	 * needed to calculate how much time has past since the last chunk
+	 * of audio came in. (Most usefull with LARGE ft sizes (8192 points 
+	 * or more..)
+	 */
+	cur_time = draw_win_time.tv_sec\
+		+((double)draw_win_time.tv_usec/1000000.0);
 
-        /* audio_offset_lag is the time difference between when this 
-         * function runs since that last audio block was committed to 
-         * the ringbuffer. 
-         */
-        audio_offset_lag = ((draw_win_time.tv_sec \
-			+(draw_win_time.tv_usec/1000000.0))\
+	/* audio_offset_lag is the time difference between when this 
+	 * function runs since that last audio block was committed to 
+	 * the ringbuffer. 
+	 */
+	audio_offset_lag = ((draw_win_time.tv_sec \
+				+(draw_win_time.tv_usec/1000000.0))\
 			-(audio_arrival.tv_sec\
-			+(audio_arrival.tv_usec/1000000.0)))*1000;
+				+(audio_arrival.tv_usec/1000000.0)))*1000;
 
-        //printf("Audio offset lag in milliseconds %f\n",audio_offset_lag);
+	//printf("Audio offset lag in milliseconds %f\n",audio_offset_lag);
 
-        /* Need this in sample elements not in milliseconds.... */
-        audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)\
-                        *(float)RATE);
+	/* Need this in sample elements not in milliseconds.... */
+	audio_offset_delay = (int)(((float)(audio_offset_lag)/1000.0)\
+			*(float)RATE);
 
-        /* Set pointer to be offset from the beginning of the ring + the 
-         * position of the audio reader thread + the buffer size - the 
-         * time delay (lag compensation).
-         */
+	/* Set pointer to be offset from the beginning of the ring + the 
+	 * position of the audio reader thread + the buffer size - the 
+	 * time delay (lag compensation).
+	 */
 
-        /* Must add "BUFFER" to the ring value to make sure that raw_ptr
-         * OVERFLOWS, otherwise it never gets to the end and wraps. 
-         * Function below takes care of overflow and moves to the right spot.
-         */
+	/* Must add "BUFFER" to the ring value to make sure that raw_ptr
+	 * OVERFLOWS, otherwise it never gets to the end and wraps. 
+	 * Function below takes care of overflow and moves to the right spot.
+	 */
 
-        raw_ptr = audio_ring+ring_pos-(delay-audio_offset_delay)*2;
-        /* raw_ptr now represents the "center" of the fft that we want to 
-         * run.  We will now copy this buffer int oanother shifting things
-         * as necessary to  get raw_ptr to be exactly at the midpoint of th
-         * buffer,  makes decimation calcs and scope stuff far easier.
-         */
+	raw_ptr = audio_ring+ring_pos-(delay-audio_offset_delay)*2;
+	/* raw_ptr now represents the "center" of the fft that we want to 
+	 * run.  We will now copy this buffer int oanother shifting things
+	 * as necessary to  get raw_ptr to be exactly at the midpoint of th
+	 * buffer,  makes decimation calcs and scope stuff far easier.
+	 */
 
 	/* If hte pointer is out of bounds, i.e. below audio_ring, or after
 	 * audio_ring+ring_end, shift by one buffer length.
 	 */
 	while (raw_ptr < audio_ring)
-        {
-                raw_ptr += BUFFER;
-        }
-        while (raw_ptr > (audio_ring+ring_end))
-        {
-                raw_ptr -=BUFFER;
-        }
+	{
+		raw_ptr += BUFFER;
+	}
+	while (raw_ptr > (audio_ring+ring_end))
+	{
+		raw_ptr -=BUFFER;
+	}
 	/* convert to real number offset from "0" (beginning of buffer)
 	 * instead of a pointer address, (easier to deal with)
 	 */
@@ -223,63 +223,63 @@ void split_and_decimate()
 	{
 		case NO_DECIMATION:
 			/* No decimation at all */
-//			printf("Decimate by 1\n");
+			//			printf("Decimate by 1\n");
 			start_offset = virtual_centerpoint - (nsamp);
 			end_offset = virtual_centerpoint + (nsamp);
 			increment = 1;
 			break;
 		case DECIMATE_BY_2:
 			/* decimate by factor of 2 */
-//			printf("Decimate by 2\n");
+			//			printf("Decimate by 2\n");
 			start_offset = virtual_centerpoint - (nsamp*2);
 			end_offset = virtual_centerpoint + (nsamp*2);
 			increment = 2;
 			break;
 		case DECIMATE_BY_3:
 			/* decimate by factor of 3 */
-//			printf("Decimate by 3\n");
+			//			printf("Decimate by 3\n");
 			start_offset = virtual_centerpoint - (nsamp*3);
 			end_offset = virtual_centerpoint + (nsamp*3);
 			increment = 3;
 			break;
 		case DECIMATE_BY_4:
 			/* decimate by factor of 4 */
-//			printf("Decimate by 4\n");
+			//			printf("Decimate by 4\n");
 			start_offset = virtual_centerpoint - (nsamp*4);
 			end_offset = virtual_centerpoint + (nsamp*4);
 			increment = 4;
 			break;
 		case DECIMATE_BY_5:
 			/* decimate by factor of 5 */
-//			printf("Decimate by 5\n");
+			//			printf("Decimate by 5\n");
 			start_offset = virtual_centerpoint - (nsamp*5);
 			end_offset = virtual_centerpoint + (nsamp*5);
 			increment = 5;
 			break;
 		case DECIMATE_BY_6:
 			/* decimate by factor of 6 */
-//			printf("Decimate by 6\n");
+			//			printf("Decimate by 6\n");
 			start_offset = virtual_centerpoint - (nsamp*6);
 			end_offset = virtual_centerpoint + (nsamp*6);
 			increment = 6;
 			break;
 		case DECIMATE_BY_7:
 			/* decimate by factor of 7 */
-//			printf("Decimate by 7\n");
+			//			printf("Decimate by 7\n");
 			start_offset = virtual_centerpoint - (nsamp*7);
 			end_offset = virtual_centerpoint + (nsamp*7);
 			increment = 7;
 			break;
 		case DECIMATE_BY_8:
 			/* decimate by factor of 8 */
-//			printf("Decimate by 8\n");
+			//			printf("Decimate by 8\n");
 			start_offset = virtual_centerpoint - (nsamp*8);
 			end_offset = virtual_centerpoint + (nsamp*8);
 			increment = 8;
 			break;
 		default:
 			/*no decimate if code error */
-//			printf("decimation_factor not set defaulting to 1\n");
+			//			printf("decimation_factor not set defaulting to 1\n");
 			start_offset = virtual_centerpoint - (nsamp);
 			end_offset = virtual_centerpoint + (nsamp);
 			increment = 1;
@@ -296,10 +296,195 @@ void split_and_decimate()
 	{
 		end_offset -= BUFFER;
 	}
+	data_win_ptr = datawindow;
+	raw_fft_in_ptr = raw_fft_in;
+	audio_left_ptr = audio_left;
+	audio_right_ptr = audio_right;
+
+	/* EASIEST case, no loop handling necessary */
+	if (start_offset < end_offset)
+	{
+		index = start_offset;	/* Start at the right location */
+		endpoint_1 = end_offset;
+		looparound = 0;		/* don't need to loop around */
+		/* printf("NORM number of samples to process %i\n",(end_offset-start_offset)/(2*increment)); */
+	}
+	else
+	{	/* we need to loop around, handle it properly */
+		index = start_offset;
+		endpoint_1 = ring_end;
+		/* since we may end short of the end of the buffer, we
+		 * needto offset properly after the wraparound, otherwaise
+		 * we'll get one too many samples, and segfault. 
+		 */
+		if ((endpoint_1-start_offset)%(2*increment))
+		{
+			index2 = (2*increment)\
+				- (endpoint_1-start_offset)%(2*increment);
+		}
+		endpoint_2 = end_offset;
+		looparound = 1;
+	}
+	/* copy to buffers section 
+	 * we find our position in the ring to copy from above, and 
+	 * copy the data to the audio_left and right buffers as requested
+	 * eventualy this code will go away and we'll just pass the necessary
+	 * offsets to the cope code and drop the buffer altogether for 
+	 * pure speed, and allows us to use a convolution on any size
+	 * of datablocks, unless latency is set extremely low
+	 * we increment our index by "2*increment",  because the data is
+	 * interleaved, the 2 makes sure we don't swap channels by accident
+	 * and hte increment is the decimation factor to essentially change 
+	 * the scope's effective sweeep rate.
+	 */
+
+	if (mode == SCOPE) /* copy data to scope buffers */
+	{
+		while (index < endpoint_1)
+		{
+			/* for scope left channel */
+			*audio_left_ptr=((short)*(audio_ring\
+						+index));
+			audio_left_ptr++;
+
+			/* for scope right channel */
+			*audio_right_ptr=((short)*(audio_ring\
+						+index+1));
+			audio_right_ptr++;
+			index += 2*increment; 
+			count++;
+		}
+		if (looparound)
+		{	
+			while (index2 < endpoint_2)
+			{
+				/* for scope left channel */
+				*audio_left_ptr=((short)*(audio_ring\
+							+index2));
+				audio_left_ptr++;
+
+				/* for scope right channel */
+				*audio_right_ptr=((short)*(audio_ring\
+							+index2+1));
+				audio_right_ptr++;
+				index2 += 2*increment; 
+				count++;
+			}
+		}
+	}
+	else if (mode != STARS)	/* All FFT modes */
+	{
+		switch (fft_signal_source)
+		{
+			case DIFFERENCE:
+				while (index < endpoint_1)
+				{
+					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) - (double)*(audio_ring+index + 1))/2.0);
+					data_win_ptr++;
+					raw_fft_in_ptr++;
+					index += 2*increment; 
+					count++;
+
+				}
+				if (looparound)
+				{	
+					while (index2 < endpoint_2)
+					{
+						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) - (double)*(audio_ring+index2 + 1))/2.0);
+						data_win_ptr++;
+						raw_fft_in_ptr++;
+						index2 += 2*increment; 
+						count++;
+
+					}
+				}
+
+				break;
+			case COMPOSITE:
+				while (index < endpoint_1)
+				{
+					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) + (double)*(audio_ring+index + 1))/2.0);
+					data_win_ptr++;
+					raw_fft_in_ptr++;
+					index += 2*increment;
+					count++;
+
+				}
+				if (looparound)
+				{
+					while (index2 < endpoint_2)
+					{
+						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) + (double)*(audio_ring+index2 + 1))/2.0);
+						data_win_ptr++;
+						raw_fft_in_ptr++;
+						index2 += 2*increment;
+						count++;
+					}
+				}
+				break;
+			case LEFT:
+				while (index < endpoint_1)
+				{
+					*raw_fft_in_ptr=(*data_win_ptr)\
+						* *(audio_ring+index);
+					data_win_ptr++;
+					raw_fft_in_ptr++;
+					index += 2*increment;
+					count++;
+				}
+				if (looparound)
+				{
+					while(index2 < endpoint_2)
+					{
+						*raw_fft_in_ptr=(*data_win_ptr)\
+							* *(audio_ring+index2);
+						data_win_ptr++;
+						raw_fft_in_ptr++;
+						index2 += 2*increment;
+						count++;
+					}
+				}
+				break;
+			case RIGHT:
+				while (index < endpoint_1)
+				{
+					*raw_fft_in_ptr=(*data_win_ptr)\
+						* *(audio_ring+index+1);
+					data_win_ptr++;
+					raw_fft_in_ptr++;
+					index += 2*increment;
+					count++;
+				}
+				if (looparound)
+				{
+					while (index2 < endpoint_2)
+					{
+						*raw_fft_in_ptr=(*data_win_ptr)\
+							* *(audio_ring+index2+1);
+						data_win_ptr++;
+						raw_fft_in_ptr++;
+						index2 += 2*increment;
+						count++;
+					}
+				}
+				break;
+			default:
+				printf("This shouldn't happen!!!, fft_signal_source is NOT set, BUG DETECTED, contact author with this information\n");
+				break;
+		}
+	}
+#ifdef DEBUG
+	if (count != nsamp)
+	{	
+		printf("buffer overrun, original startpoint %i, endpoint_1: %i, endpoint_2:%i\n",start_offset,endpoint_1,endpoint_2);
+		exit (-1);
+	}
+#endif
+	/* Buffer Latency Monitor update */
 	if (gdk_window_is_visible(buffer_area->window))
 	{
 		tmp = (float)buffer_area->allocation.width\
-                                *((float)start_offset/(float)ring_end);
+			*((float)start_offset/(float)ring_end);
 		if (end_offset < start_offset)	/* wrap condition*/
 		{
 			length = buffer_area->allocation.width-tmp;
@@ -308,7 +493,7 @@ void split_and_decimate()
 		else
 		{
 			length = (float)buffer_area->allocation.width\
-                                *((float)end_offset/(float)ring_end)-tmp;
+				*((float)end_offset/(float)ring_end)-tmp;
 			wrap = 0;	
 		}
 		// Only draw it if its visible.  Why waste CPU time ??? 
@@ -347,224 +532,6 @@ void split_and_decimate()
 		gdk_threads_leave();
 	}
 
-	data_win_ptr = datawindow;
-	raw_fft_in_ptr = raw_fft_in;
-	audio_left_ptr = audio_left;
-	audio_right_ptr = audio_right;
-
-	/* EASIEST case, no loop handling necessary */
-	if (start_offset < end_offset)
-	{
-		index = start_offset;	/* Start at the right location */
-		endpoint_1 = end_offset;
-		looparound = 0;		/* don't need to loop around */
-	/* printf("NORM number of samples to process %i\n",(end_offset-start_offset)/(2*increment)); */
-	}
-	else
-	{	/* we need to loop around, handle it properly */
-		index = start_offset;
-		endpoint_1 = ring_end;
-		/* since we may end short of the end of the buffer, we
-		 * needto offset properly after the wraparound, otherwaise
-		 * we'll get one too many samples, and segfault 
-		 */
-		if ((endpoint_1-start_offset)%(2*increment))
-		{
-			index2 = (2*increment)\
-				- (endpoint_1-start_offset)%(2*increment);
-		}
-		endpoint_2 = end_offset;
-		looparound = 1;
-	/* printf("LOOP number of samples to process %i\n",(endpoint_1-start_offset+endpoint_2)/(2*increment));
-	 * printf("index2=%i\n",index2);
-	 */
-	}
-
-	switch (fft_signal_source)
-	{
-		case DIFFERENCE:
-			while (index < endpoint_1)
-			{
-				*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) - (double)*(audio_ring+index + 1))/2.0);
-				data_win_ptr++;
-				raw_fft_in_ptr++;
-
-				/* for scope left channel */
-				*audio_left_ptr=((short)*(audio_ring\
-						+index));
-				audio_left_ptr++;
-
-				/* for scope right channel */
-				*audio_right_ptr=((short)*(audio_ring\
-						+index+1));
-				audio_right_ptr++;
-				index += 2*increment; 
-				count++;
-
-			}
-			if (looparound)
-			{	
-				while (index2 < endpoint_2)
-				{
-					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) - (double)*(audio_ring+index2 + 1))/2.0);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-
-					/* for scope left channel */
-					*audio_left_ptr=((short)*(audio_ring\
-								+index2));
-					audio_left_ptr++;
-
-					/* for scope right channel */
-					*audio_right_ptr=((short)*(audio_ring\
-								+index2+1));
-					audio_right_ptr++;
-					index2 += 2*increment; 
-					count++;
-
-				}
-			}
-
-			break;
-		case COMPOSITE:
-			while (index < endpoint_1)
-			{
-				*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) + (double)*(audio_ring+index + 1))/2.0);
-				data_win_ptr++;
-				raw_fft_in_ptr++;
-
-				/* for scope left channel */
-				*audio_left_ptr=((short)*(audio_ring\
-						+index));
-				audio_left_ptr++;
-
-				/* for scope right channel */
-				*audio_right_ptr=((short)*(audio_ring\
-						+index+1));
-				audio_right_ptr++;
-				index += 2*increment;
-				count++;
-
-			}
-			if (looparound)
-			{
-				while (index2 < endpoint_2)
-				{
-					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) + (double)*(audio_ring+index2 + 1))/2.0);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-
-					/* for scope left channel */
-					*audio_left_ptr=((short)*(audio_ring\
-								+index2));
-					audio_left_ptr++;
-
-					/* for scope right channel */
-					*audio_right_ptr=((short)*(audio_ring\
-								+index2+1));
-					audio_right_ptr++;
-					index2 += 2*increment;
-					count++;
-				}
-			}
-			break;
-		case LEFT:
-			while (index < endpoint_1)
-			{
-				*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(audio_ring+index);
-				data_win_ptr++;
-				raw_fft_in_ptr++;
-
-				/* for scope left channel */
-				*audio_left_ptr=((short)*(audio_ring\
-						+index));
-				audio_left_ptr++;
-
-				/* for scope right channel */
-				*audio_right_ptr=((short)*(audio_ring\
-						+index+1));
-				audio_right_ptr++;
-				index += 2*increment;
-				count++;
-			}
-			if (looparound)
-			{
-				while(index2 < endpoint_2)
-				{
-					*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(audio_ring+index2);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-
-					/* for scope left channel */
-					*audio_left_ptr=((short)*(audio_ring\
-								+index2));
-					audio_left_ptr++;
-
-					/* for scope right channel */
-					*audio_right_ptr=((short)*(audio_ring\
-								+index2+1));
-					audio_right_ptr++;
-					index2 += 2*increment;
-					count++;
-				}
-			}
-			break;
-		case RIGHT:
-			while (index < endpoint_1)
-			{
-				*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(audio_ring+index+1);
-				data_win_ptr++;
-				raw_fft_in_ptr++;
-
-				/* for scope left channel */
-				*audio_left_ptr=((short)*(audio_ring\
-						+index));
-				audio_left_ptr++;
-
-				/* for scope right channel */
-				*audio_right_ptr=((short)*(audio_ring\
-						+index+1));
-				audio_right_ptr++;
-				index += 2*increment;
-				count++;
-			}
-			if (looparound)
-			{
-				while (index2 < endpoint_2)
-				{
-					*raw_fft_in_ptr=(*data_win_ptr)\
-						* *(audio_ring+index2+1);
-					data_win_ptr++;
-					raw_fft_in_ptr++;
-
-					/* for scope left channel */
-					*audio_left_ptr=((short)*(audio_ring\
-								+index2));
-					audio_left_ptr++;
-
-					/* for scope right channel */
-					*audio_right_ptr=((short)*(audio_ring\
-								+index2+1));
-					audio_right_ptr++;
-					index2 += 2*increment;
-					count++;
-				}
-			}
-			break;
-		default:
-			printf("This shouldn't happen!!!, fft_signal_source is NOT set, BUG DETECTED, contact author with this information\n");
-			break;
-	}
-#ifdef DEBUG
-	if (count != nsamp)
-	{	
-		printf("buffer overrun, original startpoint %i, endpoint_1: %i, endpoint_2:%i\n",start_offset,endpoint_1,endpoint_2);
-		exit (-1);
-	}
-#endif
 	/* printf("Number of samples put into fft_in buffer:%i\n",count) */;
 
 	/* Only run stabilizer code if we have 2048 samples or MORE,
