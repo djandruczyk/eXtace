@@ -149,6 +149,7 @@ void init()
 	sync_independant = 0;	 /* independtant sync */
 	paused = 0;		 /* display running */
 	low_freq = 0;		 /* Low frequency cutoff in hi-res displays */
+	high_freq = 22050;		 /* Low frequency cutoff in hi-res displays */
 	clear_display = 0;	/* Flag for markers */
 
 	/*	Color presets (default colormap) */
