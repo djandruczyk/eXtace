@@ -24,8 +24,12 @@ static gint i=0;
 static gfloat dir_angle_rad = 0.0;
 static gfloat dir_angle_deg = 0.0;
 static gfloat det_axis_angle_deg = 0.0;
-static gfloat weight = 0.0;
-static gfloat invweight = 0.0;
+static gfloat x_axis_weight = 0.0;
+static gfloat y_axis_weight = 0.0;
+static gfloat x_tilt_weight = 0.0;
+static gfloat y_tilt_weight = 0.0;
+static gfloat x_amplitude = 0.0;
+static gfloat y_amplitude = 0.0;
 static gfloat loc_bins_per_pip=0;
 static gfloat tmpf = 0.0;
 static gint start_x = 0;
@@ -38,8 +42,8 @@ static GdkColor cl;
 static gint lvl;
 static gint x_draw_width = 0;
 static gint y_draw_height = 0;
-static gfloat xaxis_tilt = 0.0;
-static gfloat yaxis_tilt = 0.0;
+static gfloat x_axis_tilt = 0.0;
+static gfloat y_axis_tilt = 0.0;
 static gfloat x_tilt = 0.0;
 static gfloat y_tilt = 0.0;
 
@@ -105,6 +109,17 @@ void draw_spike_3d()
 	x_offset = (width-x_draw_width)/2;
 	y_offset = (height-y_draw_height)/2;
 
+
+	det_axis_angle_deg = det_axis_angle*90/M_PI_2;
+	if (det_axis_angle_deg < 0.0)
+		det_axis_angle_deg += 360.0;
+
+	dir_angle_rad = (float)atan2((float)zdet_scroll,-(float)xdet_scroll);
+	dir_angle_deg = dir_angle_rad*90/M_PI_2;
+	if (dir_angle_deg < 0.0)
+		dir_angle_deg += 360.0;
+
+
 	if (spiketilt == 0)
 	{
 		x_tilt=0.0;
@@ -112,76 +127,64 @@ void draw_spike_3d()
 	}
 	else
 	{
-		dir_angle_rad = (float)atan2((float)zdet_scroll,-(float)xdet_scroll);
-		dir_angle_deg = dir_angle_rad*90/M_PI_2;
-
-		//		g_print ("dir_angle_deg = %f\n",dir_angle_deg);
-
-		if ((dir_angle_deg >= -45.0) && (dir_angle_deg < 45.0))
+		/* Perspecitve Tilting algorithm.  Probably severely flawed
+		 * but it displays nicely..  
+		 * 
+		 * Note to self.  Learn how to use Trig properly... :)
+		 */ 
+		if ((dir_angle_deg >= 315.0) || (dir_angle_deg < 45.0))
 		{
-			//g_print("dir_angle between -45 and 45 deg (Quad 1-4)\n");
+			//printf("Quad 4<->1\n");
 			x_tilt = sin(dir_angle_rad);
 			y_tilt = cos(dir_angle_rad);
-
 		}
 		else if ((dir_angle_deg >= 45.0) && (dir_angle_deg < 135.0))
 		{
-			//g_print("dir_angle between 45 and 135 deg (Quad 1-2)\n");
+			//printf("Quad 1<->2\n");
 			x_tilt = cos(dir_angle_rad);
 			y_tilt = sin(dir_angle_rad);
 		}
-		else if ((dir_angle_deg < -135.0) || (dir_angle_deg >= 135.0))
+		else if ((dir_angle_deg >= 135.0) && (dir_angle_deg < 225.0))
 		{
-			//g_print("dir_angle between -135 and 135 deg (Quad 2-3)\n");
+			//printf("Quad 2<->3\n");
 			x_tilt = -sin(dir_angle_rad);
 			y_tilt = -cos(dir_angle_rad);
 		}
-		else if  ((dir_angle_deg >= -135.0) && (dir_angle_deg < -45.0))
+		else if  ((dir_angle_deg >= 225.0) && (dir_angle_deg < 315.0))
 		{
-			//g_print("dir_angle between -135 and -45 deg (Quad 3-4)\n");
+			//printf("Quad 3<->4\n");
 			x_tilt = -cos(dir_angle_rad);
 			y_tilt = -sin(dir_angle_rad);
 		}
-		//		g_print("det_axis_angle is %f degrees\n",det_axis_angle);
-	}
-	xaxis_tilt = sin(det_axis_angle);
-	yaxis_tilt = cos(det_axis_angle);
-
-	tmpf = (det_axis_angle*90/M_PI_2);
-	tmpf+=180;
-	if (tmpf >180)
-		tmpf-=360;
-	det_axis_angle_deg = tmpf;
-	printf("axis angle %f\n",det_axis_angle_deg);
-
-	if ((det_axis_angle_deg >= 0.0) && (det_axis_angle_deg < 90.0))
-	{
-		printf("QUAD 1\n");
-		weight = det_axis_angle_deg/90;
-		invweight = 1.0-weight;
-	}
-	else if ((det_axis_angle_deg >= 90.0) && (det_axis_angle_deg <= 180.0))
-	{
-		printf("QUAD 2\n");
-		weight = 1.0-((det_axis_angle_deg-90)/90);
-		invweight = -(1.0-weight);
-	}
-	else if ((det_axis_angle_deg >= -180.0) && (det_axis_angle_deg < -90.0))
-	{
-		printf("QUAD 3\n");
-		weight = (det_axis_angle_deg+180)/90;
-		invweight = -(1.0-weight);
-		//weight = 0.0;
-	}
-	else if ((det_axis_angle_deg >= -90.0) && (det_axis_angle_deg < 0.0))
-	{
-		printf("QUAD 4\n");
-		weight = det_axis_angle_deg/90;
-		invweight = 1.0+weight;
 	}
 
-	printf("weight %f, invweight %f\n",weight,invweight);
+	x_axis_tilt = sin(det_axis_angle);
+	y_axis_tilt = cos(det_axis_angle);
 
+	x_tilt_weight = cos(det_axis_angle);
+	y_tilt_weight = 0.0;
+	x_axis_weight = 1.0;
+	y_axis_weight = 1.0;
+
+/*
+	// Debugging Code....  
+
+	printf("axis angle in deg is %f\n",det_axis_angle_deg);
+	printf("direction angle in deg is %f\n",dir_angle_deg);
+	printf("\nx_tilt %f, y_tilt %f\n",x_tilt,y_tilt);
+	printf("x_tilt_weight %f, y_tilt_weight %f\n",x_tilt_weight,y_tilt_weight);
+	printf("Scroll Tilt components (%f,%f)\n",x_tilt*x_tilt_weight,y_tilt*y_tilt_weight);
+	printf("x_axis_tilt %f, y_axis_tilt %f\n",x_axis_tilt,y_axis_tilt);
+	printf("x_axis_weight %f, y_axis_weight %f\n",x_axis_weight,y_axis_weight);
+	printf("Perspective Tilt components (%f,%f)\n\n",x_axis_tilt*x_axis_weight,y_axis_tilt*y_axis_weight);
+	
+*/
+
+	/* in pixels */
+	start_x = width-((x_draw_width)*(1.0-xdet_end))-x_offset;
+	end_x = width-((x_draw_width)*(1.0-xdet_start))-x_offset;
+	start_y = height-((y_draw_height)*(1.0-ydet_end))-y_offset;
+	end_y = height-((y_draw_height)*(1.0-ydet_start))-y_offset;
 
 	/* in pixels */
 	start_x = width-((x_draw_width)*(1.0-xdet_end))-x_offset;
@@ -209,7 +212,13 @@ void draw_spike_3d()
 
 	reducer(low_freq, high_freq, axis_length);
 	gdk_threads_enter();
-	printf("x_tilt %f, xaxis_tilt %f, y_tilt %f, yaxis_tilt %f\n",x_tilt,xaxis_tilt, y_tilt,yaxis_tilt);
+
+	/* Do this here instead of in the loop  axis_length number of times..
+	 * cpu savings... :)
+	 */
+	x_amplitude = (x_tilt*x_tilt_weight)+(x_axis_tilt*x_axis_weight);
+	y_amplitude = (y_tilt*y_tilt_weight)+(y_axis_tilt*y_axis_weight);
+
 	for( i=0; i < axis_length; i++ )
 	{
 		pt[0].x=width-(((i*x_draw_width)*(1-xdet_start))/axis_length)\
@@ -219,12 +228,8 @@ void draw_spike_3d()
 				/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))\
 				*y_draw_height*ydet_end)/(nsamp/2))\
 				-y_offset;
-		pt[1].x=pt[0].x\
-			-(gint)pip_arr[i]*3*(xaxis_tilt)\
-			-(gint)pip_arr[i]*3*(x_tilt*weight);
-		pt[1].y=pt[0].y
-			-(gint)pip_arr[i]*3*(yaxis_tilt)\
-			-(gint)pip_arr[i]*3*(y_tilt*invweight);
+		pt[1].x=pt[0].x -(gint)pip_arr[i]*x_amplitude;
+		pt[1].y=pt[0].y -(gint)pip_arr[i]*y_amplitude; \
 		lvl=abs((gint)pip_arr[i]*4);
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);

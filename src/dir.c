@@ -192,17 +192,17 @@ void dir_axis_update()
 			x_disp = -(x3d_start-x3d_end)*(width - abs(x3d_scroll)-2*x_border);
 			y_disp = -(y3d_start-y3d_end)*(height - abs(z3d_scroll)-2*y_border);
 			land_axis_angle = atan2(y_disp, x_disp);
-			/*		g_print("angle is %f degrees\n",land_axis_angle*90/M_PI_2); */
-			x_disp = cos(land_axis_angle)*((float)dir_area->allocation.width/2.0);
-			y_disp = -sin(land_axis_angle)*((float)dir_area->allocation.height/2.0);
+			//g_print("angle is %f degrees\n",land_axis_angle*90/M_PI_2); 
+			x_disp = -cos(land_axis_angle)*((float)dir_area->allocation.width/2.0);
+			y_disp = sin(land_axis_angle)*((float)dir_area->allocation.height/2.0);
 			break;
 		case (SPIKE_3D):
 			x_disp = -(xdet_start-xdet_end)*(width - abs(xdet_scroll)-2*x_border);
 			y_disp = -(ydet_start-ydet_end)*(height - abs(zdet_scroll)-2*y_border);
 			det_axis_angle = atan2(y_disp, x_disp);
-			/*		g_print("angle is %f degrees\n",det_axis_angle*90/M_PI_2);  */
-			x_disp = cos(det_axis_angle)*((float)dir_area->allocation.width/2.0);
-			y_disp = -sin(det_axis_angle)*((float)dir_area->allocation.height/2.0);
+			//g_print("dir.c det_axis_angle is %f degrees\n",det_axis_angle*90/M_PI_2);  
+			x_disp = -cos(det_axis_angle)*((float)dir_area->allocation.width/2.0);
+			y_disp = sin(det_axis_angle)*((float)dir_area->allocation.height/2.0);
 			break;
 	}
 	/*   g_print("x_disp = %f, y_disp = %f",x_disp, y_disp); */
