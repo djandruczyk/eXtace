@@ -21,6 +21,7 @@
 #include <fcntl.h>
 #include <globals.h>
 #include <gtk/gtk.h>
+#include <init.h>
 #include <input.h>
 #include <poll.h>
 #include <stdlib.h>

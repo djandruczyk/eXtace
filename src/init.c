@@ -65,8 +65,6 @@ void init()
 	extern gint buffer_area_height;
 	extern gint dir_width;
 	extern gint dir_height;
-	extern gint seg_height;
-	extern gint seg_space;
 	/* 
 	   Initialize ALL variables, 
 	   should be first functional called from main.
