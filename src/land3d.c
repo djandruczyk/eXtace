@@ -38,54 +38,36 @@ void draw_land3d_fft()
 {
 	gdk_threads_enter();
 	/* Scroll the window */
-	if (use_back_pixmap)
+	gdk_window_copy_area(drawable,gc,0,0,drawable,
+			x3d_scroll,z3d_scroll,width-x3d_scroll,height-z3d_scroll);
+	if (x3d_scroll > 0)
 	{
-		/* Backing pixmap scroll */
-		gdk_window_copy_area(main_pixmap,gc,0,0,main_pixmap,
-				x3d_scroll,z3d_scroll,width-x3d_scroll,height-z3d_scroll);
-		if (x3d_scroll > 0)
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, width-x3d_scroll,0,
-					x3d_scroll,height);
-		}
-		else
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, 0,0,
-					abs(x3d_scroll),height);
-		}
-
-		if (z3d_scroll > 0)
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, 0,height-z3d_scroll,
-					width,z3d_scroll);
-		}
-		else
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, 0,0,
-					width,abs(z3d_scroll));
-		}
-	}
-	else
-	{
-		/* RAW window scroll  (NO Backing pixmap)*/
-		gdk_window_copy_area(main_display->window,gc,0,0,win,x3d_scroll,\
-				z3d_scroll,width-x3d_scroll,height-z3d_scroll);
-		gdk_draw_rectangle(main_display->window,
+		gdk_draw_rectangle(drawable,
 				main_display->style->black_gc,
 				TRUE, width-x3d_scroll,0,
 				x3d_scroll,height);
-		gdk_draw_rectangle(main_display->window,
+	}
+	else
+	{
+		gdk_draw_rectangle(drawable,
+				main_display->style->black_gc,
+				TRUE, 0,0,
+				abs(x3d_scroll),height);
+	}
+
+	if (z3d_scroll > 0)
+	{
+		gdk_draw_rectangle(drawable,
 				main_display->style->black_gc,
 				TRUE, 0,height-z3d_scroll,
 				width,z3d_scroll);
+	}
+	else
+	{
+		gdk_draw_rectangle(drawable,
+				main_display->style->black_gc,
+				TRUE, 0,0,
+				width,abs(z3d_scroll));
 	}
 	gdk_threads_leave();
 	if (landtilt == 0) /* Perspective tilting disabled */
@@ -319,87 +301,41 @@ void draw_land3d_forward()
 		switch (sub_mode_3D)
 		{
 			case FILL_3D:
-				if (use_back_pixmap)
+				if (i == 0) /* cap */
 				{
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_pixmap,\
-								gc,TRUE,\
-								cap_pt,4);
-						gdk_draw_polygon(main_pixmap,\
-								main_display->\
-								style->\
-								black_gc,\
-								FALSE,cap_pt,4);
-					}
-					gdk_draw_polygon(main_pixmap,\
-							gc,TRUE,pt,4);
-					gdk_draw_polygon(main_pixmap,\
-							main_display->style->\
-							black_gc,FALSE,pt,4);
+					gdk_draw_polygon(drawable,\
+							gc,TRUE,\
+							cap_pt,4);
+					gdk_draw_polygon(drawable,\
+							main_display->\
+							style->\
+							black_gc,\
+							FALSE,cap_pt,4);
 				}
-				else
-				{
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_display->\
-								window,gc,TRUE,\
-								cap_pt,4);
-						gdk_draw_polygon(main_display->\
-								window,\
-								main_display->\
-								style->\
-								black_gc,\
-								FALSE,cap_pt,4);
-					}
-					gdk_draw_polygon(main_display->\
-							window,gc,TRUE,pt,4);
-					gdk_draw_polygon(main_display->\
-							window,main_display->style->\
-							black_gc,FALSE,pt,4);
-				}
+				gdk_draw_polygon(drawable,\
+						gc,TRUE,pt,4);
+				gdk_draw_polygon(drawable,\
+						main_display->style->\
+						black_gc,FALSE,pt,4);
 				break;
 			case WIRE_3D:
 
-				if (use_back_pixmap)
+				if (i == 0) /* cap */
 				{
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_pixmap,\
-								main_display->\
-								style->\
-								black_gc,\
-								TRUE,cap_pt,4);
-						gdk_draw_polygon(main_pixmap,\
-								gc,FALSE,\
-								cap_pt,4);
-					}
-					gdk_draw_polygon(main_pixmap,\
-							main_display->style->black_gc,\
-							TRUE,pt,4);
-					gdk_draw_polygon(main_pixmap,\
-							gc,FALSE,pt,4);
+					gdk_draw_polygon(drawable,\
+							main_display->\
+							style->\
+							black_gc,\
+							TRUE,cap_pt,4);
+					gdk_draw_polygon(drawable,\
+							gc,FALSE,\
+							cap_pt,4);
 				}
-				else
-				{
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_display->\
-								window,\
-								main_display->\
-								style->\
-								black_gc,\
-								TRUE,cap_pt,4);
-						gdk_draw_polygon(main_display->\
-								window,gc,FALSE,\
-								cap_pt,4);
-					}
-					gdk_draw_polygon(main_display->\
-							window,main_display->style->\
-							black_gc,TRUE,pt,4);
-					gdk_draw_polygon(main_display->\
-							window,gc,FALSE,pt,4);
-				}
+				gdk_draw_polygon(drawable,\
+						main_display->style->black_gc,\
+						TRUE,pt,4);
+				gdk_draw_polygon(drawable,\
+						gc,FALSE,pt,4);
 				break;
 		}
 
@@ -409,53 +345,23 @@ void draw_land3d_forward()
 			switch (sub_mode_3D)
 			{
 				case FILL_3D:
+					gdk_draw_polygon(drawable,\
+							gc,TRUE,lpt,4);
+					gdk_draw_line(drawable,\
+							main_display->style->\
+							black_gc,\
+							lpt[2].x,\
+							lpt[2].y,\
+							lpt[1].x,\
+							lpt[1].y);
 
-
-					if (use_back_pixmap)
-					{
-						gdk_draw_polygon(main_pixmap,\
-								gc,TRUE,lpt,4);
-						gdk_draw_line(main_pixmap,\
-								main_display->style->\
-								black_gc,\
-								lpt[2].x,\
-								lpt[2].y,\
-								lpt[1].x,\
-								lpt[1].y);
-
-					}
-					else
-					{
-						gdk_draw_polygon(main_display->\
-								window,gc,TRUE,lpt,4);
-						gdk_draw_line(main_display->\
-								window,main_display->\
-								style->black_gc,\
-								lpt[2].x,\
-								lpt[2].y,\
-								lpt[1].x,\
-								lpt[1].y);
-					}
 					break;
 				case WIRE_3D:
-
-					if (use_back_pixmap)
-					{
-						gdk_draw_line(main_pixmap,gc,\
-								lpt[2].x,\
-								lpt[2].y,\
-								lpt[3].x,\
-								lpt[3].y);
-					}
-					else
-					{
-						gdk_draw_line(main_display->\
-								window,gc,\
-								lpt[2].x,\
-								lpt[2].y,\
-								lpt[3].x,\
-								lpt[3].y);
-					}
+					gdk_draw_line(drawable,gc,\
+							lpt[2].x,\
+							lpt[2].y,\
+							lpt[3].x,\
+							lpt[3].y);
 					break;
 			}
 		}
@@ -545,8 +451,8 @@ void draw_land3d_reverse()
 
 
 		lvl=abs((gint)plevels[i]*2);	/* 1/2 as much as spike mode so it 
-						* doesn't look to"crowded" with colors.
-						*/
+						 * doesn't look to"crowded" with colors.
+						 */
 		if (lvl > (MAXBANDS-1)) lvl=MAXBANDS-1;
 		br=16+(gint)(levels[i]-plevels[i+1]);
 
@@ -579,93 +485,41 @@ void draw_land3d_reverse()
 		switch (sub_mode_3D)
 		{
 			case FILL_3D:
-
-				if (use_back_pixmap)
+				gdk_draw_polygon(drawable,\
+						gc,TRUE,pt,4);
+				gdk_draw_polygon(drawable,\
+						main_display->\
+						style->black_gc,\
+						FALSE,pt,4);
+				if (i == 0) /* cap */
 				{
-					gdk_draw_polygon(main_pixmap,\
-							gc,TRUE,pt,4);
-					gdk_draw_polygon(main_pixmap,\
+					gdk_draw_polygon(drawable,\
+							gc,TRUE,\
+							cap_pt,4);
+					gdk_draw_polygon(drawable,\
 							main_display->\
-							style->black_gc,\
-							FALSE,pt,4);
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_pixmap,\
-								gc,TRUE,\
-								cap_pt,4);
-						gdk_draw_polygon(main_pixmap,\
-								main_display->\
-								style->\
-								black_gc,\
-								FALSE,cap_pt,4);
-					}
-
-				}
-				else
-				{
-					gdk_draw_polygon(main_display->\
-							window,gc,TRUE,pt,4);
-					gdk_draw_polygon(main_display->\
-							window,main_display->\
-							style->black_gc,\
-							FALSE,pt,4);
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_display->\
-								window,gc,TRUE,\
-								cap_pt,4);
-						gdk_draw_polygon(main_display->\
-								window,\
-								main_display->\
-								style->\
-								black_gc,\
-								FALSE,cap_pt,4);
-					}
+							style->\
+							black_gc,\
+							FALSE,cap_pt,4);
 				}
 				break;
 			case WIRE_3D:
-
-				if (use_back_pixmap)
+				gdk_draw_polygon(drawable,\
+						main_display->\
+						style->black_gc,\
+						TRUE,pt,4);
+				gdk_draw_polygon(drawable,\
+						gc,FALSE,pt,4);
+				if (i == 0) /* cap */
 				{
-					gdk_draw_polygon(main_pixmap,\
+					gdk_draw_polygon(drawable,\
 							main_display->\
-							style->black_gc,\
-							TRUE,pt,4);
-					gdk_draw_polygon(main_pixmap,\
-							gc,FALSE,pt,4);
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_pixmap,\
-								main_display->\
-								style->\
-								black_gc,TRUE,\
-								cap_pt,4);
-						gdk_draw_polygon(main_pixmap,\
-								gc,\
-								FALSE,cap_pt,4);
-					}
-				}
-				else
-				{
-					gdk_draw_polygon(main_display->\
-							window,main_display->\
-							style->black_gc,\
-							TRUE,pt,4);
-					gdk_draw_polygon(main_display->\
-							window,gc,FALSE,pt,4);
-					if (i == 0) /* cap */
-					{
-						gdk_draw_polygon(main_display->\
-								window,\
-								main_display->\
-								style->\
-								black_gc,TRUE,\
-								cap_pt,4);
-						gdk_draw_polygon(main_display->
-								window,\
-								gc,\
-								FALSE,cap_pt,4);
-					}
+							style->\
+							black_gc,TRUE,\
+							cap_pt,4);
+					gdk_draw_polygon(drawable,\
+							gc,\
+							FALSE,cap_pt,4);
 				}
 				break;
 		}
@@ -677,58 +531,23 @@ void draw_land3d_reverse()
 			switch (sub_mode_3D)
 			{
 				case FILL_3D:
-
-
-					if (use_back_pixmap)
-					{
-						gdk_draw_polygon(main_pixmap,\
-								gc,TRUE,lpt,4);
-						gdk_draw_line(main_pixmap,\
-								main_display->\
-								style->\
-								black_gc,\
-								lpt[2].x,\
-								lpt[2].y,\
-								lpt[1].x,\
-								lpt[1].y);
-					}
-					else
-					{
-						gdk_draw_polygon(main_display->\
-								window,gc,\
-								TRUE,lpt,4);
-						gdk_draw_line(main_display->\
-								window,\
-								main_display->\
-								style->\
-								black_gc,\
-								lpt[2].x,\
-								lpt[2].y,\
-								lpt[1].x,\
-								lpt[1].y);
-					}
+					gdk_draw_polygon(drawable,\
+							gc,TRUE,lpt,4);
+					gdk_draw_line(drawable,\
+							main_display->\
+							style->\
+							black_gc,\
+							lpt[2].x,\
+							lpt[2].y,\
+							lpt[1].x,\
+							lpt[1].y);
 					break;
 				case WIRE_3D:
-
-					if (use_back_pixmap)
-					{
-						gdk_draw_line(main_pixmap,\
-								gc,lpt[2].x,\
-								lpt[2].y,\
-								lpt[3].x,\
-								lpt[3].y);
-
-					}
-					else
-					{
-						gdk_draw_line(main_display->\
-								window,gc,\
-								lpt[2].x,\
-								lpt[2].y,\
-								lpt[3].x,\
-								lpt[3].y);
-
-					}
+					gdk_draw_line(drawable,\
+							gc,lpt[2].x,\
+							lpt[2].y,\
+							lpt[3].x,\
+							lpt[3].y);
 					break;
 			}
 		}		/* Show_Leader */

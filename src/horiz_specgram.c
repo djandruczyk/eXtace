@@ -31,21 +31,17 @@ void draw_horiz_specgram()
 	gdk_threads_enter();
 	if (display_markers)
 	{
-		update_freq_markers();
 		update_time_markers();
+		update_freq_markers();
 		display_markers = 0;
 		clear_display = 0;
 	}
-	if (use_back_pixmap)
-	{
-		gdk_window_copy_area(main_pixmap,gc,0,0,main_pixmap,
-				tape_scroll,0,width-horiz_spec_start,active_drawing_area);
-	}
-	else
-	{
-		gdk_window_copy_area(main_display->window,gc,0,0,win,
-				tape_scroll,0,width-horiz_spec_start,active_drawing_area);
-	}
+	gdk_window_copy_area(drawable,gc,
+			0,0,
+			drawable,
+			tape_scroll,0,
+			width-horiz_spec_start,
+			active_drawing_area);
 
 	reducer(low_freq, high_freq, active_drawing_area);
 
@@ -57,14 +53,11 @@ void draw_horiz_specgram()
 		cl.pixel=colortab[16][lvl];
 		gdk_gc_set_foreground(gc,&cl);
 
-		if (use_back_pixmap)
-		{
-			gdk_draw_line(main_pixmap,gc,width-horiz_spec_start-tape_scroll, active_drawing_area-i,width-horiz_spec_start,active_drawing_area-i);
-		}
-		else
-		{
-			gdk_draw_line(main_display->window,gc,width-horiz_spec_start-tape_scroll, active_drawing_area-i,width-horiz_spec_start,active_drawing_area-i);
-		}
+		gdk_draw_line(drawable,gc,
+				width-horiz_spec_start-tape_scroll, 
+				active_drawing_area-i,
+				width-horiz_spec_start,
+				active_drawing_area-i);
 	}
 
 	if (use_back_pixmap)

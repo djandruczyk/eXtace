@@ -40,62 +40,41 @@ static gint y_draw_height = 0;
 void draw_spike_3d()
 {
 	gdk_threads_enter();
-	if (use_back_pixmap)
+	gdk_window_copy_area(drawable,gc,
+			0,0,
+			drawable,
+			xdet_scroll,
+			zdet_scroll,
+			width-xdet_scroll,
+			height-zdet_scroll);
+	if (xdet_scroll > 0)
 	{
-		gdk_window_copy_area(main_pixmap,gc,
-				0,0,
-				main_pixmap,
-				xdet_scroll,
-				zdet_scroll,
-				width-xdet_scroll,
-				height-zdet_scroll);
-		if (xdet_scroll > 0)
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, width-xdet_scroll,0,
-					xdet_scroll,height);
-		}
-		else
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, 0,0,
-					abs(xdet_scroll),height);
-		}
-
-		if (zdet_scroll > 0)
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, 0,height-zdet_scroll,
-					width,zdet_scroll);
-		}
-		else
-		{
-			gdk_draw_rectangle(main_pixmap,
-					main_display->style->black_gc,
-					TRUE, 0,0,
-					width,abs(zdet_scroll));
-		}
-	}
-	else
-	{
-		gdk_window_copy_area(main_display->window,gc,
-				0,0,
-				win,
-				xdet_scroll,
-				zdet_scroll,
-				width-xdet_scroll,
-				height-zdet_scroll);
-		gdk_draw_rectangle(main_display->window,
+		gdk_draw_rectangle(drawable,
 				main_display->style->black_gc,
 				TRUE, width-xdet_scroll,0,
 				xdet_scroll,height);
-		gdk_draw_rectangle(main_display->window,
+	}
+	else
+	{
+		gdk_draw_rectangle(drawable,
+				main_display->style->black_gc,
+				TRUE, 0,0,
+				abs(xdet_scroll),height);
+	}
+
+	if (zdet_scroll > 0)
+	{
+		gdk_draw_rectangle(drawable,
 				main_display->style->black_gc,
 				TRUE, 0,height-zdet_scroll,
 				width,zdet_scroll);
+	}
+	else
+	{
+		gdk_draw_rectangle(drawable,
+				main_display->style->black_gc,
+				TRUE, 0,0,
+				width,abs(zdet_scroll));
 	}
 	gdk_threads_leave();
 
@@ -179,15 +158,15 @@ void draw_spike_3d()
 	for( i=0; i < axis_length; i++ )
 	{
 		pt[0].x=width-(((i*x_draw_width)*(1-xdet_start))/axis_length)\
-				-((((axis_length-i)*x_draw_width)*(1-xdet_end))\
-				/(axis_length))-x_offset;
+			-((((axis_length-i)*x_draw_width)*(1-xdet_end))\
+					/(axis_length))-x_offset;
 		pt[0].y=height-(((i*loc_bins_per_pip)*y_draw_height*ydet_start)\
 				/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))\
-				*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
+					*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
 		pt[1].x=pt[0].x-(gint)pip_arr[i]*x_tilt\
-				-(gint)pip_arr[i]*xaxis_tilt;
+			-(gint)pip_arr[i]*xaxis_tilt;
 		pt[1].y=pt[0].y-(gint)pip_arr[i]*y_tilt\
-				-(gint)pip_arr[i]*yaxis_tilt;
+			-(gint)pip_arr[i]*yaxis_tilt;
 		lvl=abs((gint)pip_arr[i]*4);
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
@@ -197,22 +176,11 @@ void draw_spike_3d()
 		cl.pixel=colortab[16][lvl];
 		gdk_gc_set_foreground(gc,&cl);
 
-		if (use_back_pixmap)
-		{
-			gdk_draw_line(main_pixmap,gc,\
-					pt[0].x,\
-					pt[0].y,\
-					pt[1].x,\
-					pt[1].y);
-		}
-		else
-		{
-			gdk_draw_line(main_display->window,gc,\
-					pt[0].x,\
-					pt[0].y,\
-					pt[1].x,\
-					pt[1].y);
-		}
+		gdk_draw_line(drawable,gc,\
+				pt[0].x,\
+				pt[0].y,\
+				pt[1].x,\
+				pt[1].y);
 	}
 	if (use_back_pixmap)
 	{

@@ -34,8 +34,8 @@
 
 gint		nsamp;		/* number of samples */
 gint		bands;		/* to start with, should be configurable */
-GdkWindow	*win;		/* Duuuuuuhhhh */
 GdkPixmap	*dir_pixmap;	/* directional window pixmap pointer*/
+GdkDrawable	*drawable;	/* where we are drawing to */
 GdkPixmap	*grad_pixmap;	/* color gradient window pixmap pointer*/
 GdkPixmap	*main_pixmap;	/* MAIN window backing pixmap pointer */
 GdkPixmap	*buffer_pixmap;	/* Buffer window backing pixmap pointer */

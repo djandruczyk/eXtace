@@ -154,6 +154,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
 						"Backing Pixmap Enabled");
 				use_back_pixmap = 1;
+				drawable = main_pixmap;
 				gdk_draw_rectangle(main_display->window,
 						main_display->style->black_gc,
 						TRUE, 0,0,
@@ -386,6 +387,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
 						"Backing Pixmap Disabled");
 				use_back_pixmap = 0;
+				drawable = main_display->window;;
 				gdk_draw_rectangle(main_display->window,
 						main_display->style->black_gc,
 						TRUE, 0,0,

@@ -16,9 +16,6 @@
 
 /* Definitions i.e. macros/flags, other stuff to make things easier for me.. */
 
-//#define WINDOW_FUNC  6
- 
- 
 /* Audio Data Specific definitions */
 #define FRAMES		88200  // Audio ring size in audio "frames"
 /* 1 frame is a left and right channel of audio, Signed 16 bit LE.

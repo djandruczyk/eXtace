@@ -137,7 +137,8 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 		}
 
 	}
-	gdk_window_clear(widget->window);
+	if (use_back_pixmap)
+		gdk_window_clear(widget->window);
 	return TRUE;
 }
 

@@ -58,7 +58,7 @@ void init()
 	sub_mode_3D = FILL_3D;	/* default 3D mode */
 	scope_sub_mode = LINE_SCOPE;/* default Scope mode */
 	show_graticule = 1;	/* show scope graticule*/
-	lag = 500;		/* Lag (how many milliseconds behind) */
+	lag = 360;		/* Lag (how many milliseconds behind) */
 	decimation_factor=1;	
 	last_is_full = 0;	/* its initially ready ?? */
 
@@ -74,11 +74,11 @@ void init()
 	zdet_scroll = 2;	/* detailed scroll in pixels */
 	xdet_start= 0.00;	/* The 3d DETAILED fft's amount of horizontal */
 	ydet_start = 0.00;	/* detailed y axis start position (percent) */
-	x3d_start = 0.00;	/* The 3d X start point of axis (percentage) */
-	y3d_start = 0.00;	/* The 3d Y start point of axis (percentage) */
 	xdet_end = 1.00;	/* The 3d DETAILED fft's amount of horizontal */
 	ydet_end = 0.23;	/* detailed y axis start position (percent) */
-	x3d_end = 1.00;		/* 3D fft X end point of axis (percentage) */
+	x3d_start = 0.00;	/* The 3d X start point of axis (percentage) */
+	y3d_start = 0.00;	/* The 3d Y start point of axis (percentage) */
+	x3d_end = 0.95;		/* 3D fft X end point of axis (percentage) */
 	y3d_end = 0.13;		/* 3D fft Y end point of axis (percentage) */
 	x3d_scroll = 3;		/* 3D scroll in pixels x axis */
 	z3d_scroll = 6;		/* 3D scroll in pixels z axis */
@@ -87,7 +87,7 @@ void init()
 	x_offset = 0;		/* 3D X axis offset for centering */
 	x_shift = 0;		/* 3D shift factor(x axis)depending on axis tilt */
 	x_shift_per_block = 0;	/* shift in pixels per block for 3D mode */
-	landtilt = 0;		/* Flag */
+	landtilt = 1;		/* Flag */
 	spiketilt = 0;		/* Flag */
 
 	y_border = 8;		/* border on right side of display */
@@ -105,8 +105,8 @@ void init()
 	grad_win_present = 0;	/* Color picker window */
 	one_to_fix = 0;		/* which end of trace to fix up */
 	elements_to_get = nsamp/2;	/* how many samples to read at a time */
-	height = 256;		/* Self explanitory */
-	width  = 370;		/* Self explanitory */
+	height = 480;		/* Self explanitory */
+	width  = 640;		/* Self explanitory */
 	buffer_area_height = 100;	/* Self explanitory */
 	buffer_area_width  = 400;	/* Self explanitory */
 	dir_width = 100;	/* Self explanitory */
@@ -123,7 +123,7 @@ void init()
 	sync_to_left = 1;	/* default to sync to left channel */
 	sync_to_right = 0; 	/* sync to right channel */
 	sync_independant = 0;	/* independtant sync */
-	use_back_pixmap = 0;	/* Backing pixmap disabled (faster with low mem X)*/
+	use_back_pixmap = 1;	/* Backing pixmap enabled */
 	colortab_ready = 0;	/* NOT READY */
 	paused = 0;		/* display running */
 	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
