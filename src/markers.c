@@ -91,7 +91,7 @@ void update_freq_markers()
 			gdk_draw_rectangle(main_pixmap,
 					main_display->style->black_gc,
 					TRUE,bord-5,0,
-					2*l_length+35,height);
+					width-bord-5,height);
 		}
 
 		num_markers = (height-(border*2))/pixels_per_vmarker;

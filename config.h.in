@@ -10,8 +10,6 @@
 /* Define if you have the <comedilib.h> header file.  */
 #undef HAVE_COMEDILIB_H
 
-#undef HAVE_COMEDI
-
 /* Define if you have the <dlfcn.h> header file.  */
 #undef HAVE_DLFCN_H
 

@@ -76,7 +76,7 @@ void init()
 	data_handle = -1;  /* initialize to empty handle */
 	data_source = ESD;
 
-	refresh_rate = 29;	/* 25 frames per sec */
+	refresh_rate = 34;	/* 34 frames per sec */
 	left_amplitude = 127.0/32768.0; /* Scaler for something */
 	right_amplitude = 127.0/32768.0; /* Scaler for something */
 	fft_signal_source = LEFT_PLUS_RIGHT;/* signal input source for fft */
@@ -142,8 +142,8 @@ void init()
 	grad_x_origin = width + 0;
 	grad_y_origin = dir_y_origin + dir_height;
 	tape_scroll = 2;
-	horiz_spec_start = 60;	/* 60 from right edge of screen */
-	vert_spec_start = 120;	/* 120 from BOTTOM of the screen, unconventional */
+	horiz_spec_start = 80;	/* 60 from right edge of screen */
+	vert_spec_start = 135;	/* 120 from BOTTOM of the screen, unconventional */
 	scope_sync_source = SYNC_LEFT;
 	paused = FALSE;		/* display running */
 	low_freq = 0;		/* Low frequency cutoff in hi-res displays */
@@ -169,7 +169,7 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "major_ver", &major_ver);
 		cfg_read_int(cfgfile, "Global", "minor_ver", &minor_ver);
 		cfg_read_int(cfgfile, "Global", "micro_ver", &micro_ver);
-		if (major_ver == 0)
+		if ((major_ver == 1) && (minor_ver == 8))
 		{
 			printf("Config file structure changed. using defaults. \nClosing eXtace will save your NEW settings.\n");
 			cfg_free(cfgfile);
