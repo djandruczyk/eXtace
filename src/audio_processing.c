@@ -98,13 +98,12 @@ int audio_chewer(void)
 void split_and_decimate()
 {
 	/* De-interleaves data into seperate buffers and decimates 
-	 * if requested for high-res fft's
+	 * if requested 
 	 */
 	gint start_offset = 0;
 	gint end_offset = 0;
 	gint count = 0;
 	gint j = 0;
-	gint increment = 0;
 	gint virtual_centerpoint = 0;
 	gint index = 0;
 	gint endpoint_1 = 0;
@@ -219,72 +218,12 @@ void split_and_decimate()
 	 */
 	virtual_centerpoint = raw_ptr-audio_ring; 
 
-	switch (decimation_factor)
+	if (decimation_factor < 1)
+		decimation_factor = 1;
+	if ((decimation_factor > 0) && (decimation_factor <= 16))
 	{
-		case NO_DECIMATION:
-			/* No decimation at all */
-			//			printf("Decimate by 1\n");
-			start_offset = virtual_centerpoint - (nsamp);
-			end_offset = virtual_centerpoint + (nsamp);
-			increment = 1;
-			break;
-		case DECIMATE_BY_2:
-			/* decimate by factor of 2 */
-			//			printf("Decimate by 2\n");
-			start_offset = virtual_centerpoint - (nsamp*2);
-			end_offset = virtual_centerpoint + (nsamp*2);
-			increment = 2;
-			break;
-		case DECIMATE_BY_3:
-			/* decimate by factor of 3 */
-			//			printf("Decimate by 3\n");
-			start_offset = virtual_centerpoint - (nsamp*3);
-			end_offset = virtual_centerpoint + (nsamp*3);
-			increment = 3;
-			break;
-		case DECIMATE_BY_4:
-			/* decimate by factor of 4 */
-			//			printf("Decimate by 4\n");
-			start_offset = virtual_centerpoint - (nsamp*4);
-			end_offset = virtual_centerpoint + (nsamp*4);
-			increment = 4;
-			break;
-		case DECIMATE_BY_5:
-			/* decimate by factor of 5 */
-			//			printf("Decimate by 5\n");
-			start_offset = virtual_centerpoint - (nsamp*5);
-			end_offset = virtual_centerpoint + (nsamp*5);
-			increment = 5;
-			break;
-		case DECIMATE_BY_6:
-			/* decimate by factor of 6 */
-			//			printf("Decimate by 6\n");
-			start_offset = virtual_centerpoint - (nsamp*6);
-			end_offset = virtual_centerpoint + (nsamp*6);
-			increment = 6;
-			break;
-		case DECIMATE_BY_7:
-			/* decimate by factor of 7 */
-			//			printf("Decimate by 7\n");
-			start_offset = virtual_centerpoint - (nsamp*7);
-			end_offset = virtual_centerpoint + (nsamp*7);
-			increment = 7;
-			break;
-		case DECIMATE_BY_8:
-			/* decimate by factor of 8 */
-			//			printf("Decimate by 8\n");
-			start_offset = virtual_centerpoint - (nsamp*8);
-			end_offset = virtual_centerpoint + (nsamp*8);
-			increment = 8;
-			break;
-		default:
-			/*no decimate if code error */
-			//			printf("decimation_factor not set defaulting to 1\n");
-			start_offset = virtual_centerpoint - (nsamp);
-			end_offset = virtual_centerpoint + (nsamp);
-			increment = 1;
-			break;
-
+		start_offset = virtual_centerpoint - (nsamp*decimation_factor);
+		end_offset = virtual_centerpoint + (nsamp*decimation_factor);
 	}
 	/* Handle the condition of reverse loop around */
 	while (start_offset < 0)	
@@ -307,7 +246,6 @@ void split_and_decimate()
 		index = start_offset;	/* Start at the right location */
 		endpoint_1 = end_offset;
 		looparound = 0;		/* don't need to loop around */
-		/* printf("NORM number of samples to process %i\n",(end_offset-start_offset)/(2*increment)); */
 	}
 	else
 	{	/* we need to loop around, handle it properly */
@@ -317,10 +255,10 @@ void split_and_decimate()
 		 * needto offset properly after the wraparound, otherwaise
 		 * we'll get one too many samples, and segfault. 
 		 */
-		if ((endpoint_1-start_offset)%(2*increment))
+		if ((endpoint_1-start_offset)%(2*decimation_factor))
 		{
-			index2 = (2*increment)\
-				- (endpoint_1-start_offset)%(2*increment);
+			index2 = (2*decimation_factor)\
+				- (endpoint_1-start_offset)%(2*decimation_factor);
 		}
 		endpoint_2 = end_offset;
 		looparound = 1;
@@ -332,9 +270,9 @@ void split_and_decimate()
 	 * offsets to the cope code and drop the buffer altogether for 
 	 * pure speed, and allows us to use a convolution on any size
 	 * of datablocks, unless latency is set extremely low
-	 * we increment our index by "2*increment",  because the data is
-	 * interleaved, the 2 makes sure we don't swap channels by accident
-	 * and hte increment is the decimation factor to essentially change 
+	 * we increment our index by "2*decimation_factor",  because the 
+	 * data is interleaved, the 2 makes sure we don't swap channels 
+	 * by accident and the decimation_factor acts to essentially change 
 	 * the scope's effective sweeep rate.
 	 */
 
@@ -351,7 +289,7 @@ void split_and_decimate()
 			*audio_right_ptr=((short)*(audio_ring\
 						+index+1));
 			audio_right_ptr++;
-			index += 2*increment; 
+			index += 2*decimation_factor; 
 			count++;
 		}
 		if (looparound)
@@ -367,7 +305,7 @@ void split_and_decimate()
 				*audio_right_ptr=((short)*(audio_ring\
 							+index2+1));
 				audio_right_ptr++;
-				index2 += 2*increment; 
+				index2 += 2*decimation_factor; 
 				count++;
 			}
 		}
@@ -382,7 +320,7 @@ void split_and_decimate()
 					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) - (double)*(audio_ring+index + 1))/2.0);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*increment; 
+					index += 2*decimation_factor; 
 					count++;
 
 				}
@@ -393,7 +331,7 @@ void split_and_decimate()
 						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) - (double)*(audio_ring+index2 + 1))/2.0);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*increment; 
+						index2 += 2*decimation_factor; 
 						count++;
 
 					}
@@ -406,7 +344,7 @@ void split_and_decimate()
 					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) + (double)*(audio_ring+index + 1))/2.0);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*increment;
+					index += 2*decimation_factor;
 					count++;
 
 				}
@@ -417,7 +355,7 @@ void split_and_decimate()
 						*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index2) + (double)*(audio_ring+index2 + 1))/2.0);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*increment;
+						index2 += 2*decimation_factor;
 						count++;
 					}
 				}
@@ -429,7 +367,7 @@ void split_and_decimate()
 						* *(audio_ring+index);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*increment;
+					index += 2*decimation_factor;
 					count++;
 				}
 				if (looparound)
@@ -440,7 +378,7 @@ void split_and_decimate()
 							* *(audio_ring+index2);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*increment;
+						index2 += 2*decimation_factor;
 						count++;
 					}
 				}
@@ -452,7 +390,7 @@ void split_and_decimate()
 						* *(audio_ring+index+1);
 					data_win_ptr++;
 					raw_fft_in_ptr++;
-					index += 2*increment;
+					index += 2*decimation_factor;
 					count++;
 				}
 				if (looparound)
@@ -463,7 +401,7 @@ void split_and_decimate()
 							* *(audio_ring+index2+1);
 						data_win_ptr++;
 						raw_fft_in_ptr++;
-						index2 += 2*increment;
+						index2 += 2*decimation_factor;
 						count++;
 					}
 				}

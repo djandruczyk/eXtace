@@ -58,7 +58,7 @@ int setup_options()
 	gtk_widget_show(notebook);
 
 
-	frame = gtk_frame_new("General Controls");
+	frame = gtk_frame_new("Global Settings");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_widget_show(frame);
 
@@ -68,7 +68,7 @@ int setup_options()
 	vbox = gtk_vbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
-	label = gtk_label_new("Main window refresh rate in Frames/Sec. (approx)");
+	label = gtk_label_new("Refresh Rate in Frames/Sec. (approx)");
 	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
 	adj = gtk_adjustment_new((float)refresh_rate,1.0,refresh_max,1.0,1.0,1.0);
@@ -93,8 +93,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)NO_DECIMATION);
-        if (decimation_factor == NO_DECIMATION)
+			(gpointer)1);
+        if (decimation_factor == 1)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -102,8 +102,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)DECIMATE_BY_2);
-        if (decimation_factor == DECIMATE_BY_2)
+			(gpointer)2);
+        if (decimation_factor == 2)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -111,8 +111,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)DECIMATE_BY_3);
-        if (decimation_factor == DECIMATE_BY_3)
+			(gpointer)3);
+        if (decimation_factor == 3)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -120,8 +120,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)DECIMATE_BY_4);
-        if (decimation_factor == DECIMATE_BY_4)
+			(gpointer)4);
+        if (decimation_factor == 4)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -129,8 +129,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)DECIMATE_BY_5);
-        if (decimation_factor == DECIMATE_BY_5)
+			(gpointer)5);
+        if (decimation_factor == 5)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -138,8 +138,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)DECIMATE_BY_6);
-        if (decimation_factor == DECIMATE_BY_6)
+			(gpointer)6);
+        if (decimation_factor == 6)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -147,8 +147,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)DECIMATE_BY_7);
-        if (decimation_factor == DECIMATE_BY_7)
+			(gpointer)7);
+        if (decimation_factor == 7)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
         group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
@@ -156,8 +156,8 @@ int setup_options()
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
-			(gpointer)DECIMATE_BY_8);
-        if (decimation_factor == DECIMATE_BY_8)
+			(gpointer)8);
+        if (decimation_factor == 8)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
 
@@ -437,7 +437,23 @@ int setup_options()
 	vbox = gtk_vbox_new(TRUE,0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
-	button = gtk_radio_button_new_with_label(NULL,"5512.5 Hz");
+	button = gtk_radio_button_new_with_label(NULL,"1378 Hz");
+	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
+	if(bandwidth == 1378)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
+	gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			GTK_SIGNAL_FUNC (button_handle), (gpointer)1378);
+
+	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	button = gtk_radio_button_new_with_label(group,"2756.25 Hz");
+	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
+	if(bandwidth == 2756.25)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
+	gtk_signal_connect (GTK_OBJECT (button), "toggled",
+			GTK_SIGNAL_FUNC (button_handle), (gpointer)2756);
+
+	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	button = gtk_radio_button_new_with_label(group,"5512.5 Hz");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
 	if(bandwidth == 5512.5)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);

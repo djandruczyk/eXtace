@@ -131,13 +131,3 @@
 #define REFRESH_RATE    0xc0
 /* Misc Options */
 
-/* Scope/FFT Decimation */
-#define NO_DECIMATION	0xd0
-#define DECIMATE_BY_2	0xd1
-#define DECIMATE_BY_3	0xd2
-#define DECIMATE_BY_4	0xd3
-#define DECIMATE_BY_5	0xd4
-#define DECIMATE_BY_6	0xd5
-#define DECIMATE_BY_7	0xd6
-#define DECIMATE_BY_8	0xd7
-/* Scope/FFT Decimation */

@@ -342,6 +342,18 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				paused = 1;
 				draw_stop();
 				break;
+			case 1378:
+				bandwidth = 1378;
+				bandwidth_change = 1;
+				update_freq_markers();
+				update_time_markers();
+				break;
+			case 2756:
+				bandwidth = 2756.25;
+				bandwidth_change = 1;
+				update_freq_markers();
+				update_time_markers();
+				break;
 			case 5512:
 				bandwidth = 5512.5;
 				bandwidth_change = 1;
@@ -542,38 +554,16 @@ gint button_oscilloscope(GtkWidget *widget, gpointer *data)
 }
 gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 {
-	switch((gint)data)
+	if (GTK_TOGGLE_BUTTON (widget)->active)
 	{
-		case NO_DECIMATION:
+		if (((gint)data > 0) && ((gint)data <= 16))
+		{
 			decimation_factor = (gint)data;
-			break;
-		case DECIMATE_BY_2:
-			decimation_factor = (gint)data;
-			break;
-		case DECIMATE_BY_3:
-			decimation_factor = (gint)data;
-			break;
-		case DECIMATE_BY_4:
-			decimation_factor = (gint)data;
-			break;
-		case DECIMATE_BY_5:
-			decimation_factor = (gint)data;
-			break;
-		case DECIMATE_BY_6:
-			decimation_factor = (gint)data;
-			break;
-		case DECIMATE_BY_7:
-			decimation_factor = (gint)data;
-			break;
-		case DECIMATE_BY_8:
-			decimation_factor = (gint)data;
-			break;
-		default:
-			decimation_factor = NO_DECIMATION;
-			break;
+		}
 	}
 	return (0);
 }
+
 gint scope_mode(GtkWidget *widget, gpointer *data)
 {
 	if (data == (gpointer)DOT_SCOPE)

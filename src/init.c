@@ -59,7 +59,7 @@ void init()
 	scope_sub_mode = LINE_SCOPE;/* default Scope mode */
 	show_graticule = 1;	/* show scope graticule*/
 	lag = 500;		/* Lag (how many milliseconds behind) */
-	decimation_factor=NO_DECIMATION;	
+	decimation_factor=1;	
 	last_is_full = 0;	/* its initially ready ?? */
 
 	seg_height = 2;		/* height per segment in 2d spectrum analyzer */

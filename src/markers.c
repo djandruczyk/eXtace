@@ -134,7 +134,7 @@ void update_freq_markers()
 	{
 		if (bandwidth_change)
 		{
-			bord = width-horiz_spec_start + 3;
+			bord = width-horiz_spec_start + 5;
 			bandwidth_change = 0;
 		}
 		else
@@ -182,7 +182,7 @@ void update_freq_markers()
 	{
 		if (bandwidth_change)
 		{
-			bord = height-vert_spec_start + 3;
+			bord = height-vert_spec_start + 5;
 			bandwidth_change = 0;
 		}
 		else
@@ -215,12 +215,14 @@ void update_freq_markers()
 			x2 = x1;
 			y2 = y1+l_length;
 
-			gdk_draw_line(main_pixmap,main_display->style->white_gc,
+			gdk_draw_line(main_pixmap,main_display->\
+					style->white_gc,\
 					x1,y1,x2,y2);
 
 			g_snprintf(buff,10,"%i kHz",i);
 			x2 -= 16;
-			y2 = y1+l_length + 2*gdk_text_height(main_display->style->font,
+			y2 = y1+l_length + 2*gdk_text_height(main_display->\
+					style->font,
 					buff,
 					strlen(buff));
 			gdk_draw_text(main_pixmap,main_display->style->font,
@@ -232,8 +234,6 @@ void update_freq_markers()
 					buff,strlen(buff));
 			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y2,x1,y2+l_length);
-
-
 
 		}
 	}
