@@ -783,6 +783,7 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(box), frame,FALSE,FALSE,0);
 
 	eventbox = gtk_event_box_new();
+	gtk_container_set_border_width (GTK_CONTAINER (eventbox), 5);
 	gtk_container_add(GTK_CONTAINER(frame), eventbox);
 	gtk_widget_set_usize(eventbox,options->allocation.width,100);   
 	gtk_widget_realize(eventbox); 

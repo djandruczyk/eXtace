@@ -31,6 +31,7 @@ GdkImlibImage *im;
 gint colortab_ready = 0;
 gint grad_x_origin;
 gint grad_y_origin;
+gint selection_open = 0;
 
 gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -79,36 +80,80 @@ int color_button(GtkWidget *widget, gpointer data)
 			break;
 
 		case SAVE:
-			filew = gtk_file_selection_new("Save Colormap");
-			gtk_signal_connect (GTK_OBJECT(filew), "destroy",
-					(GtkSignalFunc) gtk_widget_destroy, GTK_OBJECT (filew));
-			gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-					"clicked", (GtkSignalFunc) save_colormap, filew);
-			gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
-						(filew)->cancel_button),
-					"clicked", (GtkSignalFunc) gtk_widget_destroy,
-					GTK_OBJECT (filew));
-			gtk_file_selection_set_filename(GTK_FILE_SELECTION(filew),g_strconcat(g_get_home_dir(),"/.eXtace/ColorMaps/", NULL));
-			gtk_widget_show(filew);
+			if (selection_open == 0)
+			{
+				selection_open = 1;
+				filew = gtk_file_selection_new("Save Colormap");
+				gtk_signal_connect (GTK_OBJECT(filew), 
+						"destroy",
+						(GtkSignalFunc) 
+							close_fileselection, 
+						GTK_OBJECT (filew));
+				gtk_signal_connect(GTK_OBJECT 
+						(GTK_FILE_SELECTION 
+							(filew)->ok_button),
+						"clicked", 
+						(GtkSignalFunc) 
+							save_colormap, 
+						filew);
+				gtk_signal_connect_object(GTK_OBJECT 
+						(GTK_FILE_SELECTION
+							(filew)->cancel_button),
+						"clicked", 
+						(GtkSignalFunc) 
+							close_fileselection,
+						GTK_OBJECT (filew));
+				gtk_file_selection_set_filename(
+						GTK_FILE_SELECTION(filew),
+						g_strconcat(g_get_home_dir(),
+							"/.eXtace/ColorMaps/", 
+							NULL));
+				gtk_widget_show(filew);
+			}
 			break;
 		case LOAD:
-			filew = gtk_file_selection_new("Load Colormap");
-			gtk_signal_connect (GTK_OBJECT(filew), "destroy",
-					(GtkSignalFunc) gtk_widget_destroy, GTK_OBJECT (filew));
-			gtk_signal_connect(GTK_OBJECT (GTK_FILE_SELECTION (filew)->ok_button),
-					"clicked", (GtkSignalFunc) load_colormap, filew);
-			gtk_signal_connect_object(GTK_OBJECT (GTK_FILE_SELECTION
-						(filew)->cancel_button),
-					"clicked", (GtkSignalFunc) gtk_widget_destroy,
-					GTK_OBJECT (filew));
-			gtk_file_selection_set_filename(GTK_FILE_SELECTION(filew),g_strconcat(g_get_home_dir(), "/.eXtace/ColorMaps/", NULL));
-			gtk_widget_show(filew);
+			if (selection_open == 0)
+			{
+				selection_open = 1;
+				filew = gtk_file_selection_new("Load Colormap");
+				gtk_signal_connect (GTK_OBJECT(filew), 
+						"destroy",
+						(GtkSignalFunc) 
+							close_fileselection, 
+						GTK_OBJECT (filew));
+				gtk_signal_connect(GTK_OBJECT 
+						(GTK_FILE_SELECTION 
+							(filew)->ok_button),
+						"clicked", 
+						(GtkSignalFunc) load_colormap, 
+						filew);
+				gtk_signal_connect_object(GTK_OBJECT 
+						(GTK_FILE_SELECTION
+							(filew)->cancel_button),
+						"clicked", 
+						(GtkSignalFunc) 
+							close_fileselection,
+						GTK_OBJECT (filew));
+				gtk_file_selection_set_filename(
+						GTK_FILE_SELECTION(filew),
+						g_strconcat(g_get_home_dir(), 
+							"/.eXtace/ColorMaps/", 
+							NULL));
+				gtk_widget_show(filew);
+			}
 			break;
 		default:
 			break;
 	}
 	return TRUE;
 }
+gint close_fileselection(GtkWidget *widget, gpointer *data)
+{
+	selection_open = 0;
+	gtk_widget_destroy(GTK_WIDGET(widget));
+	return TRUE;
+}
+	
 void create_initial_colormaps(void)
 {
 

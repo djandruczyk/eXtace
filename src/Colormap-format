@@ -4,7 +4,7 @@ NOTE:  This format is subject to revision and may change in the future.
 
 Idea:
     To have a colormap file that is easily configurable and has at a bare 
-    minimu of two colorpoints. (the ends).  eXtace will use linear 
+    minimum of two colorpoints. (the ends).  eXtace will use linear 
     interpolation between all steps to generate the complete map.
     
 Sections and Fields in the colormap file:

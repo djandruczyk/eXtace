@@ -101,6 +101,7 @@ void init_colortab();
 void grad_win_create(void);
 gint grad_win_save_state(GtkWidget *, GdkEventFocus *);
 void gradient_update();
+gint close_fileselection(GtkWidget*, gpointer *);
 /* color_win.c */
 
 void kt_stars_update_func(GtkWidget *);
