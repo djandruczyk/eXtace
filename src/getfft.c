@@ -332,12 +332,12 @@ int GetFFT(void)
     index1 = nsamp;
     while (index1--)
     {
-	*fft_ptr=multiplier*(scaler+log10((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
+//	*fft_ptr=multiplier*(scaler+log10((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
 
 /* Alternatives. 
  *	*fft_ptr=multiplier*(scaler+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
- *	*fft_ptr=multiplier*(scaler+(20*log10(sqrt((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))));
  */
+ 	*fft_ptr=multiplier*(scaler+(20*log10(sqrt((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))));
 	if (*fft_ptr < 0) 
 	    *fft_ptr=0;
 	fft_ptr++;

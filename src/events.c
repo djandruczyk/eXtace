@@ -163,28 +163,6 @@ gint expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
     return TRUE;
 }
-gint main_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
-{
-    gdk_draw_pixmap(widget->window,
-	    widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
-	    main_pixmap,
-	    event->area.x, event->area.y,
-	    event->area.x, event->area.y,
-	    event->area.width, event->area.height);
-
-    return TRUE;
-}
-gint buffer_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
-{
-    gdk_draw_pixmap(widget->window,
-	    widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
-	    buffer_pixmap,
-	    event->area.x, event->area.y,
-	    event->area.x, event->area.y,
-	    event->area.width, event->area.height);
-
-    return TRUE;
-}
 
 gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -192,6 +170,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
     int result;
     x = event->x;
     y = event->y;
+    /* Button one released */
     if(event->state & (GDK_BUTTON1_MASK))
     {
 	pt_lock = 0;
@@ -202,6 +181,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 #endif
 	return TRUE;
     }
+    /* Button two released */
     if(event->state & (GDK_BUTTON2_MASK))
     {
 	/* do something related to letting go of button two (colormap button) */
@@ -211,11 +191,25 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	return TRUE;
     }
 
-    if (event->button == 1 ) /* If your press button 1 (left one) */
+    /* Button three released */
+    if(event->state & (GDK_BUTTON3_MASK))
+    {
+#ifdef DND_DEBUG
+	g_print("BUTTON 3 RELEASED!! releasing lock\n");
+#endif
+	return TRUE;
+    }
+
+     /* If your press button 1 (left one) */
+    if (event->button == 1 )
     {
 #ifdef DND_DEBUG
 	g_print("BUTTON 1 PRESSED!! running handler \n");
 #endif
+	/* In 2d EQ (Graphica Equalizer) we get the frequency for 
+	 * wherever the user presses the mouse button  and display it
+	 * near the top of the window
+	 */
 	if (mode == EQ_2D)
 	{
 	    int band_num =0;
@@ -234,6 +228,9 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	    one_to_fix = EQ_2D;
 	}
 	    
+	/* Test if close to an endpoint on 3D modes, or near the beginning
+	 * of the scrolled regins on hte specgram modes
+	 */
 	if ((mode == LAND_3D)||(mode == SPIKE_3D)||(mode == HORIZ_SPECGRAM)||
 		(mode == VERT_SPECGRAM))
 	{
@@ -395,6 +392,7 @@ int test_if_close(int x_fed, int y_fed)
 	gint x;
 	gint y;
     }start,end;
+
     gint x_rel=0;
     gint y_rel=0;
     gint x_draw_width=0;
