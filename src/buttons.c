@@ -30,6 +30,8 @@
 
 
 extern GtkWidget *stars; /* from stars.c */
+extern GtkObject *lf_adj;	/* Freq adjustment sliders... */
+extern GtkObject *hf_adj;	/* Freq adjustment sliders... */
 
 void leave(GtkWidget *widget, gpointer *data)
 {
@@ -109,6 +111,16 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 			refresh_rate = GTK_ADJUSTMENT(widget)->value;
 			draw_stop();
 			draw_start();
+			break;
+		case LOW_LIMIT:
+			low_freq = GTK_ADJUSTMENT(widget)->value;
+			GTK_ADJUSTMENT(hf_adj)->lower = low_freq + (10*RATE/nsamp);
+			gtk_adjustment_changed(hf_adj);
+			break;
+		case HIGH_LIMIT:
+			high_freq = GTK_ADJUSTMENT(widget)->value;
+			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (10*RATE/nsamp);
+			gtk_adjustment_changed(lf_adj);
 			break;
 		default:
 			break;

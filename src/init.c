@@ -49,8 +49,8 @@ extern gint grad_x_origin;
 extern gint grad_y_origin;
 extern gfloat left_amplitude;
 extern gfloat right_amplitude;
-
-
+extern GtkObject *lf_adj;
+extern GtkObject *hf_adj;
 
 void init()
 {
@@ -193,8 +193,8 @@ void read_config(void)
 		}
 		cfg_read_int(cfgfile, "Global", "landtilt", &landtilt);
 		cfg_read_int(cfgfile, "Global", "spiketilt", &spiketilt);
-		cfg_read_int(cfgfile, "Global", "low_freq", &low_freq);
-		cfg_read_int(cfgfile, "Global", "high_freq", &high_freq);
+		cfg_read_float(cfgfile, "Global", "low_freq", &low_freq);
+		cfg_read_float(cfgfile, "Global", "high_freq", &high_freq);
 		cfg_read_int(cfgfile, "Window", "width", &width);
 		cfg_read_int(cfgfile, "Window", "height", &height);
 		cfg_read_int(cfgfile, "Window", "main_x_origin", &main_x_origin);
@@ -351,8 +351,8 @@ void save_config(GtkWidget *widget)
 	cfg_write_int(cfgfile, "Global", "sync_independant", sync_independant);
 	cfg_write_int(cfgfile, "Global", "landtilt",landtilt);
 	cfg_write_int(cfgfile, "Global", "spiketilt", spiketilt);
-	cfg_write_int(cfgfile, "Global", "low_freq", low_freq);
-	cfg_write_int(cfgfile, "Global", "high_freq", high_freq);
+	cfg_write_float(cfgfile, "Global", "low_freq", low_freq);
+	cfg_write_float(cfgfile, "Global", "high_freq", high_freq);
 	cfg_write_int(cfgfile, "Window", "width", width);
 	cfg_write_int(cfgfile, "Window", "height", height);
 	gdk_window_get_root_origin(widget->window, &x, &y);
@@ -544,6 +544,12 @@ void reinit_extace(int new_nsamp)
 	recalc_markers = 1;
 	recalc_scale = 1;	
 	mem_alloc();
+	GTK_ADJUSTMENT(lf_adj)->lower = RATE/nsamp;
+	GTK_ADJUSTMENT(lf_adj)->step_increment = RATE/nsamp;
+	GTK_ADJUSTMENT(hf_adj)->lower = RATE/nsamp;
+	GTK_ADJUSTMENT(hf_adj)->step_increment = RATE/nsamp;
+	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
+	gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 	setup_datawindow(NULL,(WindowFunction)window_func);
 	ring_pos=0;
 	if(open_sound() >= 0)

@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 	else
 		check_limits (argv);
 	
-	printf("This app isn't complete yet and of now does nothing except check the input arguments and their values for compliance\n");
+	printf("This app isn't complete yet and of now does nothing except check the\ninput arguments and their values for compliance\n");
 
 	/* Sweep type for now will be a simple linear sweep between points
 	 * "a" and "b" Sweep time will be fixed until I see the need to expose

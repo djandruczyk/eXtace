@@ -21,6 +21,9 @@
 
 /* See globals.h for variable declarations and DEFINES */
 
+GtkObject *lf_adj;
+GtkObject *hf_adj;
+
 int setup_options()
 {
 
@@ -425,74 +428,69 @@ int setup_options()
 	/*  END of Scope Options Tab (Options Panel) */
 	/*  BEGINNING of High Res, FFT Options Tab (Options Panel) */
 
-	box = gtk_hbox_new(FALSE,0);
+	box = gtk_vbox_new(FALSE,0);
 
 	label = gtk_label_new("High Res. FFT's");
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), box, label);
 
 	frame = gtk_frame_new("High Resolution Display Bandwidth");
-	gtk_widget_set_sensitive(frame,FALSE);
+	//gtk_widget_set_sensitive(frame,FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
-	vbox = gtk_vbox_new(TRUE,0);
+	vbox = gtk_vbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
-	button = gtk_radio_button_new_with_label(NULL,"1378 Hz");
-	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(bandwidth == 1378)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
-	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)1378);
+	hbox = gtk_hbox_new(TRUE,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,0);
+	
+	label = gtk_label_new("Low Frequency Limit");
+	gtk_box_pack_start(GTK_BOX(hbox),label,TRUE,TRUE,0);
 
-	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group,"2756.25 Hz");
-	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(bandwidth == 2756.25)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
-	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)2756);
+	sep = gtk_vseparator_new();
+	gtk_box_pack_start(GTK_BOX(hbox),sep,TRUE,TRUE,0);
 
-	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group,"5512.5 Hz");
-	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(bandwidth == 5512.5)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
-	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)5512);
+	label = gtk_label_new("High Frequency Limit");
+	gtk_box_pack_start(GTK_BOX(hbox),label,TRUE,TRUE,0);
 
-	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group,"11025 Hz");
-	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(bandwidth == 11025)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
-	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)11025);
+	hbox = gtk_hbox_new(TRUE,0);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,FALSE,FALSE,0);
 
-	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group,"22050 Hz");
-	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(bandwidth == 22050)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
-	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)22050);
+	lf_adj = gtk_adjustment_new(low_freq,RATE/nsamp,RATE/2,RATE/nsamp,RATE/nsamp,10.0);
+	scale = gtk_hscale_new(GTK_ADJUSTMENT(lf_adj));
+	gtk_scale_set_digits(GTK_SCALE(scale),2);
+	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
+	gtk_range_set_update_policy(GTK_RANGE (scale),
+			GTK_UPDATE_CONTINUOUS);
+	gtk_signal_connect (GTK_OBJECT (lf_adj), "value_changed",
+			GTK_SIGNAL_FUNC (slider_changed), (gpointer)LOW_LIMIT);
+
+
+	hf_adj = gtk_adjustment_new(high_freq,low_freq+10*(RATE/nsamp),RATE/2,RATE/nsamp,RATE/nsamp,10.0);
+	scale = gtk_hscale_new(GTK_ADJUSTMENT(hf_adj));
+	gtk_scale_set_digits(GTK_SCALE(scale),2);
+	gtk_box_pack_start(GTK_BOX(hbox),scale,FALSE,TRUE,0);
+	gtk_range_set_update_policy(GTK_RANGE (scale),
+			GTK_UPDATE_CONTINUOUS);
+	gtk_signal_connect (GTK_OBJECT (hf_adj), "value_changed",
+			GTK_SIGNAL_FUNC (slider_changed), (gpointer)HIGH_LIMIT);
 
 	frame = gtk_frame_new("High Resolution FFT Display Options");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
-	vbox = gtk_vbox_new(TRUE,0);
-	gtk_container_add(GTK_CONTAINER(frame), vbox);
+	hbox = gtk_hbox_new(TRUE,0);
+	gtk_container_add(GTK_CONTAINER(frame), hbox);
 
 	button = gtk_toggle_button_new_with_label("Invert Spike Y-axis");
-	gtk_box_pack_start(GTK_BOX(vbox),button,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(hbox),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)SPIKEFLIP);
 	if (spikeflip == -1)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),1);
 
 	button = gtk_toggle_button_new_with_label("Spikes Perspective Tilt Disabled");
-	gtk_box_pack_start(GTK_BOX(vbox),button,FALSE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(hbox),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)SPIKE_PERS_TILT);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), spiketilt);

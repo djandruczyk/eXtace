@@ -138,9 +138,13 @@
 #define BAR_DECAY	0xb4
 /* Low Res Specific defintions */
 
+/* High Res Specific defintions */
+#define LOW_LIMIT	0xc0
+#define HIGH_LIMIT	0xc1
+/* High Res Specific defintions */
 
 /* Misc Options */
-#define REFRESH_RATE    0xc0
+#define REFRESH_RATE    0xd0
 /* Misc Options */
 
 #endif

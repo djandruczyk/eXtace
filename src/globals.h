@@ -176,8 +176,8 @@ gint 		winstyle;	/* window function options */
 gint		active_drawing_area;
 gfloat 		noise_floor;
 gint 		paused;
-gint		low_freq;
-gint		high_freq;
+gfloat		low_freq;
+gfloat		high_freq;
 gfloat		bandwidth;
 gint 		bandwidth_change; /* Flag */
 gint 		clear_display;

@@ -1,3 +1,10 @@
+2003-09-08 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	Complete reqork of perspective tilting and scroll based tilt for 
+	3D and spike modes.  Now it looks much better and works well in nearly
+	any orientation. (though most tilt disappears around a vertical 
+	orientation, but is better than previous renditions).  Added arbritary
+	zooming for high res modes (only at the moment other modes will have
+	this feature in a future release). 
 2003-08-18 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	Some work on land3d.c to alter the tilt algorithms.  Still not perfect
 	but fixes some previous issues.  The implementation is difficult since 
