@@ -15,6 +15,10 @@
 #define __BUTTONS_H__
 
 #include <gtk/gtk.h>
+#include <enums.h>
+
+DataSource	data_source;	/* input source of data */
+int             data_handle;    /* handle for particular data_source */
 
 /* Prototypes */
 void leave(GtkWidget *, gpointer *);

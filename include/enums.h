@@ -80,9 +80,12 @@ typedef enum
 	LINEAR
 }AxisType;
 
+/* We are certainly ambitious :-)  */
+
 typedef enum
 {
 	ESD,
+	COMEDI,
 	ARTS,
 	GSTREAMER,
 	JACK,

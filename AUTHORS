@@ -1,11 +1,16 @@
-Dave J. Andruczyk    <djandruczyk@yahoo.com>
+Dave J. Andruczyk    <djandruczyk at yahoo dot com>
 
 Based on code from:
-    The Rasterman        <raster@redhat.com>
-    Michael Fulbright    <msf@redhat.com>
+    The Rasterman        <raster at redhat dot com>
+    Michael Fulbright    <msf at redhat dot com>
 
 Spectragram (originally called "tape") submitted by:
-    Gregor Leusch <gleusch@Pool.Informatik.RWTH-Aachen.DE>
+    Gregor Leusch <gleusch at Pool dot Informatik dot RWTH-Aachen dot DE>
+
+COMEDI support:
+	Brett van de Sande  <bvds at bvds dot geneva dot edu>
+He also rewrote the sound I/O code to use proper pthreads which improved
+gui response significantly...
 
 and hacked by Dave J. Andruczyk to be fully scalable...
 

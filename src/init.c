@@ -28,6 +28,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <buttons.h>
 
 gint major_ver;
 gint minor_ver;
@@ -64,11 +65,14 @@ void init()
 	extern gint dir_height;
 	extern gint seg_height;
 	extern gint seg_space;
-	/* Should actualy get these to/from a text file instead so settings 
-	 * persist between sessions.. :|  Ohh, how to do it..... :)
-	 * Initialize ALL variables, should be first functional called from main
+	/* 
+	   Initialize ALL variables, 
+	   should be first functional called from main.
+	   These are still needed in case
+           default file is missing or incomplete.
 	 */
 
+	data_handle = -1;  /* initialize to empty handle */
 	data_source = ESD;
 
 	refresh_rate = 29;	/* 25 frames per sec */
@@ -208,7 +212,11 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Window", "dir_y_origin", &dir_y_origin);
 
 		cfg_read_int(cfgfile, "Global", "mode", &mode);
-		cfg_read_int(cfgfile, "Global", "data_source", &data_source);
+		{
+		  int i;
+		  if(cfg_read_int(cfgfile, "Global", "data_source", &i))
+		  data_source=i;
+		}
 		cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
 		cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
 		cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
@@ -512,22 +520,17 @@ void mem_dealloc()
 
 void reinit_extace(int new_nsamp)
 {
-	/* Stop drawing the display */
-	draw_stop();
 
-	switch ((DataSource)data_source)
-	{
-		case ESD:
-			audio_thread_stopper();
-			close_sound();
-			break;
-		default:
-			printf("don't know what sound source we are, ERROR!!!\b\n");
-			break;
-	}
+  /* Stop drawing the display */
+    draw_stop();
+    if(data_handle != -1) /* stop if previously opened */
+      { 
+	audio_thread_stopper(data_handle);
+	close_sound(data_handle);
+      }	
 
-	/* Free all buffers */
-	mem_dealloc();
+  /* Free all buffers */
+        mem_dealloc();
 	scope_begin_l = 0;
 	scope_begin_l = 0;
 	old_scope_begin_l = 0;
@@ -553,9 +556,11 @@ void reinit_extace(int new_nsamp)
 	gtk_adjustment_changed(GTK_ADJUSTMENT(hf_adj));
 	setup_datawindow(NULL,(WindowFunction)window_func);
 	ring_pos=0;
-	if(open_sound() >= 0)
-	{
-		audio_thread_starter();
-		draw_start();
-	}
+	
+	/* only start if it has been stopped above */
+	if(data_handle != -1 && (data_handle=open_sound(data_source)) >= 0)
+	  {
+	    audio_thread_starter(data_handle);
+	    draw_start();
+	  }
 }

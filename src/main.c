@@ -248,12 +248,11 @@ int main(int argc, char **argv)
 		update_pointer();
 	}
 
-
-	if (open_sound() >= 0)
-	{
-		audio_thread_starter();
-		draw_start();
-	}
+	if ((data_handle=open_sound(data_source)) != -1)
+	  {
+	    audio_thread_starter(data_handle);
+	    draw_start();
+	  }
 	if (mode == STARS)/* gotta emit it by hand due to config file */
 		gtk_signal_emit_by_name(GTK_OBJECT(about_button),"clicked");
 	ready = 1;		/* All set */

@@ -16,14 +16,17 @@
 
 #include <gtk/gtk.h>
 
+
 /* Prototypes */
-int audio_thread_starter(void);
-int audio_thread_stopper(void);
-void *esd_starter_thread(void * );
-void esd_reader_thread(gpointer , gint , GdkInputCondition );
-int open_sound(void);
-void close_sound(void);
+int audio_thread_starter(int handle);
+int audio_thread_stopper(int handle);
+void *esd_starter_thread(void *esd_handle);
+int open_sound(DataSource data);
+int close_sound(int handle);
 void error_close_cb(GtkWidget *, gpointer * );
+
 /* Prototypes */
+
+
 
 #endif

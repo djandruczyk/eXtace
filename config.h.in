@@ -1,6 +1,11 @@
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
+/* Define if the ALSA output driver is used */
 #undef HAVE_ESD
+#undef HAVE_COMEDI
+
+/* Define if you have the <comedilib.h> header file.  */
+#undef HAVE_COMEDILIB_H
 
 /* Define if you have the <dlfcn.h> header file.  */
 #undef HAVE_DLFCN_H

@@ -1,8 +1,6 @@
 /* Define if the ALSA output driver is used */
-#undef HAVE_ALSA_05
-#undef HAVE_ALSA_09
-
 #undef HAVE_ESD
+#undef HAVE_COMEDI
 
 #undef HAVE_LC_MESSAGES
 #undef HAVE_STPCPY

@@ -119,7 +119,6 @@ gint		color_loc;	/* pixel location in color gradient for color mapper */
 gint		cr[MAXBANDS],cg[MAXBANDS],cb[MAXBANDS];
 gint		scope_sub_mode;	/* Dot, line or gradient sub mode  */
 gint		sub_mode_3D;	/* sub mode for 3D modes */
-gint		data_source;	/* ESD (work in progress) */
 int		last_buf_l[CONVOLVE_SMALL];/* Convolve buffer */
 short		cur_buf_l[CONVOLVE_BIG];/* Convolve buffer */
 int		last_buf_r[CONVOLVE_SMALL];/* Convolve buffer */
@@ -154,7 +153,6 @@ struct		Color_map {
 fftw_plan	plan;		/* fft plan for fftw library */
 gint		landtilt;	/* flag */
 gint		spiketilt;	/* flag */
-gint		tag;		/* Used by gdk_input_* */
 gint		landflip;	/* Invert Y axis on 3D modes */
 gint		spikeflip;	/* Invert Y axis on 3D modes */
 gint		outlined;	/* Outlined 3D landform flag */

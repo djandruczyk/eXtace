@@ -186,12 +186,33 @@ int setup_options()
 	label = gtk_label_new("Choose Sound Source ");
 	gtk_box_pack_start(GTK_BOX(sub_vbox),label,TRUE,TRUE,0);
 
+	/* 
+	   Do gtk_toggle_button_set_active() before gtk_signal_connect()
+	   so set_data_source is not run on initialization.
+	*/
+
 	button = gtk_radio_button_new_with_label(NULL, "Use Esound");
 	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
 	if (data_source == ESD)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 	gtk_signal_connect(GTK_OBJECT(button),"toggled",
 			GTK_SIGNAL_FUNC(set_data_source),(gpointer)ESD);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	button = gtk_radio_button_new_with_label(group, "Use COMEDI");
+	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
+	if (data_source == COMEDI)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	gtk_signal_connect(GTK_OBJECT(button),"toggled",
+			GTK_SIGNAL_FUNC(set_data_source),(gpointer)COMEDI);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	button = gtk_radio_button_new_with_label(group, "Use ARTS");
+	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
+	if (data_source == ARTS)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	gtk_signal_connect(GTK_OBJECT(button),"toggled",
+			GTK_SIGNAL_FUNC(set_data_source),(gpointer)ARTS);
 
 	gtk_widget_show_all(vbox);
 	

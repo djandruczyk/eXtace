@@ -424,7 +424,8 @@ void split_and_decimate()
 				}
 				break;
 			default:
-				printf("This shouldn't happen!!!, fft_signal_source is NOT set, BUG DETECTED, contact author with this information\n");
+				fprintf(stderr,__FILE__":  This shouldn't happen!!!,"
+					" fft_signal_source is NOT set, BUG DETECTED, contact author with this information\n");
 				break;
 		}
 	}

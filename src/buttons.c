@@ -39,8 +39,8 @@ void leave(GtkWidget *widget, gpointer *data)
 {
 	draw_stop();
 	save_config(widget);
-	audio_thread_stopper();
-	close_sound();
+	audio_thread_stopper(data_handle);
+	close_sound(data_handle);
 	/* Free all buffers */
 	mem_dealloc();
 	gtk_main_quit();
@@ -192,29 +192,21 @@ gint scope_sync_source_set(GtkWidget * widget, gpointer *data)
 
 gint set_data_source(GtkWidget *widget, gpointer *data)
 {
-        if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
-        {
-                switch((DataSource)data)
-                {
-			case ESD:
-				audio_thread_stopper();
-				close_sound();
-				data_source = ESD;
-				ring_pos=0;
-				if (open_sound() >= 0)
-				{
-					audio_thread_starter();
-				}
-				break;
-			case ARTS:
-			case GSTREAMER:
-			case JACK:
-			case ALSA_LIB:
-			default:
-				break;
-		}
-	}
-	return TRUE;
+  
+  if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
+    draw_stop();
+    audio_thread_stopper(data_handle);
+    close_sound(data_handle);
+    data_source = (DataSource) data;
+    /* start even if none previously opened 
+       (in case previous sound source was bad) */
+    if ((data_handle=open_sound(data_source)) >= 0)
+      {
+	audio_thread_starter(data_handle);
+	draw_start();
+      }
+  }
+  return TRUE;
 }
 
 gint set_window_width(GtkWidget *widget, gpointer *data)
@@ -379,7 +371,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 	}
 	else
 	{
-		switch((gint)data)
+		switch((ToggleButton)data)
 		{
 			case OPTIONS:
 				gtk_widget_hide(options_win_ptr);
@@ -572,9 +564,9 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 {
 	if (GTK_TOGGLE_BUTTON (widget)->active)
 	{
-		if (((gint)data > 0) && ((gint)data <= 16))
+		if (((long int)data > 0) && ((long int)data <= 16))
 		{
-			decimation_factor = (gint)data;
+			decimation_factor = (long int)data;
 			recalc_markers=1;
 			GTK_ADJUSTMENT(lf_adj)->upper = high_freq - (33.0*(float)RATE/(2.0*decimation_factor));
 			GTK_ADJUSTMENT(hf_adj)->upper = (float)RATE/(2.0*decimation_factor)+RATE/nsamp;
