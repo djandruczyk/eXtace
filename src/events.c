@@ -267,6 +267,11 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	    grad_win_create();
 	    gradient_update();
 	}
+	else if (grad_win_present)
+	{
+	    gtk_widget_hide(grad_win_ptr);
+	    grad_win_present = 0;
+	}
     }
     if ((event->button == 3 ) && ((mode == HORIZ_SPECGRAM) || (mode == VERT_SPECGRAM))) /* If your press button 3 (right one) */
     {
