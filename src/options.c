@@ -431,6 +431,7 @@ int setup_options()
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), box, label);
 
 	frame = gtk_frame_new("High Resolution Display Bandwidth");
+	gtk_widget_set_sensitive(frame,FALSE);
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 

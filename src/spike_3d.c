@@ -23,6 +23,9 @@
 static gint i=0;
 static gfloat dir_angle_rad = 0.0;
 static gfloat dir_angle_deg = 0.0;
+static gfloat det_axis_angle_deg = 0.0;
+static gfloat weight = 0.0;
+static gfloat invweight = 0.0;
 static gint factor=0;
 static gfloat loc_bins_per_pip=0;
 static gint start_x = 0;
@@ -144,6 +147,34 @@ void draw_spike_3d()
 	xaxis_tilt = sin(det_axis_angle);
 	yaxis_tilt = cos(det_axis_angle);
 
+	det_axis_angle_deg = det_axis_angle*90/M_PI_2;
+
+        if ((det_axis_angle_deg >= 0.0) && (det_axis_angle_deg < 90.0))
+        {
+//      printf("QUAD 1\n");
+                weight = det_axis_angle_deg/90;
+                invweight = 1.0-weight;
+        }
+        else if ((det_axis_angle_deg >= 90.0) && (det_axis_angle_deg < 180.0))
+        {
+//      printf("QUAD 2\n");
+                weight = 1.0-((det_axis_angle_deg-90)/90);
+                invweight = -(1.0-weight);
+        }
+        else if ((det_axis_angle_deg >= -180.0) && (det_axis_angle_deg < -90.0))
+        {
+//      printf("QUAD 3\n");
+                weight = -(det_axis_angle_deg+180)/90;
+                invweight = -1.0-weight;
+        }
+        else if ((det_axis_angle_deg >= -90.0) && (det_axis_angle_deg < 0.0))
+        {
+//      printf("QUAD 4\n");
+                weight = det_axis_angle_deg/90;
+                invweight = 1.0+weight;
+        }
+
+
 	/* in pixels */
 	start_x = width-((x_draw_width)*(1.0-xdet_end))-x_offset;
 	end_x = width-((x_draw_width)*(1.0-xdet_start))-x_offset;
@@ -181,11 +212,11 @@ void draw_spike_3d()
 				/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))\
 					*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
 		pt[1].x=pt[0].x\
-	//		-(gint)pip_arr[i]*(x_tilt/2.0)
-			-(gint)pip_arr[i]*(xaxis_tilt);
+			-(gint)pip_arr[i]*(xaxis_tilt)\
+			-(gint)pip_arr[i]*(x_tilt*weight);
 		pt[1].y=pt[0].y
-//			-(gint)pip_arr[i]*(y_tilt/2.0)
-			-(gint)pip_arr[i]*(yaxis_tilt);
+			-(gint)pip_arr[i]*(yaxis_tilt)\
+			-(gint)pip_arr[i]*(y_tilt*invweight);
 		lvl=abs((gint)pip_arr[i]*4);
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
