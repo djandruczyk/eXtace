@@ -78,8 +78,6 @@ gint		x_offset;	/* 3D X axis offset for centering */
 gint		y_offset;	/* 3D X axis offset for centering */
 float		scale;
 gfloat		multiplier;	/* Level multiplier, for fft routines */
-gint		dir_win_present;/* Flag */
-gint		grad_win_present;/* Flag */
 
 GtkWidget	*dir_win_ptr;	/* Pointer */
 GtkWidget	*grad_win_ptr;	/* Pointer */
@@ -101,7 +99,6 @@ gint		display_markers;/* Are markers showing? */
 gint		vert_spec_start;/* place on screen where spectram starts(abs) */
 gint		horiz_spec_start;/* place on screen where spectram starts(abs) */
 gint		color_loc;	/* pixel location in color gradient for color mapper */
-//gint		spec_drag; 	/* spectrogram is being dragged */
 gint		cr[MAXBANDS],cg[MAXBANDS],cb[MAXBANDS];
 gint		scope_sub_mode;	/* Dot, line or gradient sub mode  */
 gint		sub_mode_3D;	/* sub mode for 3D modes */
@@ -149,20 +146,18 @@ gboolean	show_leader;	/* show leading edge on 3D landscape fft */
 gboolean	paused;		/* Display Paused Flag */
 gboolean	recalc_scale;	/* its NOT fixed YET. (done dynamically) */
 gboolean	recalc_markers;	/* flag for marker recalculation routine */
+gboolean	clear_display;	/* Flag to signal a clear of the display */
+gboolean	dir_win_present;/* Flag */
+gboolean	grad_win_present;/* Flag */
 
 gint		fft_signal_source;/* Left right or both channels */
 gint		refresh_rate;	/* display refresh rate*/
 guint 		display_id;	/* display ID for gtk_timeout_* */
 gint		convolve_factor;	
-gshort 		copywindow;	/* size of intermediate buffer for processing */
-gfloat		update_factor;
-gint 		draw_running;
 gint 		win_width;	/* window function options */	
 gint		active_drawing_area;
 gfloat 		noise_floor;
 gfloat		low_freq;
 gfloat		high_freq;
-gint 		bandwidth_change;	/* Flag */
-gint 		clear_display;		/* Flag */
 
 #endif
