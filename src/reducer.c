@@ -45,7 +45,7 @@
  * information somewhat from its original represenation.
  */
 
-void reducer(int low_freq, int hi_freq ,int axis_length)
+void reducer(int lowfreq, int hifreq ,int axis_length)
 {
 	gint i = 0;
 	gint j = 0;
@@ -55,23 +55,33 @@ void reducer(int low_freq, int hi_freq ,int axis_length)
 	gfloat partial = 0.0;
 	gint special_case = 0;
 	gint count = 0;
-	/* Ideally this should be rewritten to allow arbritrary frequecny spreads
-	 * in the display. i.e low and high freq should be slectable eventually
-	 * so that you can zoom into the desired range 
+	gint lowbin = 0;
+	gint highbin = 0;
+	gfloat hertz_per_bin = 0.0;
+	gfloat bins_per_pip = 0.0;
+	/* Ideally this should be rewritten to allow arbritrary frequency 
+	 * spreads in the display. i.e low and high freq should be 
+	 * selectable eventually so that you can zoom into the desired range 
 	 */
-	gfloat bins_per_pip = ((float)nsamp/(RATE/bandwidth))/(fabs(axis_length));
+	
+	hertz_per_bin = (float)RATE/(float)nsamp;
+	lowbin = lowfreq/hertz_per_bin;
+	highbin = hifreq/hertz_per_bin;
 
-	/*    printf("bins_per_pip= %f\n",bins_per_pip); */
-	//    printf("Axis length %i (pixels), bins per pip: %f, low freq %i, high freq %i\n",axis_length,bins_per_pip,low_freq,high_freq);
+//	bins_per_pip = ((float)nsamp/(RATE/bandwidth))/(fabs(axis_length));
+	bins_per_pip = ((float)(highbin-lowbin))/fabs(axis_length);
 
+//	printf("hertz/bin %f, lowbin %i, highbin %i bins_per_pip %f\n",hertz_per_bin,lowbin,highbin,bins_per_pip);
 
 	if ((bins_per_pip <= 0.0) || (axis_length <= 0))
 		printf("ERROR!!, bins_per_pip %f, axis_length %i\n",bins_per_pip,axis_length);
 	pip = bins_per_pip;
 
+	j = lowbin;
+	
 	while (i < axis_length)
 	{
-		if (j >= nsamp)
+		if (j >= highbin*2)
 			printf("reducer error, disp_val OVERFLOW!!\n");
 		count ++;
 		if (count > 10000)
