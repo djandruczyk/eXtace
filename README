@@ -6,7 +6,7 @@ Extace Waveform Viewer
    passing through EsounD or the ALSA card/device/subdevice selected. 
    eXtace will NOT display the output of a CD playing in your CD/CDRW/DVD
    drive, as the drive does all the decoding an just passes analog audio
-   through your soundcards mixer. eXtace requires the raw PCM (Puls Code 
+   through your soundcards mixer. eXtace requires the raw PCM (Pulse Code 
    Modulation) audio data to give you a display.  There are many apps that 
    can extract the audio data from a CD to be played back in this manner. 
    cdda2wav and paranoia are two main applications that can "rip" audio
@@ -19,22 +19,22 @@ Extace Waveform Viewer
    which may have came with your Linux box, while maintaining OSS 
    compatibility.  Currently ALSA is at 0.9.xbeta level, and eXtace does 
    NOT YET support it as the previous loopback functionality has been removed
-   and I have not coded in a workaround yet.
+   and I have not yet figured out a workaround yet.
    
    
 Features:
    eXtace has several modes, 3D Wireframe FFT, 3D solid FFT, 2D Graphic
    Equalizer, Several scopes (dot, line, gradient), a 3D Spike FFT (high
-   resolution) and a 2 2D spectrograms, (horizontal and vertical scroll). 
+   resolution) and some 2D spectrograms, (horizontal and vertical scroll). 
    All modes are fully configurable via the options panel.  Any of the 3D 
-   modes can be dragged around the screen by grabbing an end with the 
+   modes can be dragged around the screen by grabbing an end point with the 
    mouse and moving it anywhere within the window.
 
    The direction panel will appear when the proper display is running.  This
    works similar to above. Just grab the end of the marker and drag it around 
    and the trace will travel off into space in the same direction as the 
-   pointer in the direction window.
-
+   pointer in the direction window. The farther you drag the line from the 
+   center of the window, the faster the display will scroll.
 
    Clicking your middle mouse button on any of the displays brings up a 
    colormap editor to change the colormap eXtace uses.  (For those of you with
@@ -50,9 +50,8 @@ Features:
 Compilation instructions:
    You will need either ALSA or Esound installed and working and the FFTW 
    (Fastest FFT in the West) library to build and run eXtace.
-   The FFTW lib can be found on http://www.fftw.org/. Source and Binary RPMS
+   The FFTW lib can be found on http://www.fftw.org/.  Source and Binary RPMS
    are mirrored on http://extace.souceforge.net/
-
 
    Run "./configure" (no quotes). Then "make" and then "make install" as root.
    Every effort has been taken to try and address the various installation
@@ -60,7 +59,6 @@ Compilation instructions:
    a library or header file properly.  If you run into this problem, email
    me your config.log, the screen output from running ./configure and any 
    options you fed to configure to get it to fail.
-
 
    The EsounD daemon 'esd' will need to be running as well, though NOT 
    necessarily if you are using ALSA and have selected the proper card/device 
@@ -77,7 +75,7 @@ Compilation instructions:
        user configurable with module parameters in /etc/conf.modules. See ALSA
        documentation for more details.
        A Device is a PCM (Pulse Code Modulation), a.k.a. DAC device on the card.
-       Most cards only have one, others (AC97 and others can have more)
+       Most cards only have one, others (AC97, SBlive and others can have more)
        A subdevice (formerly known as subchannel) is if the card is a multi-
        channel card. (i.e. a High end professional series card). The subdevice
        also applies to ALSA's "share" card, which is a virtual sound card that
@@ -107,16 +105,15 @@ Testing:
    The sine.c is an example program to test extace with, just run
 
 	./sine | esdcat				<--- ESOUND
-	./sine | aplay -c0 -fs16l -s44100 -S	<--- ALSA
+	./sine | aplay -c0 -fs16l -s44100 -S	<--- ALSA 0.5.x
 change the -c0 to whatever soundcard number you have if you have more than
 one. The ALSA line is specific to Alsa 0.5.x series. ALSA 0.9.0 may have 
 different syntax when it is released.
 
-
    Turn down your volume though as it may be loud.. :)
-   This feeds a sine wave into ALSA/Esound which you should hear, 
-   and see in eXtace.
-
+   This feeds a periodically decreasing sine wave into ALSA/Esound which 
+   you should hear, and see in eXtace.
+  
 Misc:
    The scope has an option in the panel to enable/disable the Trace Stabilizer.
    The stabilizer uses a mathematical routine (called a convolution) that 
