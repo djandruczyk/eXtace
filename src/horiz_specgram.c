@@ -35,7 +35,7 @@ void draw_horiz_specgram()
 	{
                 update_freq_markers();
                 clear_display = 0;
-                display_markers = 0;
+                display_markers = TRUE;
 	}
 	gdk_window_copy_area(main_pixmap,gc,
 			0,border,

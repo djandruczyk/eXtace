@@ -24,63 +24,6 @@
 #include <string.h>
 
 
-/*
-void update_time_markers()
-{
-	gint x=0;
-	gint y=0;
-	gint start=0;
-	gint space=0;
-	if (mode == HORIZ_SPECGRAM)
-	{
-		start = width-horiz_spec_start;
-		space = (gint)(((ring_rate/(float)nsamp))*2.0*
-			       (float)tape_scroll);
-		if (nsamp < 4096)
-			space = space/2.0;
-
-		gdk_draw_rectangle(main_pixmap,
-				main_display->style->black_gc,
-				TRUE, 0,height-time_border,
-				width-horiz_spec_start,time_border);
-
-		for (x=start; x > 0; x-= space)
-		{
-			gdk_draw_line(main_pixmap,main_display->style->white_gc,
-					x,height-time_border+3,x,height-time_border/2);
-			for (y=1; y < 10;y++)
-			{
-				gdk_draw_line(main_pixmap,main_display->style->white_gc,
-						x-(y*space/10),height-time_border+2,x-(y*space/10),height-time_border+6);
-			}
-		}
-	}
-	else if (mode == VERT_SPECGRAM)
-	{
-		start = height-vert_spec_start;
-		space = (gint)(((ring_rate/(float)nsamp))*2.0*(float)tape_scroll);
-		if (nsamp < 4096)
-			space = space/2.0;
-		gdk_draw_rectangle(main_pixmap,
-				main_display->style->black_gc,
-				TRUE, width-time_border,0,
-				time_border,height-vert_spec_start);
-
-		for (y=start; y > 0; y-= space)
-		{
-			gdk_draw_line(main_pixmap,main_display->style->white_gc,
-					width-time_border+3,y,width-time_border/2,y);
-			for (x=1; x < 10;x++)
-			{
-				gdk_draw_line(main_pixmap,main_display->style->white_gc,
-						width-time_border+2,y-(x*space/10),width-time_border+6,y-(x*space/10));
-			}
-		}
-	}
-	gdk_window_clear(main_display->window);
-}
-*/
-
 void buffer_area_update(void)
 {
 	gchar buff[60];
@@ -123,9 +66,11 @@ void update_freq_markers()
 	int i = 0;
 	gint num_markers = 0;
 	gint x1,x2,y1,y2;
-	const gint pixels_per_vmarker = 30;
-	const gint pixels_per_hmarker = 50;
+	const gint pixels_per_vmarker = 35;
+	const gint pixels_per_hmarker = 60;
 	extern gint ready;
+	gfloat freq_mark;
+	gchar buff[10];
 
 	if(!ready)
 		return;
@@ -161,15 +106,19 @@ void update_freq_markers()
 		for (i=0;i<=num_markers;i++) 
 		{
 			x1 = bord;
-//			x1 = (((float)i/(float)num_markers)*active_drawing_area)+border;
 			y1 = (((float)i/(float)num_markers)*active_drawing_area)+border;
 			x2 = x1 + l_length;
 			y2 = y1;
 
 			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y1,x2,y2);
+			freq_mark = (((float)(num_markers-i)/(float)num_markers)*((high_freq-low_freq)/decimation_factor))+(low_freq/decimation_factor);
 
-/*			g_snprintf(buff,10,"%i kHz",i);
+			if (freq_mark > 1000)
+				g_snprintf(buff,10,"%.1f Khz",freq_mark/1000.0);
+			else
+				g_snprintf(buff,10,"%.1f Hz",freq_mark);
+			
 			x2 += 3;
 			y2 += gdk_text_height(main_display->style->font,
 					buff,
@@ -179,7 +128,7 @@ void update_freq_markers()
 					x2,y2,
 					buff,
 					strlen(buff));
-*/
+
 		}
 	}
 	else if (mode == VERT_SPECGRAM)
@@ -212,8 +161,11 @@ void update_freq_markers()
 					style->white_gc,\
 					x1,y1,x2,y2);
 
-/*
-			g_snprintf(buff,10,"%i kHz",i);
+			freq_mark = (((float)i/(float)num_markers)*((high_freq-low_freq)/decimation_factor))+low_freq;
+			if (freq_mark > 1000)
+				g_snprintf(buff,10,"%.1f Khz",freq_mark/1000.0);
+			else
+				g_snprintf(buff,10,"%.1f Hz",freq_mark);
 			x2 -= 16;
 			y2 = y1+l_length + 2*gdk_text_height(main_display->\
 					style->font,
@@ -229,7 +181,6 @@ void update_freq_markers()
 			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y2,x1,y2+l_length);
 
-*/
 		}
 	}
 	gdk_window_clear(main_display->window);

@@ -105,7 +105,7 @@ void draw_land3d_fft()
 		dir_angle_deg += 360;
 
 
-	if (landtilt == 0) /* Perspective tilting disabled */
+	if (landtilt == FALSE) /* Perspective tilting disabled */
 	{
 		x_tilt=0.0;
 		y_tilt=0.0;

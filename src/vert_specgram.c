@@ -37,12 +37,11 @@ void draw_vert_specgram()
 	{
 		update_freq_markers();
 		clear_display = 0;
-//		update_time_markers();
-		display_markers = 0;
+		display_markers = FALSE;
 	}
 	if (count >= 30)
 	{
-		display_markers=1;
+		display_markers=TRUE;
 		count=0;
 	}
 	gdk_window_copy_area(main_pixmap,gc,

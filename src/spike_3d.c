@@ -120,7 +120,7 @@ void draw_spike_3d()
 		dir_angle_deg += 360.0;
 
 
-	if (spiketilt == 0)
+	if (spiketilt == FALSE)
 	{
 		x_tilt=0.0;
 		y_tilt=0.0;

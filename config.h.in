@@ -4,23 +4,56 @@
 #undef HAVE_ESD
 #undef HAVE_COMEDI
 
+/* Define if you have the <asm/errno.h> header file.  */
+#undef HAVE_ASM_ERRNO_H
+
 /* Define if you have the <comedilib.h> header file.  */
 #undef HAVE_COMEDILIB_H
 
 /* Define if you have the <dlfcn.h> header file.  */
 #undef HAVE_DLFCN_H
 
+/* Define if you have the <drfftw.h> header file.  */
+#undef HAVE_DRFFTW_H
+
+/* Define if you have the <esd.h> header file.  */
+#undef HAVE_ESD_H
+
 /* Define if you have the <fcntl.h> header file.  */
 #undef HAVE_FCNTL_H
+
+/* Define if you have the <math.h> header file.  */
+#undef HAVE_MATH_H
 
 /* Define if you have the <pthread.h> header file.  */
 #undef HAVE_PTHREAD_H
 
+/* Define if you have the <rfftw.h> header file.  */
+#undef HAVE_RFFTW_H
+
+/* Define if you have the <stdio.h> header file.  */
+#undef HAVE_STDIO_H
+
+/* Define if you have the <stdlib.h> header file.  */
+#undef HAVE_STDLIB_H
+
+/* Define if you have the <string.h> header file.  */
+#undef HAVE_STRING_H
+
 /* Define if you have the <sys/ioctl.h> header file.  */
 #undef HAVE_SYS_IOCTL_H
 
+/* Define if you have the <sys/poll.h> header file.  */
+#undef HAVE_SYS_POLL_H
+
+/* Define if you have the <sys/stat.h> header file.  */
+#undef HAVE_SYS_STAT_H
+
 /* Define if you have the <sys/time.h> header file.  */
 #undef HAVE_SYS_TIME_H
+
+/* Define if you have the <sys/types.h> header file.  */
+#undef HAVE_SYS_TYPES_H
 
 /* Define if you have the <unistd.h> header file.  */
 #undef HAVE_UNISTD_H

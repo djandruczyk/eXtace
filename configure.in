@@ -31,19 +31,33 @@ AC_PROG_LN_S
 AC_PROG_MAKE_SET
 AM_PROG_LIBTOOL
 
+dnl Checks for header files.
+dnl AC_HEADER_DIRENT
+dnl AC_HEADER_STDC
+AC_CHECK_HEADERS(asm/errno.h drfftw.h esd.h fcntl.h math.h pthread.h  rfftw.h stdio.h stdlib.h string.h sys/ioctl.h sys/poll.h sys/time.h sys/stat.h sys/types.h unistd.h )
+
+
+dnl 
+dnl check for GTK 1.2
+dnl
+
 AM_PATH_GTK(1.2.0, , AC_MSG_ERROR([** GTK 1.2.0 not installed or broken **]),gthread)
 AM_PATH_GLIB(1.2.0, , AC_MSG_ERROR([** GLIB 1.2.0 not installed or broken **]),gthread)
 
 dnl
 dnl Check for esound library
 dnl
-AM_PATH_ESD(0.2.8, AC_DEFINE(HAVE_ESD),echo "You need the esound-devel package!!!";exit 0)
+AM_PATH_ESD(0.2.8, AC_DEFINE(HAVE_ESD),echo "You need the esound-devel package!!!";exit 0,[`esd-config --libs`])
 
+dnl POSIX.4 threads
+dnl ---
+AC_CHECK_LIB(pthread,pthread_create, ,
+         AC_CHECK_LIB(c_r,pthread_create,LDFLAGS="-pthreads",
+                 AC_MSG_ERROR([** POSIX.4 threads not installed or broken **])))
 
-dnl Checks for header files.
-dnl AC_HEADER_DIRENT
-dnl AC_HEADER_STDC
-AC_CHECK_HEADERS(fcntl.h sys/ioctl.h sys/time.h unistd.h pthread.h)
+dnl ===============
+dnl Debugging stuff
+dnl ===============
 
 CFLAGS="-O2 "
 AC_SUBST(CFLAGS)
@@ -54,132 +68,7 @@ AC_SUBST(EFENCE)
 EXTRA_LIBS=""
 AC_SUBST(EXTRA_LIBS)
 
-dnl ===============
-dnl Debugging stuff
-dnl ===============
 
-dnl General Debugging code
-AC_ARG_ENABLE(debug,
-[  --enable-debug	  enable debugging [default=no]],, enable_debug=no)
-
-if test "$enable_debug" = yes; then
-DFLAGS="$DFLAGS -g -DDEBUG"
-fi
-AC_SUBST(DFLAGS)
-
-dnl ALSA support removed, no longer needed
-dnl ALSA routines Debugging code
-dnl AC_ARG_ENABLE(alsa-debug,
-dnl [  --enable-alsa-debug	  enable ALSA debugging [default=no]],, enable_alsa_debug=no)
-
-dnl if test "$enable_alsa_debug" = yes; then
-dnl DFLAGS="$DFLAGS -g -DALSA_DEBUG"
-dnl fi
-dnl AC_SUBST(DFLAGS)
-
-dnl Thread routines Debugging code
-AC_ARG_ENABLE(thread-debug,
-[  --enable-thread-debug	  enable thread debugging [default=no]],, enable_thread_debug=no)
-
-if test "$enable_thread_debug" = yes; then
-DFLAGS="$DFLAGS -g -DTHREAD_DEBUG"
-fi
-AC_SUBST(DFLAGS)
-
-dnl Drag'n Drop routines Debugging code
-AC_ARG_ENABLE(dnd-debug,
-[  --enable-dnd-debug	  enable DND debugging ],, enable_dnd_debug=no)
-
-if test "$enable_dnd_debug" = yes; then
-DFLAGS="$DFLAGS -g -DDND_DEBUG"
-fi
-AC_SUBST(DFLAGS)
-
-dnl Window function Debugging code
-AC_ARG_ENABLE(window-debug,
-[  --enable-window-debug	  enable window function debugging ],, enable_window_debug=no)
-
-if test "$enable_window_debug" = yes; then
-DFLAGS="$DFLAGS -g -DWINDOW_DEBUG"
-fi
-AC_SUBST(DFLAGS)
-
-dnl Buffer functions Debugging code
-AC_ARG_ENABLE(buffer-debug,
-[  --enable-buffer-debug	  enable buffering code debugging ],, enable_buffer_debug=no)
-
-if test "$enable_buffer_debug" = yes; then
-DFLAGS="$DFLAGS -g -DBUFFER_DEBUG"
-fi
-AC_SUBST(DFLAGS)
-
-dnl Use electric fence (malloc debugger)
-AC_ARG_ENABLE(malloc-debug,
-[  --enable-malloc-debug	  enable Malloc code debugging via ElectricFence ],, enable_malloc_debug=no)
-
-if test "$enable_malloc_debug" = yes; then
-	AC_CHECK_LIB(efence, malloc,, )
-EFENCE="$EFENCE -lefence"
-fi
-AC_SUBST(EFENCE)
-
-dnl ==============
-dnl profiling
-dnl =============
-
-
-
-AC_ARG_ENABLE(profiling,
-[  --enable-profiling	  enable profiling ],, enable_profiling=no)
-
-if test "$enable_profiling" = yes; then
-PFLAGS="-pg"
-fi
-AC_SUBST(PFLAGS)
-
-dnl ---
-dnl POSIX.4 threads
-dnl ---
-AC_CHECK_LIB(pthread,pthread_create, ,
-         AC_CHECK_LIB(c_r,pthread_create,LDFLAGS="-pthreads",
-                 AC_MSG_ERROR([** POSIX.4 threads not installed or broken **])))
-
-
-dnl ===============
-dnl Alsa Specific
-dnl ===============
-
-dnl AC_MSG_CHECKING(for alsa version)
-dnl AC_EGREP_CPP([AP_maGiC_VALUE],
-dnl [
-dnl #include <sys/asoundlib.h>
-dnl #if defined(SND_LIB_MAJOR) && defined(SND_LIB_MINOR)
-dnl #if SND_LIB_MAJOR>0 || (SND_LIB_MAJOR==0 && SND_LIB_MINOR==5)
-dnl AP_maGiC_VALUE
-dnl #endif
-dnl #endif
-dnl ],
-dnl have_alsa_05x=yes
-dnl ALSA_LIBS="-lasound"
-dnl AC_DEFINE(HAVE_ALSA_05)
-dnl AC_MSG_RESULT([found 0.5.x]),
-dnl AC_EGREP_CPP([AP_maGiC_VALUE],
-dnl [
-dnl #include <sys/asoundlib.h>
-dnl #if defined(SND_LIB_MAJOR) && defined(SND_LIB_MINOR)
-dnl #if SND_LIB_MAJOR>0 || (SND_LIB_MAJOR==0 && SND_LIB_MINOR>=6)
-dnl AP_maGiC_VALUE
-dnl #endif
-dnl #endif
-dnl ],
-dnl have_alsa_final=yes
-dnl ALSA_LIBS=" "
-dnl AC_DEFINE(HAVE_ALSA_09)
-dnl AC_MSG_RESULT([found latest])
-dnl )
-dnl )
-dnl 
-dnl
 
 dnl
 dnl Check for COMEDI library
@@ -230,8 +119,61 @@ then
 
 fi
 
+dnl
+dnl Check for imlib
+dnl
 LIBS=""
 AC_CHECK_LIB(gdk_imlib, gdk_imlib_render,,echo "Imlib not found!"; exit 0,[`gtk-config --libs` ])
+
+dnl ---
+
+dnl General Debugging code
+AC_ARG_ENABLE(debug,
+[  --enable-debug	  enable debugging [default=no]],, enable_debug=no)
+
+if test "$enable_debug" = yes; then
+DFLAGS="$DFLAGS -g -DDEBUG"
+fi
+AC_SUBST(DFLAGS)
+
+dnl Drag'n Drop routines Debugging code
+AC_ARG_ENABLE(dnd-debug,
+[  --enable-dnd-debug	  enable DND debugging ],, enable_dnd_debug=no)
+
+if test "$enable_dnd_debug" = yes; then
+DFLAGS="$DFLAGS -g -DDND_DEBUG"
+fi
+AC_SUBST(DFLAGS)
+
+dnl Window function Debugging code
+AC_ARG_ENABLE(window-debug,
+[  --enable-window-debug	  enable window function debugging ],, enable_window_debug=no)
+
+if test "$enable_window_debug" = yes; then
+DFLAGS="$DFLAGS -g -DWINDOW_DEBUG"
+fi
+AC_SUBST(DFLAGS)
+
+dnl Use electric fence (malloc debugger)
+AC_ARG_ENABLE(malloc-debug,
+[  --enable-malloc-debug	  enable Malloc code debugging via ElectricFence ],, enable_malloc_debug=no)
+
+if test "$enable_malloc_debug" = yes; then
+	AC_CHECK_LIB(efence, malloc,, )
+EFENCE="$EFENCE -lefence"
+fi
+AC_SUBST(EFENCE)
+
+dnl ==============
+dnl profiling
+dnl =============
+AC_ARG_ENABLE(profiling,
+[  --enable-profiling	  enable profiling ],, enable_profiling=no)
+
+if test "$enable_profiling" = yes; then
+PFLAGS="-pg"
+fi
+AC_SUBST(PFLAGS)
 
 EXTACE_DATADIR="${prefix}/share/eXtace"
 AC_SUBST(EXTACE_DATADIR)
@@ -253,10 +195,7 @@ Configuration:
 
     Install Path:			${prefix}
     General Debugging:			${enable_debug}
-    Thread Debugging:			${enable_thread_debug}
-dnl    ALSA Debugging:			${enable_alsa_debug}
-    Buffer Code Debugging:		${enable_buffer_debug}
-    Drag 'n Drop Debugging:		${enable_dnd_debug}
+    Drag'n Drop Debugging:		${enable_dnd_debug}
     Window Function Debugging:		${enable_window_debug}
     Memory Allocation Debugging:	${enable_malloc_debug}
     Profiling:				${enable_profiling}

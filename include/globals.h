@@ -71,9 +71,6 @@ gint  		colortab[MAXBANDS][MAXBANDS];/* ugly, statically allocated to up to MAXB
 gint		mode;		/* What display mode are we in */
 
 
-gint		peak_decay;	/* peak_decay and decay are tied together */
-gint		stabilized;	/* scope trace stabilizer option */
-gint		bar_decay;	/* bar_decay and decay are tied together */
 gint		bar_decay_speed;/* decay_speed ONLY works with bar_decay "on" (1) */
 gint		peak_decay_speed;/* decay_val ONLY works with peak_decay "on" (1) */
 gint		peak_hold_time;/* peak hold time ONLY works with peak_decay "on" (1) */
@@ -81,9 +78,6 @@ gint		border;		/* border around displays */
 gint		x_offset;	/* 3D X axis offset for centering */
 gint		y_offset;	/* 3D X axis offset for centering */
 float		scale;
-gint		recalc_scale;	/* its NOT fixed YET. (done dynamically) */
-gint		recalc_markers;	/* flag for marker recalculation routine */
-gint		show_leader;	/* show leading edge on 3D landscape fft */
 gfloat		multiplier;	/* Level multiplier, for fft routines */
 gint		dir_win_present;/* Flag */
 gint		grad_win_present;/* Flag */
@@ -130,7 +124,6 @@ gint		sync_to_left;	/* Scope displayt to sync on left channel */
 gint		sync_to_right;	/* Scope displayt to sync on left channel */
 gint		sync_independant;/* Each channel self synchronizes.. */
 gint		r_count;
-gint		show_graticule;	/* show scope graticule */
 glong		frame_cnt;	/* Frame count */
 struct		timeval cur_time, last_time;
 struct		timeval audio_arrival, audio_display, latency;
@@ -144,11 +137,20 @@ struct		Color_map {
 }Color_map;
 
 fftw_plan	plan;		/* fft plan for fftw library */
-gint		landtilt;	/* flag */
-gint		spiketilt;	/* flag */
-gint		landflip;	/* Invert Y axis on 3D modes */
-gint		spikeflip;	/* Invert Y axis on 3D modes */
-gint		outlined;	/* Outlined 3D landform flag */
+gboolean	landtilt;	/* Landform 3D perspective tilt flag */
+gboolean	spiketilt;	/* Spike 3D perspective tilt flag */
+gboolean	landflip;	/* Invert Y axis on 3D modes */
+gboolean	spikeflip;	/* Invert Y axis on 3D modes */
+gboolean	outlined;	/* Outlined 3D landform flag */
+gboolean	stabilized;	/* scope trace stabilizer option */
+gboolean	peak_decay;	/* peak_decay and decay are tied together */
+gboolean	bar_decay;	/* bar_decay and decay are tied together */
+gboolean	show_graticule;	/* show scope graticule */
+gboolean	show_leader;	/* show leading edge on 3D landscape fft */
+gboolean	paused;		/* Display Paused Flag */
+gboolean	recalc_scale;	/* its NOT fixed YET. (done dynamically) */
+gboolean	recalc_markers;	/* flag for marker recalculation routine */
+
 gint		fft_signal_source;/* Left right or both channels */
 gint		refresh_rate;	/* display refresh rate*/
 guint 		display_id;	/* display ID for gtk_timeout_* */
@@ -159,7 +161,6 @@ gint 		draw_running;
 gint 		win_width;	/* window function options */	
 gint		active_drawing_area;
 gfloat 		noise_floor;
-gint 		paused;			/* Flag */
 gfloat		low_freq;
 gfloat		high_freq;
 gint 		bandwidth_change;	/* Flag */

@@ -293,7 +293,7 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)LEADING_EDGE);
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), !show_leader);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), show_leader);
 
 	button = gtk_toggle_button_new_with_label("Bar Decay Disabled");
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
@@ -314,8 +314,7 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)LANDFLIP);
-	if (landflip == -1)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),1);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),landflip);
 
 	button = gtk_toggle_button_new_with_label("Smooth 3D Landform");
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
@@ -518,8 +517,7 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(hbox),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), (gpointer)SPIKEFLIP);
-	if (spikeflip == -1)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),1);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button),spikeflip);
 
 	button = gtk_toggle_button_new_with_label("Spikes Perspective Tilt Disabled");
 	gtk_box_pack_start(GTK_BOX(hbox),button,FALSE,TRUE,0);

@@ -97,10 +97,11 @@ int draw(void)
 	gfloat fractional_bands = 0.0;
 	static gint lin_x_axis[MAXBANDS];
 	static gint log_x_axis[MAXBANDS];
-	gdouble val=0;
-	gint sum=0;
-	gint count=0;
-	gfloat resolution=0.0;
+	gdouble val = 0;
+	gint sum = 0;
+	gint count = 0;
+	gint factor = 0;
+	gfloat resolution = 0.0;
 
 	/* If no window, just return */
 	if (!main_display->window) return (TRUE);
@@ -115,17 +116,25 @@ int draw(void)
 
 	if (mode == LAND_3D)
 	{
+		if (landflip == TRUE)
+			factor = -1;
+		else
+			factor = 1;
 		for (i=1; i<nsamp/2; i++)
 		{
-			disp_val[i-1] = (norm_fft[i]/20)*landflip;
+			disp_val[i-1] = (norm_fft[i]/20)*factor;
 		}
 		disp_val[(nsamp/2)-1]=0;
 	}
 	else if (mode == SPIKE_3D)
 	{
+		if (spikeflip == TRUE)
+			factor = -1;
+		else
+			factor = 1;
 		for (i=1; i<nsamp/2; i++)
 		{
-			disp_val[i-1] = (norm_fft[i]/20)*spikeflip;
+			disp_val[i-1] = (norm_fft[i]/20)*factor;
 		}
 		disp_val[(nsamp/2)-1]=0;
 	}
@@ -214,7 +223,7 @@ recalc:
 					g_print("Scalefactor %f\n",scalefactor);
 					g_print("Number of points in display is %i\n",sum);
 #endif
-					recalc_scale = 0;
+					recalc_scale = FALSE;
 				}
 				break;
 		}
@@ -298,12 +307,12 @@ recalc:
 			{
 				if (mode == LAND_3D)
 				{
-					if (landflip == 1)
+					if (landflip)
 					{
-						if (val<=(levels[i]-bar_decay_speed))
+						if (val>=(levels[i]-bar_decay_speed))
 						{
-							levels[i]-=bar_decay_speed;
-							if (levels[i]<0)
+							levels[i]+=bar_decay_speed;
+							if (levels[i]>0)
 								levels[i]=0;
 						}
 						else 
@@ -311,10 +320,10 @@ recalc:
 					}
 					else
 					{
-						if (val>=(levels[i]-bar_decay_speed))
+						if (val<=(levels[i]-bar_decay_speed))
 						{
-							levels[i]+=bar_decay_speed;
-							if (levels[i]>0)
+							levels[i]-=bar_decay_speed;
+							if (levels[i]<0)
 								levels[i]=0;
 						}
 						else 

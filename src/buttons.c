@@ -78,8 +78,8 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 	{
 		case BANDS:
 			bands = GTK_ADJUSTMENT(widget)->value;
-			recalc_scale = 1;		/* MUST recaluclate scalefactor */
-			recalc_markers = 1;		/* recalculate marker values */
+			recalc_scale = TRUE;		/* MUST recaluclate scalefactor */
+			recalc_markers = TRUE;		/* recalculate marker values */
 			break;
 		case SENSITIVITY:
 			multiplier = GTK_ADJUSTMENT(widget)->value;
@@ -110,10 +110,12 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 			break;
 		case LOW_LIMIT:
 			low_freq = GTK_ADJUSTMENT(widget)->value;
+			display_markers = TRUE;
 			ring_rate_changed();
 			break;
 		case HIGH_LIMIT:
 			high_freq = GTK_ADJUSTMENT(widget)->value;
+			display_markers = TRUE;
 			ring_rate_changed();
 			break;
 		default:
@@ -130,11 +132,11 @@ gint fft_set_axis_type(GtkWidget * widget, gpointer *data)
 		{
 			case LOG:
 				axis_type = LOG; 
-				recalc_markers = 1;
+				recalc_markers = TRUE;
 				break;
 			case LINEAR:
 				axis_type = LINEAR; 
-				recalc_markers = 1;
+				recalc_markers = TRUE;
 				break;
 		}
 	}
@@ -302,20 +304,20 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
-						"Leading Edge Hidden");
-				show_leader = 0;
+						"Leading Edge Shown");
+				show_leader = TRUE;
 				break;
 			case USE_BAR_DECAY:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Bar Decay Enabled");
-				bar_decay = 1;
+				bar_decay = TRUE;
 				break;
 			case USE_PEAK_DECAY:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Peak Decay Enabled");
-				peak_decay = 1;
+				peak_decay = TRUE;
 				break;
 			case OUTLINED:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
@@ -327,39 +329,39 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Trace Stabilizer Enabled");
-				stabilized = 1;
+				stabilized = TRUE;
 				break;
 			case GRATICULE:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Scope Graticule Enabled");
-				show_graticule = 1;
+				show_graticule = TRUE;
 				break;
 			case LAND_PERS_TILT:
-				landtilt = 1; 
+				landtilt = TRUE; 
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Landform Perspective Tilt Enabled");
 				break;
 			case SPIKE_PERS_TILT:
-				spiketilt = 1; 
+				spiketilt = TRUE; 
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Spikes Perspective Tilt Enabled");
 				break;
 			case LANDFLIP:
-				landflip = -1;
+				landflip = TRUE;
 				break;
 
 			case SPIKEFLIP:
-				spikeflip = -1;
+				spikeflip = TRUE;
 				break;
 
 			case PAUSE_DISP:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Resume Display");
-				paused = 1;
+				paused = TRUE;
 				draw_stop();
 				break;
 
@@ -378,20 +380,20 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 			case LEADING_EDGE:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
-						"Leading Edge Shown");
-				show_leader = 1;
+						"Leading Edge Hidden");
+				show_leader = FALSE;
 				break;
 			case USE_BAR_DECAY:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Bar Decay Disabled");
-				bar_decay = 0;
+				bar_decay = FALSE;
 				break;
 			case USE_PEAK_DECAY:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Peak Decay Disabled");
-				peak_decay = 0;
+				peak_decay = FALSE;
 				break;
 			case OUTLINED:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
@@ -403,7 +405,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Trace Stabilizer Disabled");
-				stabilized = 0;
+				stabilized = FALSE;
 				/* gotta clear the screen to prevent old data from
 				 * laying around....
 				 */
@@ -417,7 +419,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Scope Graticule Disabled");
-				show_graticule = 0;
+				show_graticule = FALSE;
 				/* gotta clear the screen to prevent old data from
 				 * laying around....
 				 */
@@ -428,28 +430,28 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 
 				break;
 			case LAND_PERS_TILT:
-				landtilt = 0; 
+				landtilt = FALSE; 
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Landform Perspective Tilt Disabled");
 				break;
 			case SPIKE_PERS_TILT:
-				spiketilt = 0; 
+				spiketilt = FALSE; 
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Spikes Perspective Tilt Disabled");
 				break;
 			case LANDFLIP:
-				landflip = 1;
+				landflip = FALSE;
 				break;
 			case SPIKEFLIP:
-				spikeflip = 1;
+				spikeflip = FALSE;
 				break;
 			case PAUSE_DISP:
 				gtk_label_set_text(GTK_LABEL(GTK_BIN 
 						(widget)->child),
 						"Pause Display");
-				paused = 0;
+				paused = FALSE;
 				draw_start();
 				break;
 			default:
@@ -567,7 +569,8 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 		if (((long int)data > 0) && ((long int)data <= 16))
 		{
 			decimation_factor = (long int)data;
-			recalc_markers=1;
+			recalc_markers=TRUE;
+			display_markers=TRUE;
 			ring_rate_changed();
 		}
 	}

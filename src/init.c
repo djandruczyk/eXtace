@@ -79,8 +79,8 @@ void init()
 	left_amplitude = 127.0/32768.0; /* Scaler for something */
 	right_amplitude = 127.0/32768.0; /* Scaler for something */
 	fft_signal_source = LEFT_PLUS_RIGHT;/* signal input source for fft */
-	landflip = 1;		/* Flip 3D axis over */
-	spikeflip = 1;		/* Flip 3D axis over */
+	landflip = FALSE;	/* Flip 3D axis over */
+	spikeflip = FALSE;	/* Flip 3D axis over */
 	axis_type = LOG;	/* Logarithmic display for 3D land and EQ modes */
 	window_func = HAMMING;	/* Hamming window (see misc.c) */
 	win_width = FULL;	/* use full window function, not cramped version */
@@ -96,9 +96,9 @@ void init()
 	decimation_factor=1;	
 	seg_height = 2;		/* height per segment in 2d spectrum analyzer */
 	seg_space = 1;		/* space between segments in 2d analyzer */
-	stabilized = 1;		/* Scope stabilizer routine */
-	bar_decay = 0;		/* bar_decay and peak_decay are tied together */
-	peak_decay = 0;		/* bar_decay and peak_decay are tied together */
+	stabilized = TRUE;	/* Scope stabilizer routine */
+	bar_decay = FALSE;	/* bar_decay and peak_decay are tied together */
+	peak_decay = TRUE;	/* bar_decay and peak_decay are tied together */
 	bar_decay_speed = 7;	/* decay_speed ONLY works with bar_decay "on" (1) */
 	peak_decay_speed = 1;	/* decay_speed ONLY works with peak_decay "on" (1) */
 	peak_hold_time = 10;	/* hold_time ONLY works with peak_decay "on" (1) */
@@ -106,7 +106,7 @@ void init()
 	zdet_scroll = 2;	/* detailed scroll in pixels */
 	xdet_start= 0.00;	/* The 3d DETAILED fft's amount of horizontal */
 	ydet_start = 0.00;	/* detailed y axis start position (percent) */
-	xdet_end = 1.00;	/* The 3d DETAILED fft's amount of horizontal */
+	xdet_end = 0.95;	/* The 3d DETAILED fft's amount of horizontal */
 	ydet_end = 0.23;	/* detailed y axis start position (percent) */
 	x3d_start = 0.00;	/* The 3d X start point of axis (percentage) */
 	y3d_start = 0.00;	/* The 3d Y start point of axis (percentage) */
@@ -116,14 +116,14 @@ void init()
 	z3d_scroll = 6;		/* 3D scroll in pixels z axis */
 	border = 8;		/* border around most displays */
 	x_offset = 0;		/* 3D X axis offset for centering */
-	landtilt = 1;		/* Flag */
-	outlined = TRUE;	/* Outlined 3D Landform style */
-	spiketilt = 0;		/* Flag */
-
 	y_offset = 0;		/* 3D X axis offset for centering */
-	recalc_scale = 1;	/* its NOT fixed YET. (done dynamically) */
-	recalc_markers = 1;	/* its NOT fixed YET. (done dynamically) */
-	show_leader = 0;	/* show leading edge on 3d landscape fft */
+	landtilt = TRUE;		/* Flag */
+	outlined = TRUE;	/* Outlined 3D Landform style */
+	spiketilt = TRUE;		/* Flag */
+
+	recalc_scale = TRUE;	/* its NOT fixed YET. (done dynamically) */
+	recalc_markers = TRUE;	/* its NOT fixed YET. (done dynamically) */
+	show_leader = TRUE;	/* show leading edge on 3d landscape fft */
 	multiplier = 26.0;	/* Level multiplier, fft amplitude adj */
 	noise_floor = -80;	/* FFT noise floor position. (NEEDS WORK!!!) */
 	/* WON'T max out when you resize */
@@ -147,7 +147,7 @@ void init()
 	sync_to_left = 1;	/* default to sync to left channel */
 	sync_to_right = 0; 	/* sync to right channel */
 	sync_independant = 0;	 /* independtant sync */
-	paused = 0;		 /* display running */
+	paused = FALSE;		 /* display running */
 	low_freq = 0;		 /* Low frequency cutoff in hi-res displays */
 	high_freq = 22050;		 /* Low frequency cutoff in hi-res displays */
 	clear_display = 0;	/* Flag for markers */
@@ -194,8 +194,8 @@ void read_config(void)
 
 			g_free(temp_cmap);
 		}
-		cfg_read_int(cfgfile, "Global", "landtilt", &landtilt);
-		cfg_read_int(cfgfile, "Global", "spiketilt", &spiketilt);
+		cfg_read_boolean(cfgfile, "Global", "landtilt", &landtilt);
+		cfg_read_boolean(cfgfile, "Global", "spiketilt", &spiketilt);
 		cfg_read_float(cfgfile, "Global", "low_freq", &low_freq);
 		cfg_read_float(cfgfile, "Global", "high_freq", &high_freq);
 		cfg_read_int(cfgfile, "Window", "width", &width);
@@ -218,7 +218,7 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
 		cfg_read_int(cfgfile, "Global", "landflip", &landflip);
 		cfg_read_int(cfgfile, "Global", "spikeflip", &spikeflip);
-		cfg_read_int(cfgfile, "Global", "outlined", &outlined);
+		cfg_read_boolean(cfgfile, "Global", "outlined", &outlined);
 		cfg_read_int(cfgfile, "Global", "sub_mode_3D", &sub_mode_3D);
 		cfg_read_int(cfgfile, "Global", "scope_sub_mode", &scope_sub_mode);
 		cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
@@ -241,11 +241,11 @@ void read_config(void)
 		cfg_read_float(cfgfile, "Global", "noise_floor", &noise_floor);
 		cfg_read_int(cfgfile, "Global", "seg_height", &seg_height);
 		cfg_read_int(cfgfile, "Global", "seg_space", &seg_space);
-		cfg_read_int(cfgfile, "Global", "bar_decay", &bar_decay);
-		cfg_read_int(cfgfile, "Global", "peak_decay", &peak_decay);
-		cfg_read_int(cfgfile, "Global", "stabilized", &stabilized);
-		cfg_read_int(cfgfile, "Global", "show_graticule", &show_graticule);
+		cfg_read_boolean(cfgfile, "Global", "bar_decay", &bar_decay);
+		cfg_read_boolean(cfgfile, "Global", "peak_decay", &peak_decay);
 		cfg_read_int(cfgfile, "Global", "decay_speed", &bar_decay_speed);
+		cfg_read_boolean(cfgfile, "Global", "stabilized", &stabilized);
+		cfg_read_boolean(cfgfile, "Global", "show_graticule", &show_graticule);
 		cfg_read_int(cfgfile, "Global", "peak_decay_speed", &peak_decay_speed);
 		cfg_read_int(cfgfile, "Global", "peak_hold_time", &peak_hold_time);
 		cfg_read_int(cfgfile, "Global", "tape_scroll", &tape_scroll);
@@ -262,7 +262,7 @@ void read_config(void)
 		cfg_read_float(cfgfile, "Global", "multiplier", &multiplier);
 		cfg_read_int(cfgfile, "Global", "x3d_scroll", &x3d_scroll);
 		cfg_read_int(cfgfile, "Global", "z3d_scroll", &z3d_scroll);
-		cfg_read_int(cfgfile, "Global", "show_leader", &show_leader);
+		cfg_read_boolean(cfgfile, "Global", "show_leader", &show_leader);
 		cfg_read_int(cfgfile, "Global", "sync_to_left", &sync_to_left);
 		cfg_read_int(cfgfile, "Global", "sync_to_right", &sync_to_right);
 		cfg_read_int(cfgfile, "Global", "sync_independant", &sync_independant);
@@ -311,7 +311,7 @@ void save_config(GtkWidget *widget)
 	cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
 	cfg_write_int(cfgfile, "Global", "landflip", landflip);
 	cfg_write_int(cfgfile, "Global", "spikeflip", spikeflip);
-	cfg_write_int(cfgfile, "Global", "outlined", outlined);
+	cfg_write_boolean(cfgfile, "Global", "outlined", outlined);
 	cfg_write_int(cfgfile, "Global", "sub_mode_3D", sub_mode_3D);
 	cfg_write_int(cfgfile, "Global", "scope_sub_mode", scope_sub_mode);
 	cfg_write_int(cfgfile, "Global", "dir_win_present", dir_win_present);
@@ -324,10 +324,10 @@ void save_config(GtkWidget *widget)
 	cfg_write_float(cfgfile, "Global", "noise_floor", noise_floor);
 	cfg_write_int(cfgfile, "Global", "seg_height", seg_height);
 	cfg_write_int(cfgfile, "Global", "seg_space", seg_space);
-	cfg_write_int(cfgfile, "Global", "bar_decay", bar_decay);
-	cfg_write_int(cfgfile, "Global", "peak_decay", peak_decay);
-	cfg_write_int(cfgfile, "Global", "stabilized", stabilized);
-	cfg_write_int(cfgfile, "Global", "show_graticule", show_graticule);
+	cfg_write_boolean(cfgfile, "Global", "bar_decay", bar_decay);
+	cfg_write_boolean(cfgfile, "Global", "peak_decay", peak_decay);
+	cfg_write_boolean(cfgfile, "Global", "stabilized", stabilized);
+	cfg_write_boolean(cfgfile, "Global", "show_graticule", show_graticule);
 	cfg_write_int(cfgfile, "Global", "decay_speed", bar_decay_speed);
 	cfg_write_int(cfgfile, "Global", "peak_decay_speed", peak_decay_speed);
 	cfg_write_int(cfgfile, "Global", "peak_hold_time", peak_hold_time);
@@ -347,12 +347,12 @@ void save_config(GtkWidget *widget)
 	cfg_write_int(cfgfile, "Global", "vert_spec_start", vert_spec_start);
 	cfg_write_int(cfgfile, "Global", "x3d_scroll", x3d_scroll);
 	cfg_write_int(cfgfile, "Global", "z3d_scroll", z3d_scroll);
-	cfg_write_int(cfgfile, "Global", "show_leader", show_leader);
+	cfg_write_boolean(cfgfile, "Global", "show_leader", show_leader);
 	cfg_write_int(cfgfile, "Global", "sync_to_left", sync_to_left);
 	cfg_write_int(cfgfile, "Global", "sync_to_right", sync_to_right);
 	cfg_write_int(cfgfile, "Global", "sync_independant", sync_independant);
-	cfg_write_int(cfgfile, "Global", "landtilt",landtilt);
-	cfg_write_int(cfgfile, "Global", "spiketilt", spiketilt);
+	cfg_write_boolean(cfgfile, "Global", "landtilt",landtilt);
+	cfg_write_boolean(cfgfile, "Global", "spiketilt", spiketilt);
 	cfg_write_float(cfgfile, "Global", "low_freq", low_freq);
 	cfg_write_float(cfgfile, "Global", "high_freq", high_freq);
 	cfg_write_int(cfgfile, "Window", "width", width);
@@ -553,8 +553,8 @@ void reinit_extace(int new_nsamp)
 	convolve_factor = floor(nsamp/width) < 3 ? floor(nsamp/width) : 3 ;
 	if (convolve_factor == 0)
 		convolve_factor = 1;
-	recalc_markers = 1;
-	recalc_scale = 1;	
+	recalc_markers = TRUE;
+	recalc_scale = TRUE;	
 	mem_alloc();
 	setup_datawindow(NULL,(WindowFunction)window_func);
 	ring_rate_changed();
