@@ -267,7 +267,7 @@ void alsa_reader_thread(void *private_data, char *buffer, size_t count)
 
 	/* wrap to beginning */
 	memcpy(audio_ring,
-		buffer + bytes_moved/2,
+		buffer + bytes_moved,
 		bytes_2_move - bytes_moved);
 	/* mark where we are .. */
 	ring_pos = (bytes_2_move - bytes_moved)/2; /* need elements NOT bytes*/
