@@ -110,8 +110,8 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 	case LAG:
 	    lag = (float)GTK_ADJUSTMENT(widget)->value;
 	    break;
-	case SCALER:
-	    scaler = (float)GTK_ADJUSTMENT(widget)->value;
+	case NOISE_FLOOR:
+	    noise_floor = (float)GTK_ADJUSTMENT(widget)->value;
 	    break;
 	case TAPE_SCROLL:
 	    tape_scroll = GTK_ADJUSTMENT(widget)->value;

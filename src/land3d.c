@@ -234,19 +234,11 @@ void draw_land3d_forward()
 		{
 		    gdk_draw_polygon(main_pixmap,gc,TRUE,pt,4);
 		    gdk_draw_polygon(main_pixmap,main_display->style->black_gc,FALSE,pt,4);
-//		    gdk_draw_line(main_pixmap,main_display->style->black_gc,
-//			    pt[0].x,pt[0].y,pt[3].x,pt[3].y);
-//		    gdk_draw_line(main_pixmap,main_display->style->black_gc,
-//			    pt[2].x,pt[2].y,pt[1].x,pt[1].y);
 		}
 		else
 		{
 		    gdk_draw_polygon(main_display->window,gc,TRUE,pt,4);
 		    gdk_draw_polygon(main_display->window,main_display->style->black_gc,FALSE,pt,4);
-//		    gdk_draw_line(main_display->window,main_display->style->black_gc,
-//			    pt[0].x,pt[0].y,pt[3].x,pt[3].y);
-//		    gdk_draw_line(main_display->window,main_display->style->black_gc,
-//			    pt[2].x,pt[2].y,pt[1].x,pt[1].y);
 		}
 		break;
 	    case WIRE_3D:
@@ -370,19 +362,11 @@ void draw_land3d_reverse()
 		{
 		    gdk_draw_polygon(main_pixmap,gc,TRUE,pt,4);
 		    gdk_draw_polygon(main_pixmap,main_display->style->black_gc,FALSE,pt,4);
-//		    gdk_draw_line(main_pixmap,main_display->style->black_gc,
-//			    pt[0].x,pt[0].y,pt[3].x,pt[3].y);
-//		    gdk_draw_line(main_pixmap,main_display->style->black_gc,
-//			    pt[2].x,pt[2].y,pt[1].x,pt[1].y);
 		}
 		else
 		{
 		    gdk_draw_polygon(main_display->window,gc,TRUE,pt,4);
 		    gdk_draw_polygon(main_display->window,main_display->style->black_gc,FALSE,pt,4);
-//		    gdk_draw_line(main_display->window,main_display->style->black_gc,
-//			    pt[0].x,pt[0].y,pt[3].x,pt[3].y);
-//		    gdk_draw_line(main_display->window,main_display->style->black_gc,
-//			    pt[2].x,pt[2].y,pt[1].x,pt[1].y);
 		}
 		break;
 	    case WIRE_3D:

@@ -102,9 +102,9 @@ void init()
     recalc_markers = 1;	/* its NOT fixed YET. (done dynamically) */
     scalefactor = 10.0;	/* dynamically figured out by the program */
     show_leader = 0;	/* show leading edge on 3d landscape fft */
-    multiplier= 240;	/* Level multiplier, so the colortable */
+    multiplier = 26.0;	/* Level multiplier, fft amplitude adj */
+    noise_floor = -85;	/* FFT noise floor position. (NEEDS WORK!!!) */
     /* WON'T max out when you resize */
-    ydet_special = 0.0; /* Detailed fudge factor. (should be removed!!!) */
     dir_win_present = 1;/* Direction control window */
     grad_win_present = 0;/* Color picker window */
     one_to_fix = 0;	/* which end of trace to fix up */
@@ -205,6 +205,7 @@ void read_config(void)
 	extace_cfg_read_int(cfgfile, "Global", "scope_sub_mode", &scope_sub_mode);
 	extace_cfg_read_int(cfgfile, "Global", "dir_win_present", &dir_win_present);
 	extace_cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
+//	to_get = 4*nsamp;/* nsamp * 2 channels * 2( 16 bit samples)*/
 	to_get = nsamp;/* nsamp * 2 channels * 2( 16 bit samples)*/
 	callback_buffer_size = 4096;
 	/* fft_lag is an added delay because the fft looks most synced to
@@ -221,7 +222,7 @@ void read_config(void)
 	extace_cfg_read_int(cfgfile, "Global", "axis_type", &axis_type);
 	extace_cfg_read_int(cfgfile, "Global", "bands", &bands);
 	extace_cfg_read_int(cfgfile, "Global", "lag", &lag);
-	extace_cfg_read_float(cfgfile, "Global", "scaler", &scaler);
+	extace_cfg_read_float(cfgfile, "Global", "noise_floor", &noise_floor);
 	extace_cfg_read_int(cfgfile, "Global", "use_back_pixmap", &use_back_pixmap);
 	extace_cfg_read_int(cfgfile, "Global", "seg_height", &seg_height);
 	extace_cfg_read_int(cfgfile, "Global", "seg_space", &seg_space);
@@ -243,10 +244,10 @@ void read_config(void)
 	extace_cfg_read_float(cfgfile, "Global", "x3d_end", &x3d_end);
 	extace_cfg_read_float(cfgfile, "Global", "y3d_start", &y3d_start);
 	extace_cfg_read_float(cfgfile, "Global", "y3d_end", &y3d_end);
+	extace_cfg_read_float(cfgfile, "Global", "multiplier", &multiplier);
 	extace_cfg_read_int(cfgfile, "Global", "x3d_scroll", &x3d_scroll);
 	extace_cfg_read_int(cfgfile, "Global", "z3d_scroll", &z3d_scroll);
 	extace_cfg_read_int(cfgfile, "Global", "show_leader", &show_leader);
-	extace_cfg_read_int(cfgfile, "Global", "multiplier", &multiplier);
 	extace_cfg_read_int(cfgfile, "Global", "sync_to_left", &sync_to_left);
 	extace_cfg_read_int(cfgfile, "Global", "sync_to_right", &sync_to_right);
 	extace_cfg_read_int(cfgfile, "Global", "sync_independant", &sync_independant);
@@ -307,7 +308,7 @@ void save_config(void)
     extace_cfg_write_int(cfgfile, "Global", "axis_type", axis_type);
     extace_cfg_write_int(cfgfile, "Global", "bands", bands);
     extace_cfg_write_int(cfgfile, "Global", "lag", lag);
-    extace_cfg_write_float(cfgfile, "Global", "scaler", scaler);
+    extace_cfg_write_float(cfgfile, "Global", "noise_floor", noise_floor);
     extace_cfg_write_int(cfgfile, "Global", "use_back_pixmap", use_back_pixmap);
     extace_cfg_write_int(cfgfile, "Global", "seg_height", seg_height);
     extace_cfg_write_int(cfgfile, "Global", "seg_space", seg_space);
@@ -329,12 +330,12 @@ void save_config(void)
     extace_cfg_write_float(cfgfile, "Global", "x3d_end", x3d_end);
     extace_cfg_write_float(cfgfile, "Global", "y3d_start", y3d_start);
     extace_cfg_write_float(cfgfile, "Global", "y3d_end", y3d_end);
+    extace_cfg_write_float(cfgfile, "Global", "multiplier", multiplier);
     extace_cfg_write_int(cfgfile, "Global", "horiz_spec_start", horiz_spec_start);
     extace_cfg_write_int(cfgfile, "Global", "vert_spec_start", vert_spec_start);
     extace_cfg_write_int(cfgfile, "Global", "x3d_scroll", x3d_scroll);
     extace_cfg_write_int(cfgfile, "Global", "z3d_scroll", z3d_scroll);
     extace_cfg_write_int(cfgfile, "Global", "show_leader", show_leader);
-    extace_cfg_write_int(cfgfile, "Global", "multiplier", multiplier);
     extace_cfg_write_int(cfgfile, "Global", "sync_to_left", sync_to_left);
     extace_cfg_write_int(cfgfile, "Global", "sync_to_right", sync_to_right);
     extace_cfg_write_int(cfgfile, "Global", "sync_independant", sync_independant);

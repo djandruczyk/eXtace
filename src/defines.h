@@ -50,7 +50,7 @@
 #define BUFFER_AREA	0x0b
 #define DIR_AREA	0x0c
 #define MAIN_DISPLAY	0x0d
-#define SCALER		0x0e
+#define NOISE_FLOOR		0x0e
 #define PAUSE_DISP	0x0f
 
 

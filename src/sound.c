@@ -335,7 +335,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 
     /* copy fd so that reader thread can copy data to ringbuffer */
     count = read(source, incoming_buf, to_get); 
- //   printf("%i bytes read from Esound\n",count);
+//    printf("%i requested, %i bytes read from Esound\n",to_get,count);
     if (count > 0)
     {
 	bytes_2_move = count;

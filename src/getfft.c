@@ -363,20 +363,20 @@ int GetFFT(void)
     index1 = nsamp;
     while (index1--)
     {
-//	*fft_ptr=multiplier*(scaler+log10((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
+//	*fft_ptr=multiplier*(noise_floor+log10((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
 
 // Alternatives. 
 // 	Normalized???  Not sure...
-//	*fft_ptr=multiplier*(scaler+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
+//	*fft_ptr=multiplier*(noise_floor+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
 //
 // 	Phase and Real Components combined
- 	*fft_ptr=multiplier*(scaler+(20*log10(sqrt((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))));
+ 	*fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))));
 //
 // 	 Real Components ONLY
-// 	fft_ptr=multiplier*(scaler+(20*log10(sqrt((*real_fft_out * *real_fft_out)))));
+// 	fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*real_fft_out * *real_fft_out)))));
 	/* Phase Components ONLY */
 
-// 	*fft_ptr=multiplier*(scaler+(20*log10(sqrt((*imag_fft_out * *imag_fft_out)))));
+// 	*fft_ptr=multiplier*(noise_floor+(20*log10(sqrt((*imag_fft_out * *imag_fft_out)))));
 	if (*fft_ptr < 0) 
 	    *fft_ptr=0;
 	fft_ptr++;

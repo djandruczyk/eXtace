@@ -9,6 +9,8 @@ SUBDIRS = $(subdirs)
 
 DIST_SUBDIRS = $(subdirs)
 
-CLEANFILES += *~ core* -rf .dep*
+DEPDIR = ${subdirs).deps
+
+CLEANFILES = *~ core* -rf .dep*
 
 EXTRA_DIST = configure CREDITS VERSION extace.spec AUTHORS TODO

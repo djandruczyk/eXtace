@@ -125,8 +125,7 @@ gint		recalc_scale;	/* its NOT fixed YET. (done dynamically) */
 gint		recalc_markers;	/* flag for marker recalculation routine */
 float		scalefactor; 	/* dynamically figured out by the program */
 gint		show_leader;	/* show leading edge on 3D landscape fft */
-gint		multiplier;	/* Level multiplier, so the colortable */
-gfloat		ydet_special;
+gfloat		multiplier;	/* Level multiplier, for fft routines */
 gint		x_fudge;	/* fudge factor */
 gint		y_fudge;	/* fudge factor */
 gint		top;		/* Top of window */
@@ -255,9 +254,9 @@ gint 		use_rtc;
 gint 		draw_running;
 gint 		winstyle;	/* window function options */	
 gint		active_drawing_area;
-gfloat 		scaler;
-gfloat 		scaler_min;
-gfloat 		scaler_max;
+gfloat 		noise_floor;
+gfloat 		noise_floor_min;
+gfloat 		noise_floor_max;
 gint 		paused;
 gint		low_freq;
 gint		high_freq;

@@ -57,7 +57,7 @@ void draw_vert_specgram()
     gdk_gc_set_foreground(gc,&cl);
     if (use_back_pixmap)
     {
-	gdk_draw_rectangle(main_pixmap,gc,TRUE,0,height-vert_spec_start-1,active_drawing_area,tape_scroll);
+	gdk_draw_rectangle(main_pixmap,gc,TRUE,0,height-vert_spec_start-tape_scroll,active_drawing_area,tape_scroll);
 	gdk_draw_line(main_pixmap,gc,0,height-y_border,active_drawing_area,height-y_border);
     }
     else

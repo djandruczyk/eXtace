@@ -690,23 +690,23 @@ int setup_options()
     gtk_signal_connect (GTK_OBJECT (lag_adj), "value_changed",
 	    GTK_SIGNAL_FUNC (slider_changed), (gpointer)LAG);
 
-    label = gtk_label_new("Scaler Test");
+    label = gtk_label_new("Noise Floor");
     gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
-    adj = gtk_adjustment_new(scaler,scaler_min,scaler_max,0.001,0.1,0.01);
+    adj = gtk_adjustment_new(noise_floor,noise_floor_min,noise_floor_max,0.001,0.1,0.01);
     scale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
     gtk_scale_set_digits(GTK_SCALE(scale),3);
     gtk_box_pack_start(GTK_BOX(vbox),scale,TRUE,TRUE,0);
     gtk_range_set_update_policy(GTK_RANGE (scale),
 	    GTK_UPDATE_CONTINUOUS);
     gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
-	    GTK_SIGNAL_FUNC (slider_changed), (gpointer)SCALER);
+	    GTK_SIGNAL_FUNC (slider_changed), (gpointer)NOISE_FLOOR);
 
-    label = gtk_label_new("Multiplier");
+    label = gtk_label_new("Vertical Multiplier");
     gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
-    adj = gtk_adjustment_new((float)multiplier,0.0,multiplier_max,1.0,1.0,1.0);
+    adj = gtk_adjustment_new(multiplier,multiplier_min,multiplier_max,0.01,1.0,0.1);
     scale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
-    gtk_scale_set_digits(GTK_SCALE(scale),0);
+    gtk_scale_set_digits(GTK_SCALE(scale),2);
     gtk_box_pack_start(GTK_BOX(vbox),scale,TRUE,TRUE,0);
     gtk_range_set_update_policy(GTK_RANGE (scale),
 	    GTK_UPDATE_CONTINUOUS);

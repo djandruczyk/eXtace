@@ -27,8 +27,14 @@
 #endif
 
 
-/* See globals.h for variable declarations and DEFINES */
-
+//	/* See globals.h for variable declarations and DEFINES */
+//	 * FPS debugging variables
+//	 * */
+  gfloat elapsed_time_sec;
+  gfloat elapsed_time_usec;
+  gfloat elapsed;
+//	*/
+ 
 void draw_start()
 {
     if (!paused)
@@ -359,7 +365,7 @@ recalc:
 	plevels[i]=levels[i];
 	ptrailers[i]=trailers[i];
     }
-    /* Frame per second counter for debugging purposes... 
+//    /* Frame per second counter for debugging purposes... 
        frame_cnt++;
        if (frame_cnt == 10)
        {
@@ -373,7 +379,7 @@ recalc:
        last_time.tv_usec=cur_time.tv_usec;
        frame_cnt = 0;
        }
-     */
+ //    */
 
 
     return (TRUE);
