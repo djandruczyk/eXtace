@@ -69,17 +69,17 @@ void init()
 	 * Initialize ALL variables, should be first functional called from main
 	 */
 
-	sound_source = ESD;
+	data_source = ESD;
 
 	refresh_rate = 29;	/* 25 frames per sec */
 	left_amplitude = 127.0/32768.0; /* Scaler for something */
 	right_amplitude = 127.0/32768.0; /* Scaler for something */
-	fft_signal_source = COMPOSITE;/* signal input source for fft */
+	fft_signal_source = LEFT_PLUS_RIGHT;/* signal input source for fft */
 	landflip = 1;		/* Flip 3D axis over */
 	spikeflip = 1;		/* Flip 3D axis over */
 	axis_type = LOG;	/* Logarithmic display for 3D land and EQ modes */
 	window_func = HAMMING;	/* Hamming window (see misc.c) */
-	winstyle = FULL;	/* use full window function, not cramped version */
+	win_width = FULL;	/* use full window function, not cramped version */
 	nsamp = 2048;		/* number of samples per FFT/scope */
 	bands = 128;		/* to start with, should be configurable */
 	
@@ -208,7 +208,7 @@ void read_config(void)
 		cfg_read_int(cfgfile, "Window", "dir_y_origin", &dir_y_origin);
 
 		cfg_read_int(cfgfile, "Global", "mode", &mode);
-		cfg_read_int(cfgfile, "Global", "sound_source", &sound_source);
+		cfg_read_int(cfgfile, "Global", "data_source", &data_source);
 		cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
 		cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
 		cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
@@ -232,7 +232,7 @@ void read_config(void)
 		 */
 		fft_lag = 1000*((nsamp/2)/(float)RATE);
 		cfg_read_int(cfgfile, "Global", "window_func", &window_func);
-		cfg_read_int(cfgfile, "Global", "winstyle", &winstyle);
+		cfg_read_int(cfgfile, "Global", "win_width", &win_width);
 		cfg_read_int(cfgfile, "Global", "axis_type", &axis_type);
 		cfg_read_int(cfgfile, "Global", "bands", &bands);
 		cfg_read_int(cfgfile, "Global", "lag", &lag);
@@ -303,7 +303,7 @@ void save_config(GtkWidget *widget)
 	else
 		cfg_write_string(cfgfile, "Global", "last_colormap",g_strconcat(g_get_home_dir(),"/.eXtace/ColorMaps/","Default",NULL));
 	cfg_write_int(cfgfile, "Global", "mode", mode);
-	cfg_write_int(cfgfile, "Global", "sound_source", sound_source);
+	cfg_write_int(cfgfile, "Global", "data_source", data_source);
 	cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
 	cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
 	cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
@@ -315,7 +315,7 @@ void save_config(GtkWidget *widget)
 	cfg_write_int(cfgfile, "Global", "dir_win_present", dir_win_present);
 	cfg_write_int(cfgfile, "Global", "nsamp", nsamp);
 	cfg_write_int(cfgfile, "Global", "window_func", window_func);
-	cfg_write_int(cfgfile, "Global", "winstyle", winstyle);
+	cfg_write_int(cfgfile, "Global", "win_width", win_width);
 	cfg_write_int(cfgfile, "Global", "axis_type", axis_type);
 	cfg_write_int(cfgfile, "Global", "bands", bands);
 	cfg_write_int(cfgfile, "Global", "lag", lag);
@@ -514,7 +514,7 @@ void reinit_extace(int new_nsamp)
 	/* Stop drawing the display */
 	draw_stop();
 
-	switch (sound_source)
+	switch ((DataSource)data_source)
 	{
 		case ESD:
 			audio_thread_stopper();

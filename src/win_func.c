@@ -48,7 +48,7 @@ void setup_datawindow(GtkWidget *widget, WindowFunction function)
 
 	ptr = datawindow;
 
-	switch (winstyle)
+	switch ((WindowWidth)win_width)
 	{
 		case FULL:
 			padding = 0;
@@ -87,7 +87,7 @@ void setup_datawindow(GtkWidget *widget, WindowFunction function)
 	}
 	for(i=0;i<winlen;i++)
 	{
-		switch(function)
+		switch((WindowFunction)function)
 		{
 			case HAMMING:   /* Hamming */
 				*ptr = (0.54-0.46*cos(2*M_PI*i/(winlen-1)));

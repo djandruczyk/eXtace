@@ -13,6 +13,7 @@
  */
 
 #include <config.h>
+#include <enums.h>
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <land_3d.h>

@@ -16,6 +16,7 @@
 
 #include <asm/errno.h>
 #include <config.h>
+#include <enums.h>
 #include <esd.h>
 #include <fcntl.h>
 #include <globals.h>
@@ -46,7 +47,7 @@ int open_sound(void)
 {
 	int handle = -1;
 
-	switch (sound_source)
+	switch ((DataSource)data_source)
 	{
 		case ESD:
 			esd_handle=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,RATE,NULL,"extace");
@@ -57,7 +58,14 @@ int open_sound(void)
 			}
 
 			break;
+		case ARTS:
+		case GSTREAMER:
+		case JACK:
+		case ALSA_LIB:
+		default:
+			break;
 
+			/* More cases to come eventually... */
 
 	}
 	if (handle < 0)
@@ -87,12 +95,16 @@ int open_sound(void)
 }
 void close_sound(void)
 {
-	switch(sound_source)
+	switch((DataSource)data_source)
 	{
 		case ESD:
 			/*	    printf("closing esd_handle\n");  */
 			esd_close(esd_handle);
 			break;
+		case ARTS:
+		case GSTREAMER:
+		case JACK:
+		case ALSA_LIB:
 		default:
 			break;
 	}
@@ -100,26 +112,26 @@ void close_sound(void)
         
 int audio_thread_stopper()
 {
-    int retcode = 0;
-    if (read_started)
-    {
-	switch (sound_source)
+	int retcode = 0;
+	if (read_started)
 	{
-	    case ESD:
-		gtk_input_remove(tag);
-		retcode = pthread_cancel(esound_thread);
-//		if (retcode != 0)
-//		    printf("Error attempting cancel esd thread\n");
-//		else 
-/*		    printf("ESD thread stopped successfully\n");  */
-		esd_locked = 0;
-		break;
-	    default:
-		break;
+		switch ((DataSource)data_source)
+		{
+			case ESD:
+				gtk_input_remove(tag);
+				retcode = pthread_cancel(esound_thread);
+				esd_locked = 0;
+				break;
+			case ARTS:
+			case GSTREAMER:
+			case JACK:
+			case ALSA_LIB:
+			default:
+				break;
+		}
 	}
-    }
-    read_started = 0;
-    return 0;
+	read_started = 0;
+	return 0;
 }
 
 int audio_thread_starter()
@@ -129,7 +141,7 @@ int audio_thread_starter()
 		printf("Error, reader already running!!\n");
 	else
 	{
-		switch (sound_source)/* hopefully we'll have more than 1 soon*/
+		switch ((DataSource)data_source)/* hopefully we'll have more than 1 soon*/
 		{
 			case ESD:
 				/* since we want to audio to NOT be read in 
@@ -147,6 +159,10 @@ int audio_thread_starter()
 				if (retcode != 0)
 					printf("Error attempting to create Esound thread\n");
 				break;
+			case ARTS:
+			case GSTREAMER:
+			case JACK:
+			case ALSA_LIB:
 			default:
 				break;
 

@@ -13,6 +13,7 @@
  */
 
 #include <config.h>
+#include <enums.h>
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <math.h>
@@ -204,7 +205,7 @@ void draw_scope()
 		r_scope_points_last[i].y = height-height_per_scope\
 			+old_right_val;
 	}
-	switch (scope_sub_mode)
+	switch ((ScopeMode)scope_sub_mode)
 	{
 		case DOT_SCOPE:
 			/* Left Channel */
@@ -231,60 +232,57 @@ void draw_scope()
 					r_scope_points,\
 					lo_width);
 			break;
-	}
+		case GRAD_SCOPE:
 
-
-	if (scope_sub_mode== GRAD_SCOPE)
-	{
-		right_scope_pos = height-height_per_scope;
-		for(i=0;i<lo_width;i++)
-		{
-
-			left_val = l_scope_points[i].y\
-				-height_per_scope;
-			right_val = r_scope_points[i].y\
-				+height_per_scope-height;
-			if (left_val == 0)
-				left_val++;
-			if (right_val == 0)
-				right_val++;
-			if (left_val < 0) /* Negative signal */
+			right_scope_pos = height-height_per_scope;
+			for(i=0;i<lo_width;i++)
 			{
-				gdk_draw_pixmap(main_pixmap,gc,\
-						grad[left_val+127],\
-						0,0,\
-						i,l_scope_points[i].y,\
-						1,-left_val);
-			}
-			else	/* Positive Signal (left channel)*/
-			{
-				gdk_draw_pixmap(main_pixmap,gc,\
-						grad[left_val+127],\
-						0,0,\
-						i,height_per_scope,\
-						1,left_val);
-			}
 
-			if (right_val < 0) /*Negative Signal */
-			{
-				gdk_draw_pixmap(main_pixmap,gc,\
-						grad[right_val+127],\
-						0,0,\
-						i,right_scope_pos\
-						+right_val,\
-						1,\
-						-right_val);
-			}
-			else /* Positive Signal */
-			{
-				gdk_draw_pixmap(main_pixmap,gc,\
-						grad[right_val+127],\
-						0,0,\
-						i,right_scope_pos,\
-						1,right_val);
-			}
+				left_val = l_scope_points[i].y\
+					-height_per_scope;
+				right_val = r_scope_points[i].y\
+					+height_per_scope-height;
+				if (left_val == 0)
+					left_val++;
+				if (right_val == 0)
+					right_val++;
+				if (left_val < 0) /* Negative signal */
+				{
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[left_val+127],\
+							0,0,\
+							i,l_scope_points[i].y,\
+							1,-left_val);
+				}
+				else	/* Positive Signal (left channel)*/
+				{
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[left_val+127],\
+							0,0,\
+							i,height_per_scope,\
+							1,left_val);
+				}
 
-		}
+				if (right_val < 0) /*Negative Signal */
+				{
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[right_val+127],\
+							0,0,\
+							i,right_scope_pos\
+							+right_val,\
+							1,\
+							-right_val);
+				}
+				else /* Positive Signal */
+				{
+					gdk_draw_pixmap(main_pixmap,gc,\
+							grad[right_val+127],\
+							0,0,\
+							i,right_scope_pos,\
+							1,right_val);
+				}
+
+			}
 	}
 	for (i=0;i<nsamp;i++)
 	{

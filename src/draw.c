@@ -16,6 +16,7 @@
 #include <audio_processing.h>
 #include <config.h>
 #include <draw.h>
+#include <enums.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <globals.h>
@@ -142,76 +143,77 @@ int draw(void)
 		 * for the display since the display can't fit a 1024 
 		 * point fft nicely.
 		 */ 
-		if (axis_type == LINEAR)
+		switch ((AxisType)axis_type)
 		{
-			if (recalc_scale)
-			{
-				for(i = 0;i < bands;i++)
+			case LINEAR:
+				if (recalc_scale)
 				{
-					/* Linear x axis */
-					lin_x_axis[i]=(nsamp/2)/bands; 
+					for(i = 0;i < bands;i++)
+					{
+						/* Linear x axis */
+						lin_x_axis[i]=(nsamp/2)/bands; 
+					}
 				}
-			}
-		}
-		if (axis_type == LOG)
-		{
-			if (recalc_scale)
-			{
-				scalefactor = 7.0;
+				break;
+			case LOG:
+				if (recalc_scale)
+				{
+					scalefactor = 7.0;
 
-				count = 0;
+					count = 0;
 recalc:
-				count++;
-				scale = bands/scalefactor;
-				sum = 0;
-				for (i=0; i < bands ; i++)
-				{
-					log_x_axis[i] = exp((i/scale));
-					sum = sum + log_x_axis[i];
-				}
-				/* reduction algorithm, to get scalefactor so that ALL datapoints
-				 *in the FFT get onto the display */
-				if (sum > nsamp/2)
-				{
-					if (sum > (2.0*(nsamp/2)))
-						scalefactor -= .500;
-					if (sum > (1.25*(nsamp/2)))
-						scalefactor -=  .150;
-					if (sum > (1.15*(nsamp/2)))
-						scalefactor -=  .025;
-					if (sum > (1.05*(nsamp/2)))
-						scalefactor -=  .010;
-					if (sum >= (1.02*(nsamp/2)))
-						scalefactor -=  .005;
-					if (sum >= (1.01*(nsamp/2)))
-						scalefactor -=  .002;
-					if (sum < (1.01*(nsamp/2)))
-						scalefactor -=  .001;
-					goto recalc;
-				}
-				if (sum < (nsamp/2)*.99)
-				{
+					count++;
+					scale = bands/scalefactor;
+					sum = 0;
+					for (i=0; i < bands ; i++)
+					{
+						log_x_axis[i] = exp((i/scale));
+						sum = sum + log_x_axis[i];
+					}
+					/* reduction algorithm, to get scalefactor so that ALL datapoints
+					 *in the FFT get onto the display */
+					if (sum > nsamp/2)
+					{
+						if (sum > (2.0*(nsamp/2)))
+							scalefactor -= .500;
+						if (sum > (1.25*(nsamp/2)))
+							scalefactor -=  .150;
+						if (sum > (1.15*(nsamp/2)))
+							scalefactor -=  .025;
+						if (sum > (1.05*(nsamp/2)))
+							scalefactor -=  .010;
+						if (sum >= (1.02*(nsamp/2)))
+							scalefactor -=  .005;
+						if (sum >= (1.01*(nsamp/2)))
+							scalefactor -=  .002;
+						if (sum < (1.01*(nsamp/2)))
+							scalefactor -=  .001;
+						goto recalc;
+					}
 					if (sum < (nsamp/2)*.99)
-						scalefactor += .001;
-					if (sum < (nsamp/2)*.98)
-						scalefactor += .002;
-					if (sum < (nsamp/2)*.95)
-						scalefactor += .005;
-					if (sum < (nsamp/2)*.85)
-						scalefactor += .025;
-					if (sum < (nsamp/2)*.75)
-						scalefactor += .155;
-					goto recalc;
-				}
+					{
+						if (sum < (nsamp/2)*.99)
+							scalefactor += .001;
+						if (sum < (nsamp/2)*.98)
+							scalefactor += .002;
+						if (sum < (nsamp/2)*.95)
+							scalefactor += .005;
+						if (sum < (nsamp/2)*.85)
+							scalefactor += .025;
+						if (sum < (nsamp/2)*.75)
+							scalefactor += .155;
+						goto recalc;
+					}
 #ifdef SCALEDEBUG
-				for (i=0; i<bands; i++)
-					g_print("Log_axis[%i] is %i\n",i,log_x_axis[i]);
-				g_print("It took %i iterations to get the scalefactor\n",count);
-				g_print("Scalefactor %f\n",scalefactor);
-				g_print("Number of points in display is %i\n",sum);
+					for (i=0; i<bands; i++)
+						g_print("Log_axis[%i] is %i\n",i,log_x_axis[i]);
+					g_print("It took %i iterations to get the scalefactor\n",count);
+					g_print("Scalefactor %f\n",scalefactor);
+					g_print("Number of points in display is %i\n",sum);
 #endif
-				recalc_scale = 0;
-			}
+					recalc_scale = 0;
+				}
+				break;
 		}
 
 

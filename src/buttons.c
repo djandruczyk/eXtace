@@ -20,6 +20,7 @@
 #include <datawindow.h>
 #include <dir.h>
 #include <draw.h>
+#include <enums.h>
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <init.h>
@@ -28,13 +29,6 @@
 #include <sound.h>
 #include <stars.h>
 #include <unistd.h>
-
-#ifdef HAVE_LIBRFFTW
-#include <rfftw.h>
-#endif
-#ifdef HAVE_LIBDRFFTW
-#include <drfftw.h>
-#endif
 
 
 extern GtkWidget *stars; /* from stars.c */
@@ -45,14 +39,8 @@ void leave(GtkWidget *widget, gpointer *data)
 {
 	draw_stop();
 	save_config(widget);
-	switch (sound_source)
-	{
-		case ESD:
-			audio_thread_stopper();
-			close_sound();
-			break;
-	}
-
+	audio_thread_stopper();
+	close_sound();
 	/* Free all buffers */
 	mem_dealloc();
 	gtk_main_quit();
@@ -86,7 +74,7 @@ gint close_options(GtkWidget *widget, gpointer *data)
 
 gint slider_changed(GtkWidget *widget, gpointer *data)
 {
-	switch ((gint)data)
+	switch ((Slider)data)
 	{
 		case BANDS:
 			bands = GTK_ADJUSTMENT(widget)->value;
@@ -135,64 +123,13 @@ gint slider_changed(GtkWidget *widget, gpointer *data)
 	}
 	return 0;
 }
-gint button_handle(GtkWidget *widget, gpointer *data)
+
+gint fft_set_axis_type(GtkWidget * widget, gpointer *data)
 {
 	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
 	{
-		switch((gint)data)
+		switch((AxisType)data)
 		{
-			case OPTIONS:
-				gtk_widget_show(options_win_ptr);
-				break;
-
-			case LEADING_EDGE:
-
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Leading Edge Hidden");
-				show_leader = 0;
-				break;
-			case BAR_DECAY:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Bar Decay Enabled");
-				bar_decay = 1;
-				break;
-			case PEAK_DECAY:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Peak Decay Enabled");
-				peak_decay = 1;
-				break;
-			case OUTLINED:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Outlined 3D Landform");
-				outlined = TRUE;
-				break;
-			case STABLE:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Trace Stabilizer Enabled");
-				stabilized = 1;
-				break;
-			case GRATICULE:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Scope Graticule Enabled");
-				show_graticule = 1;
-				break;
-			case BACK_PIXMAP:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Backing Pixmap Enabled");
-				gdk_draw_rectangle(main_display->window,
-						main_display->style->black_gc,
-						TRUE, 0,0,
-						width,height);
-				gdk_draw_rectangle(main_pixmap,
-						main_display->style->black_gc,
-						TRUE, 0,0,
-						width,height);
-				if ((mode == HORIZ_SPECGRAM) || (mode == VERT_SPECGRAM))
-				{
-					display_markers = 1;
-				}
-
-				break;
 			case LOG:
 				axis_type = LOG; 
 				recalc_markers = 1;
@@ -201,6 +138,17 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				axis_type = LINEAR; 
 				recalc_markers = 1;
 				break;
+		}
+	}
+	return TRUE;
+}
+
+gint scope_sync_source_set(GtkWidget * widget, gpointer *data)
+{
+	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
+	{
+		switch((ScopeSyncSource)data)
+		{
 			case SYNC_LEFT:
 				sync_to_left = 1;
 				sync_to_right = 0;
@@ -237,14 +185,176 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 						TRUE, 0,0,
 						width,height);
 				break;
+		}
+	}
+	return TRUE;
+}
+
+gint set_data_source(GtkWidget *widget, gpointer *data)
+{
+        if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
+        {
+                switch((DataSource)data)
+                {
+			case ESD:
+				audio_thread_stopper();
+				close_sound();
+				data_source = ESD;
+				ring_pos=0;
+				if (open_sound() >= 0)
+				{
+					audio_thread_starter();
+				}
+				break;
+			case ARTS:
+			case GSTREAMER:
+			case JACK:
+			case ALSA_LIB:
+			default:
+				break;
+		}
+	}
+	return TRUE;
+}
+
+gint set_window_width(GtkWidget *widget, gpointer *data)
+{
+	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
+	{
+		switch((WindowWidth)data)
+		{
+			case FULL:
+				win_width = FULL;
+				setup_datawindow(NULL,window_func);
+				break;
+			case HALF:
+				win_width = HALF;
+				setup_datawindow(NULL,window_func);
+				break;
+			case QUARTER:
+				win_width = QUARTER;
+				setup_datawindow(NULL,window_func);
+				break;
+			case EIGHTH:
+				win_width = EIGHTH;
+				setup_datawindow(NULL,window_func);
+				break;
+		}
+	}
+	return TRUE;
+}
+
+gint set_fft_data_to_display(GtkWidget *widget, gpointer *data)
+{
+	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
+	{
+		switch((FftDataPacking)data)
+		{
+			case LEFT:
+				fft_signal_source=LEFT;
+				break;
+			case RIGHT:
+				fft_signal_source=RIGHT;
+				break;
+			case LEFT_PLUS_RIGHT:
+				fft_signal_source=LEFT_PLUS_RIGHT;
+				break;
+			case LEFT_MINUS_RIGHT:
+				fft_signal_source=LEFT_MINUS_RIGHT;
+				break;
+		}
+	}
+	return TRUE;
+}
+gint set_fft_size(GtkWidget *widget, gpointer *data)
+{
+	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
+	{
+		switch((FftSize)data)
+		{
+			case S_512:
+				reinit_extace(512);
+				break;
+			case S_1024:
+				reinit_extace(1024);
+				break;
+			case S_2048:
+				reinit_extace(2048);
+				break;
+			case S_4096:
+				reinit_extace(4096);
+				break;
+			case S_8192:
+				reinit_extace(8192);
+				break;
+			case S_16384:
+				reinit_extace(16384);
+				break;
+			case S_32768:
+				reinit_extace(32768);
+				break;
+		}
+	}
+	return TRUE;
+}
+
+gint button_handle(GtkWidget *widget, gpointer *data)
+{
+	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
+	{
+		switch((ToggleButton)data)
+		{
+			case OPTIONS:
+				gtk_widget_show(options_win_ptr);
+				break;
+
+			case LEADING_EDGE:
+
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
+						"Leading Edge Hidden");
+				show_leader = 0;
+				break;
+			case USE_BAR_DECAY:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
+						"Bar Decay Enabled");
+				bar_decay = 1;
+				break;
+			case USE_PEAK_DECAY:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
+						"Peak Decay Enabled");
+				peak_decay = 1;
+				break;
+			case OUTLINED:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
+						"Outlined 3D Landform");
+				outlined = TRUE;
+				break;
+			case STABILIZED:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
+						"Trace Stabilizer Enabled");
+				stabilized = 1;
+				break;
+			case GRATICULE:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
+						"Scope Graticule Enabled");
+				show_graticule = 1;
+				break;
 			case LAND_PERS_TILT:
 				landtilt = 1; 
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Landform Perspective Tilt Enabled");
 				break;
 			case SPIKE_PERS_TILT:
 				spiketilt = 1; 
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Spikes Perspective Tilt Enabled");
 				break;
 			case LANDFLIP:
@@ -255,68 +365,9 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				spikeflip = -1;
 				break;
 
-			case ESD:
-				audio_thread_stopper();
-				//		usleep(2000);
-				close_sound();
-				sound_source = ESD;
-				ring_pos=0;
-				if (open_sound() >= 0)
-				{
-					audio_thread_starter();
-				}
-				break;
-			case LEFT:
-				fft_signal_source=LEFT;
-				break;
-			case RIGHT:
-				fft_signal_source=RIGHT;
-				break;
-			case COMPOSITE:
-				fft_signal_source=COMPOSITE;
-				break;
-			case DIFFERENCE:
-				fft_signal_source=DIFFERENCE;
-				break;
-			case 512:
-				reinit_extace(512);
-				break;
-			case 1024:
-				reinit_extace(1024);
-				break;
-			case 2048:
-				reinit_extace(2048);
-				break;
-			case 4096:
-				reinit_extace(4096);
-				break;
-			case 8192:
-				reinit_extace(8192);
-				break;
-			case 16384:
-				reinit_extace(16384);
-				break;
-			case 32768:
-				reinit_extace(32768);
-				break;
-			case FULL:
-				winstyle = FULL;
-				setup_datawindow(NULL,window_func);
-				break;
-			case HALF:
-				winstyle = HALF;
-				setup_datawindow(NULL,window_func);
-				break;
-			case QUARTER:
-				winstyle = QUARTER;
-				setup_datawindow(NULL,window_func);
-				break;
-			case EIGHTH:
-				winstyle = EIGHTH;
-				setup_datawindow(NULL,window_func);
-				break;
 			case PAUSE_DISP:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Resume Display");
 				paused = 1;
 				draw_stop();
@@ -335,27 +386,32 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				break;
 
 			case LEADING_EDGE:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Leading Edge Shown");
 				show_leader = 1;
 				break;
-			case BAR_DECAY:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+			case USE_BAR_DECAY:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Bar Decay Disabled");
 				bar_decay = 0;
 				break;
-			case PEAK_DECAY:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+			case USE_PEAK_DECAY:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Peak Decay Disabled");
 				peak_decay = 0;
 				break;
 			case OUTLINED:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Smooth 3D Landform");
 				outlined = FALSE;
 				break;
-			case STABLE:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+			case STABILIZED:
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Trace Stabilizer Disabled");
 				stabilized = 0;
 				/* gotta clear the screen to prevent old data from
@@ -368,7 +424,8 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 
 				break;
 			case GRATICULE:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Scope Graticule Disabled");
 				show_graticule = 0;
 				/* gotta clear the screen to prevent old data from
@@ -380,31 +437,16 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 						width,height);
 
 				break;
-			case BACK_PIXMAP:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
-						"Backing Pixmap Disabled");
-				gdk_draw_rectangle(main_display->window,
-						main_display->style->black_gc,
-						TRUE, 0,0,
-						width,height);
-				gdk_draw_rectangle(main_pixmap,
-						main_display->style->black_gc,
-						TRUE, 0,0,
-						width,height);
-				if ((mode == HORIZ_SPECGRAM) || (mode == VERT_SPECGRAM))
-				{
-					display_markers = 1;
-				}
-
-				break;
 			case LAND_PERS_TILT:
 				landtilt = 0; 
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Landform Perspective Tilt Disabled");
 				break;
 			case SPIKE_PERS_TILT:
 				spiketilt = 0; 
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Spikes Perspective Tilt Disabled");
 				break;
 			case LANDFLIP:
@@ -414,7 +456,8 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 				spikeflip = 1;
 				break;
 			case PAUSE_DISP:
-				gtk_label_set_text(GTK_LABEL(GTK_BIN (widget)->child),
+				gtk_label_set_text(GTK_LABEL(GTK_BIN 
+						(widget)->child),
 						"Pause Display");
 				paused = 0;
 				draw_start();
@@ -427,7 +470,7 @@ gint button_handle(GtkWidget *widget, gpointer *data)
 	return 0;
 }
 	
-gint change_display(GtkWidget *widget, gpointer *data)
+gint change_display_mode(GtkWidget *widget, gpointer *data)
 {
 	gint enable_dir_win = 0;
 
@@ -442,7 +485,7 @@ gint change_display(GtkWidget *widget, gpointer *data)
 			TRUE, 0,0,
 			width,height);
 	gdk_window_clear(main_display->window);
-	switch ((gint)data)
+	switch ((DisplayMode)data)
 	{
 		case WIRE_3D:
 			mode = LAND_3D;
@@ -545,13 +588,18 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 
 gint scope_mode(GtkWidget *widget, gpointer *data)
 {
-	if (data == (gpointer)DOT_SCOPE)
-		scope_sub_mode = (gint)data;
-	if (data == (gpointer)LINE_SCOPE)
-		scope_sub_mode = (gint)data;
-	if (data == (gpointer)GRAD_SCOPE)
-		scope_sub_mode = (gint)data;
-
+	switch((ScopeMode)data)
+	{
+		case DOT_SCOPE:
+			scope_sub_mode = (ScopeMode)data;
+			break;
+		case LINE_SCOPE:
+			scope_sub_mode = (ScopeMode)data;
+			break;
+		case GRAD_SCOPE:
+			scope_sub_mode = (ScopeMode)data;
+			break;
+	}
 	if (mode == SCOPE)
 	{
 		gdk_draw_rectangle(main_pixmap,

@@ -14,6 +14,7 @@
 
 #include <config.h>
 #include <dir.h>
+#include <enums.h>
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <math.h>
@@ -157,7 +158,7 @@ gint feed_pointer(gint x, gint y)
 	float z_percent;
 	x_percent = 100*((float)x/(float)dir_area->allocation.width);
 	z_percent = 100*((float)y/(float)dir_area->allocation.height);
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
 		case (LAND_3D):
 			if (z_percent < 50)
@@ -181,12 +182,14 @@ gint feed_pointer(gint x, gint y)
 			else
 				xdet_scroll = -(x_percent-50)*0.5;
 			break;
+		default:
+			break;
 	}
 	return 0;
 }
 void dir_axis_update()
 {
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
 		case (LAND_3D):
 			x_disp = -(x3d_start-x3d_end)*(width - abs(x3d_scroll)-2*x_border);
@@ -203,6 +206,8 @@ void dir_axis_update()
 			//g_print("dir.c det_axis_angle is %f degrees\n",det_axis_angle*90/M_PI_2);  
 			x_disp = -cos(det_axis_angle)*((float)dir_area->allocation.width/2.0);
 			y_disp = sin(det_axis_angle)*((float)dir_area->allocation.height/2.0);
+			break;
+		default:
 			break;
 	}
 	/*   g_print("x_disp = %f, y_disp = %f",x_disp, y_disp); */
@@ -221,7 +226,7 @@ void dir_axis_update()
 gint update_pointer()
 {
 
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
 		case (LAND_3D):
 			x_disp = ((float)x3d_scroll/25.0)*((float)dir_area->allocation.width/2.0);
@@ -230,6 +235,8 @@ gint update_pointer()
 		case (SPIKE_3D):
 			x_disp = ((float)xdet_scroll/25.0)*((float)dir_area->allocation.width/2.0);
 			y_disp = ((float)zdet_scroll/25.0)*((float)dir_area->allocation.height/2.0);
+			break;
+		default:
 			break;
 	}
 

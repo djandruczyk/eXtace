@@ -19,6 +19,7 @@
 #include <audio_processing.h>
 #include <config.h>
 #include <convolve.h>
+#include <enums.h>
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <math.h>
@@ -312,9 +313,9 @@ void split_and_decimate()
 	}
 	else if (mode != STARS)	/* All FFT modes */
 	{
-		switch (fft_signal_source)
+		switch ((FftDataPacking)fft_signal_source)
 		{
-			case DIFFERENCE:
+			case LEFT_MINUS_RIGHT:
 				while (index < endpoint_1)
 				{
 					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) - (double)*(audio_ring+index + 1))/2.0);
@@ -338,7 +339,7 @@ void split_and_decimate()
 				}
 
 				break;
-			case COMPOSITE:
+			case LEFT_PLUS_RIGHT:
 				while (index < endpoint_1)
 				{
 					*raw_fft_in_ptr=(double)(*data_win_ptr)*(((double)*(audio_ring+index) + (double)*(audio_ring+index + 1))/2.0);

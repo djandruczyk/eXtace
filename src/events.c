@@ -19,6 +19,7 @@
 #include <color_win.h>
 #include <config.h>
 #include <dir.h>
+#include <enums.h>
 #include <events.h>
 #include <globals.h>
 #include <gtk/gtk.h>
@@ -57,7 +58,7 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 
 	if (widget->window)  // Make sure window exists
 	{
-		switch ((gint)data)
+		switch ((DrawableArea)data)
 		{
 			case BUFFER_AREA:
 				//			    printf("Selected BUFFER_AREA pixmap\n");
@@ -102,7 +103,7 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 			gdk_window_set_back_pixmap(widget->window,pixmap,0);
 		}
 
-		switch ((gint)data)
+		switch ((DrawableArea)data)
 		{
 			case BUFFER_AREA:
 				buffer_pixmap = pixmap;
@@ -123,9 +124,9 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 				width = w;
 				height = h;
 
-				switch (mode)
+				switch ((DisplayMode)mode)
 				{
-					case (HORIZ_SPECGRAM):
+					case HORIZ_SPECGRAM:
 						if (horiz_spec_start < 60)
 							horiz_spec_start = 60;
 						if (horiz_spec_start > width)
@@ -133,7 +134,7 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 						display_markers = 1;
 						clear_display = 1;
 						break;
-					case (VERT_SPECGRAM):
+					case VERT_SPECGRAM:
 						if (vert_spec_start < 120)
 							vert_spec_start = 120;
 						if (vert_spec_start > height)
@@ -167,7 +168,7 @@ gint expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	GdkPixmap *pixmap = NULL;
 
-	switch ((gint)data)
+	switch ((DrawableArea)data)
 	{
 		case BUFFER_AREA:
 			//	    	    printf("Selected BUFFER_AREA EXPOSE pixmap\n");
@@ -200,8 +201,9 @@ gint expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 
 gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
-	int x,y;
-	int result;
+	gint x,y;
+	gint result;
+	gint status;
 	x = event->x;
 	y = event->y;
 	/* Button one released */
@@ -299,12 +301,12 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 		 * to write it and submit it to the author so he can add it into the 
 		 * normal releases...
 		 */
-		result = test_on_line(x,y); /* find out if the place we click is
+		status = test_on_line(x,y); /* find out if the place we click is
 					     * on the "drawing" line of the display.
 					     * This place is where the images is being
 					     * drawn "from". (i.e. start of spectrogram)
 					     */
-		switch (result)
+		switch ((EventStatus)status)
 		{
 			case OFF_THE_LINE:
 #ifdef DND_DEBUG
@@ -357,7 +359,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 	}
 	if (pt_lock)
 	{
-		switch (one_to_fix)
+		switch ((EventOperation)one_to_fix)
 		{
 			case CHANGE_X_START:
 				{
@@ -432,9 +434,9 @@ int test_if_close(int x_fed, int y_fed)
 	 * points pass then we're in trouble... :( (meaning both start and end)
 	 */
 
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
-		case (LAND_3D):
+		case LAND_3D:
 			x_draw_width = width - abs(x3d_scroll)-2*x_border;
 			y_draw_height = height - abs(z3d_scroll)-2*y_border;
 			start.x = (x3d_start*x_draw_width);
@@ -467,7 +469,7 @@ int test_if_close(int x_fed, int y_fed)
 			}
 
 			break;
-		case (SPIKE_3D):
+		case SPIKE_3D:
 			x_draw_width = width - abs(xdet_scroll)-2*x_border;
 			y_draw_height = height - abs(zdet_scroll)-2*y_border;
 			start.x = (xdet_start*x_draw_width);
@@ -507,6 +509,8 @@ int test_if_close(int x_fed, int y_fed)
 			if (abs(((height-vert_spec_start) - y_fed+45)) < 27)
 				return (CHANGE_SPEC_START);
 			break;
+		default:
+			break;
 	}
 
 	return -1;
@@ -514,7 +518,7 @@ int test_if_close(int x_fed, int y_fed)
 
 void change_spec_start(gint new_pos)
 {
-	switch ((gint)mode)
+	switch ((DisplayMode)mode)
 	{
 		case HORIZ_SPECGRAM:
 			horiz_spec_start = width-new_pos+3;
@@ -544,17 +548,19 @@ void change_x_start(gint x_rel, gint y_rel)
 	int x_draw_width = 0;
 	int y_draw_height = 0;
 	y_rel -= 3.5*y_border;
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
-		case (LAND_3D):
+		case LAND_3D:
 			x_rel -= x_border + x3d_scroll/2;
 			x_draw_width = width - abs(x3d_scroll)-2*x_border;
 			y_draw_height = height - abs(z3d_scroll)-2*y_border;
 			break;
-		case (SPIKE_3D):
+		case SPIKE_3D:
 			x_rel -= x_border;
 			x_draw_width = width - abs(xdet_scroll)-2*x_border;
 			y_draw_height = height - abs(zdet_scroll)-2*y_border;
+			break;
+		default:
 			break;
 	}
 
@@ -566,15 +572,18 @@ void change_x_start(gint x_rel, gint y_rel)
 		y_rel = y_draw_height;
 	if (y_rel < y_offset/2)
 		y_rel = y_offset/2;
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
-		case (LAND_3D):
+		case LAND_3D:
 			x3d_start = abs(abs(0.5*x3d_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
 			y3d_start = 1.0-(abs(abs(0.5*z3d_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
 			break;
-		case (SPIKE_3D):
+		case SPIKE_3D:
 			xdet_start = abs(abs(0.5*xdet_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
 			ydet_start = 1.0-(abs(abs(0.5*zdet_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
+			break;
+
+		default:
 			break;
 	}
 }
@@ -584,17 +593,19 @@ void change_x_end(gint x_rel, gint y_rel)
 	int x_draw_width = 0;
 	int y_draw_height = 0;
 	y_rel -= 3.5*y_border;
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
-		case (LAND_3D):
+		case LAND_3D:
 			x_rel -= x_border + x3d_scroll/2;
 			x_draw_width = width - abs(x3d_scroll)-2*x_border;
 			y_draw_height = height - abs(z3d_scroll)-2*y_border;
 			break;
-		case (SPIKE_3D):
+		case SPIKE_3D:
 			x_rel -= x_border;
 			x_draw_width = width - abs(xdet_scroll)-2*x_border;
 			y_draw_height = height - abs(zdet_scroll)-2*y_border;
+			break;
+		default:
 			break;
 	}
 
@@ -606,15 +617,17 @@ void change_x_end(gint x_rel, gint y_rel)
 		y_rel = y_draw_height;
 	if (y_rel < y_offset/2)
 		y_rel = y_offset/2;
-	switch (mode)
+	switch ((DisplayMode)mode)
 	{
-		case (LAND_3D):
+		case LAND_3D:
 			x3d_end = abs(abs(0.5*x3d_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
 			y3d_end = 1.0-(abs(abs(0.5*z3d_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
 			break;
-		case (SPIKE_3D):
+		case SPIKE_3D:
 			xdet_end = abs(abs(0.5*xdet_scroll)-(gfloat)x_rel)/(gfloat)x_draw_width;
 			ydet_end = 1.0-(abs(abs(0.5*zdet_scroll)-(gfloat)y_rel)/(gfloat)y_draw_height);
+			break;
+		default:
 			break;
 	}
 

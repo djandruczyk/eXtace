@@ -119,7 +119,7 @@ gint		color_loc;	/* pixel location in color gradient for color mapper */
 gint		cr[MAXBANDS],cg[MAXBANDS],cb[MAXBANDS];
 gint		scope_sub_mode;	/* Dot, line or gradient sub mode  */
 gint		sub_mode_3D;	/* sub mode for 3D modes */
-gint		sound_source;	/* ESD (work in progress) */
+gint		data_source;	/* ESD (work in progress) */
 int		last_buf_l[CONVOLVE_SMALL];/* Convolve buffer */
 short		cur_buf_l[CONVOLVE_BIG];/* Convolve buffer */
 int		last_buf_r[CONVOLVE_SMALL];/* Convolve buffer */
@@ -167,7 +167,7 @@ gshort 		copywindow;	/* size of intermediate buffer for processing */
 gint 		copy_window;	/* intermediate buffer size */
 gfloat		update_factor;
 gint 		draw_running;
-gint 		winstyle;	/* window function options */	
+gint 		win_width;	/* window function options */	
 gint		active_drawing_area;
 gfloat 		noise_floor;
 gint 		paused;			/* Flag */

@@ -20,6 +20,7 @@
 #include <color_win.h>
 #include <config.h>
 #include <configfile.h>
+#include <enums.h>
 #include <events.h>
 #include <globals.h>
 #include <gtk/gtk.h>
@@ -66,7 +67,7 @@ gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 int color_button(GtkWidget *widget, gpointer data)
 {
 	GtkWidget * filew;
-	switch ((gint)data)
+	switch ((ColorOperation)data)
 	{
 		case SET_COLOR:
 			update_gradient(NULL, color_loc);

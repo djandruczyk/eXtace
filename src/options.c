@@ -188,10 +188,10 @@ int setup_options()
 
 	button = gtk_radio_button_new_with_label(NULL, "Use Esound");
 	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
-	if (sound_source == ESD)
+	if (data_source == ESD)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			GTK_SIGNAL_FUNC(button_handle),(gpointer)ESD);
+			GTK_SIGNAL_FUNC(set_data_source),(gpointer)ESD);
 
 	gtk_widget_show_all(vbox);
 	
@@ -275,13 +275,13 @@ int setup_options()
 	button = gtk_toggle_button_new_with_label("Bar Decay Disabled");
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)BAR_DECAY);
+			GTK_SIGNAL_FUNC (button_handle), (gpointer)USE_BAR_DECAY);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), bar_decay);
 
 	button = gtk_toggle_button_new_with_label("Peak Decay Disabled");
 	gtk_box_pack_start(GTK_BOX(hbox1),button,FALSE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)PEAK_DECAY);
+			GTK_SIGNAL_FUNC (button_handle), (gpointer)USE_PEAK_DECAY);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), peak_decay);
 
 	hbox1 = gtk_hbox_new(TRUE,0);
@@ -314,7 +314,7 @@ int setup_options()
 	button = gtk_radio_button_new_with_label(NULL, "Linear Frequency Axis");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)LINEAR);
+			GTK_SIGNAL_FUNC (fft_set_axis_type), (gpointer)LINEAR);
 	if (axis_type == LINEAR)
 	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
@@ -324,7 +324,7 @@ int setup_options()
 	button = gtk_radio_button_new_with_label(group, "Logarithmic Frequency Axis");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)LOG);
+			GTK_SIGNAL_FUNC (fft_set_axis_type), (gpointer)LOG);
 	if (axis_type == LOG)
 	{
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
@@ -388,7 +388,7 @@ int setup_options()
 	button = gtk_toggle_button_new_with_label("Trace Stabilizer Disabled");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)STABLE);
+			GTK_SIGNAL_FUNC (button_handle), (gpointer)STABILIZED);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), stabilized);
 
 	button = gtk_toggle_button_new_with_label("Scope Graticule Disabled");
@@ -407,7 +407,8 @@ int setup_options()
 	button = gtk_radio_button_new_with_label(NULL, "Sync to Left Channel");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)SYNC_LEFT);
+			GTK_SIGNAL_FUNC (scope_sync_source_set), 
+			(gpointer)SYNC_LEFT);
 	if (sync_to_left)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
@@ -415,7 +416,8 @@ int setup_options()
 	button = gtk_radio_button_new_with_label(group, "Sync to Right Channel");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)SYNC_RIGHT);
+			GTK_SIGNAL_FUNC (scope_sync_source_set), 
+			(gpointer)SYNC_RIGHT);
 	if (sync_to_right)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
@@ -423,7 +425,8 @@ int setup_options()
 	button = gtk_radio_button_new_with_label(group, "Sync Independently");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)SYNC_INDEP);
+			GTK_SIGNAL_FUNC (scope_sync_source_set), 
+			(gpointer)SYNC_INDEP);
 	if (sync_independant)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
@@ -595,35 +598,34 @@ int setup_options()
 
 	button = gtk_radio_button_new_with_label(NULL,"Full Width");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(winstyle == FULL)
+	if(win_width == FULL)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)FULL);
+			GTK_SIGNAL_FUNC (set_window_width), (gpointer)FULL);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"Half Width");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(winstyle == HALF)
+	if(win_width == HALF)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)HALF);
+			GTK_SIGNAL_FUNC (set_window_width), (gpointer)HALF);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"Quarter Width");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(winstyle == QUARTER)
+	if(win_width == QUARTER)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)QUARTER);
+			GTK_SIGNAL_FUNC (set_window_width), (gpointer)QUARTER);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"Eighth Width");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(winstyle == EIGHTH)
+	if(win_width == EIGHTH)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)EIGHTH);
-
+			GTK_SIGNAL_FUNC (set_window_width), (gpointer)EIGHTH);
 
 
 
@@ -642,7 +644,7 @@ int setup_options()
 	if(fft_signal_source == LEFT)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)LEFT);
+			GTK_SIGNAL_FUNC (set_fft_data_to_display), (gpointer)LEFT);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"Right Channel");
@@ -650,23 +652,23 @@ int setup_options()
 	if(fft_signal_source == RIGHT)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)RIGHT);
+			GTK_SIGNAL_FUNC (set_fft_data_to_display), (gpointer)RIGHT);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group,"Left+Right (Composite)");
+	button = gtk_radio_button_new_with_label(group,"Left+Right (L+R)");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(fft_signal_source == COMPOSITE)
+	if(fft_signal_source == LEFT_PLUS_RIGHT)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)COMPOSITE);
+			GTK_SIGNAL_FUNC (set_fft_data_to_display), (gpointer)LEFT_PLUS_RIGHT);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	button = gtk_radio_button_new_with_label(group,"Left-Right (Difference)");
+	button = gtk_radio_button_new_with_label(group,"Left-Right (L-R)");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
-	if(fft_signal_source == DIFFERENCE)
+	if(fft_signal_source == LEFT_MINUS_RIGHT)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)DIFFERENCE);
+			GTK_SIGNAL_FUNC (set_fft_data_to_display), (gpointer)LEFT_MINUS_RIGHT);
 
 	frame = gtk_frame_new("FFT Width");
 	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
@@ -675,7 +677,7 @@ int setup_options()
 	vbox = gtk_vbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
-	label = gtk_label_new("FFT Width in samples");
+	label = gtk_label_new("FFT Size in samples");
 	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
 	button = gtk_radio_button_new_with_label(NULL,"1024");
@@ -683,7 +685,7 @@ int setup_options()
 	if(nsamp == 1024)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)1024);
+			GTK_SIGNAL_FUNC (set_fft_size), (gpointer)S_1024);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"2048");
@@ -691,7 +693,7 @@ int setup_options()
 	if(nsamp == 2048)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)2048);
+			GTK_SIGNAL_FUNC (set_fft_size), (gpointer)S_2048);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"4096");
@@ -699,7 +701,7 @@ int setup_options()
 	if(nsamp == 4096)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)4096);
+			GTK_SIGNAL_FUNC (set_fft_size), (gpointer)S_4096);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"8192");
@@ -707,7 +709,7 @@ int setup_options()
 	if(nsamp == 8192)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)8192);
+			GTK_SIGNAL_FUNC (set_fft_size), (gpointer)S_8192);
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group,"16384");
@@ -715,7 +717,7 @@ int setup_options()
 	if(nsamp == 16384)
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
-			GTK_SIGNAL_FUNC (button_handle), (gpointer)16384);
+			GTK_SIGNAL_FUNC (set_fft_size), (gpointer)S_16384);
 
 	/*    group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	 *    button = gtk_radio_button_new_with_label(group,"32768");
@@ -723,7 +725,7 @@ int setup_options()
 	 *    if(nsamp == 32768)
 	 *	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON (button), TRUE);
 	 *    gtk_signal_connect (GTK_OBJECT (button), "toggled",
-	 *	    GTK_SIGNAL_FUNC (button_handle), (gpointer)32768);
+	 *	    GTK_SIGNAL_FUNC (set_fft_size), (gpointer)S_32768);
 	 */
 
 	gtk_widget_show_all(hbox);

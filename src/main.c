@@ -99,56 +99,56 @@ int main(int argc, char **argv)
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "3D Wireframe FFT", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)WIRE_3D);
 
 	button=gtk_button_new_with_label("Landform 3D");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "3D Landform FFT", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)FILL_3D);
 
 	button=gtk_button_new_with_label("Graphic EQ");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Graphic Equalizer", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)EQ_2D);
 
 	button=gtk_button_new_with_label("Scope");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Oscilliscope", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)SCOPE);
 
 	button=gtk_button_new_with_label("3D Spikes");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "3D Hi-resolution FFT", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)SPIKE_3D);
 
 	button=gtk_button_new_with_label("Horiz Spectrogram");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Horizontal Spectrogram", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)HORIZ_SPECGRAM);
 
 	button=gtk_button_new_with_label("Vert Spectrogram");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Vertical Spectrogram", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)VERT_SPECGRAM);
 
 	about_button=gtk_button_new_with_label("About");
 	gtk_tooltips_set_tip(tip, about_button, "About eXtace", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox),about_button,TRUE,TRUE,0);
 	gtk_signal_connect(GTK_OBJECT(about_button),"clicked",
-			GTK_SIGNAL_FUNC(change_display),
+			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)STARS);
 
 	button=gtk_toggle_button_new_with_label("Options");
