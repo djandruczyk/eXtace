@@ -35,8 +35,6 @@
 #endif
 
 
-gint		nsamp;		/* number of samples */
-gint		bands;		/* to start with, should be configurable */
 GdkPixmap	*dir_pixmap;	/* directional window pixmap pointer*/
 GdkPixmap	*grad_pixmap;	/* color gradient window pixmap pointer*/
 GdkPixmap	*main_pixmap;	/* MAIN window backing pixmap pointer */
@@ -47,11 +45,16 @@ GtkWidget	*optionsbut;	/* Options button pointer */
 GtkWidget	*dir_win;	/* Direction window pointer */
 GtkWidget	*dir_area;	/* directional window area */
 GtkWidget	*buffer_area;	/* Buffer latency display window area */
+GtkWidget	*dir_win_ptr;	/* Pointer */
+GtkWidget	*grad_win_ptr;	/* Pointer */
+GtkWidget	*options_win_ptr;/* pointer specific to that button */
 GdkGC		*gc;		/* Main graphics context */
 GdkGC		*graticule_gc;	/* Graphics context for graticule in scope */
 GdkGC		*arc_gc;	/* Graphics context for Arc in dircontrol */
 GdkGC		*trace_gc;	/* Graphics context for Trace in scope */
 GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
+GdkColor	temp_color;	/* Temporary var for testing */
+GdkColor	*start,*pt2,*pt3,*pt4,*end; /* Colors for gradient board */
 gshort		*audio_left;	/* left channel (scope??) */
 gshort		*audio_last_l;	/* last one of above, left channel (scope??) */
 gshort		*audio_last_r;	/* last one of above, right channel (scope??) */
@@ -60,65 +63,54 @@ gdouble		*raw_fft_in;	/* RAW input to fft routine */
 gdouble		*raw_fft_out;	/* RAW output of fft routine */
 gdouble		*norm_fft;	/* normalized fft data */
 gdouble		*datawindow;	/* pointer to window function array */
+double		levels[MAXBANDS];/* Levels for 3D and 3D Eq/spectral */
+double		plevels[MAXBANDS];/* Levels for 3D and 3D Eq/spectral */
+double		trailers[MAXBANDS];/* Levels for "trailers" in 2D EQ */
+double		ptrailers[MAXBANDS];/* Levels for "trailers" in 2D EQ */
 gint		*pip_arr;	/* array of pip values for screen */
 gint		*disp_val;	/* Display level for screen */
+gint		nsamp;		/* number of samples */
+gint		bands;		/* to start with, should be configurable */
 gint 		decimation_factor; /* for sub hertz resolution */
 gint 		lag;		/* delay between getting audio and displaying */
 gint   		width;		/* Main window width */
 gint   		height;		/* Main window height */
 gint  		colortab[MAXBANDS][MAXBANDS];/* ugly, statically allocated to up to MAXBANDS bands */
 gint		mode;		/* What display mode are we in */
-
-
-gint		bar_decay_speed;/* decay_speed ONLY works with bar_decay "on" (1) */
-gint		peak_decay_speed;/* decay_val ONLY works with peak_decay "on" (1) */
-gint		peak_hold_time;/* peak hold time ONLY works with peak_decay "on" (1) */
+gint		bar_decay_speed;/* ONLY works with bar_decay "on" (TRUE) */
+gint		peak_decay_speed;/* ONLY works with peak_decay "on" (TRUE) */
+gint		peak_hold_time;/* ONLY works with peak_decay "on" (TRUE) */
 gint		border;		/* border around displays */
 gint		x_offset;	/* 3D X axis offset for centering */
 gint		y_offset;	/* 3D X axis offset for centering */
-float		scale;
-gfloat		multiplier;	/* Level multiplier, for fft routines */
-
-GtkWidget	*dir_win_ptr;	/* Pointer */
-GtkWidget	*grad_win_ptr;	/* Pointer */
-GtkWidget	*options_win_ptr;/* pointer specific to that button */
-
-double		levels[MAXBANDS];/* Levels on screen for 3D and 3D Eq/spectral */
-double		plevels[MAXBANDS];/* Levels on screen for 3D and 3D Eq/spectral */
 gint		trail_counter[MAXBANDS];/* Peak/Hold counter for 2D EQ */
-double		trailers[MAXBANDS];/* Levels for "trailers" in 2D EQ */
-double		ptrailers[MAXBANDS];/* Levels for "trailers" in 2D EQ */
-gfloat		freqmark[MAXBANDS];/* Frequency markers for 2D EQ */
-gfloat		freq_at_pointer;/* Frequency at mouse pointer */
 gint		window_func;	/* Which window function r we using? */
 gint		axis_type;	/* Linear or LOG (NOT SPIKE or SPECT modes) */
 gint		dir_x_origin;	/* Coords of direction window */
 gint		dir_y_origin;	/* Coords of direction window */
 gint		tape_scroll;
 gint		display_markers;/* Are markers showing? */
-gint		vert_spec_start;/* place on screen where spectram starts(abs) */
-gint		horiz_spec_start;/* place on screen where spectram starts(abs) */
+gint		vert_spec_start;/* where vert spectram starts(abs) */
+gint		horiz_spec_start;/* where horiz spectram starts(abs) */
 gint		color_loc;	/* pixel location in color gradient for color mapper */
-gint		cr[MAXBANDS],cg[MAXBANDS],cb[MAXBANDS];
+gint		cr[MAXBANDS];
+gint		cg[MAXBANDS];
+gint		cb[MAXBANDS];
 gint		scope_sub_mode;	/* Dot, line or gradient sub mode  */
 gint		sub_mode_3D;	/* sub mode for 3D modes */
-int		last_buf_l[CONVOLVE_SMALL];/* Convolve buffer */
-short		cur_buf_l[CONVOLVE_BIG];/* Convolve buffer */
-int		last_buf_r[CONVOLVE_SMALL];/* Convolve buffer */
-short		cur_buf_r[CONVOLVE_BIG];/* Convolve buffer */
-int		scope_begin_l;	/* Begining point in buffer to start displaying scope */
-int		old_scope_begin_l;/* (for Convolve routines..) */
-int		scope_begin_r;	/* Begining point in buffer to start displaying scope */
-int		old_scope_begin_r;/* (for Convolve routines..) */
+gint		scope_begin_l;	/* Begining point in buffer for scope */
+gint		scope_begin_r;	/* Begining point in buffer for scope */
+gfloat		scale;
+gfloat		multiplier;	/* Level multiplier, for fft routines */
+gfloat		freqmark[MAXBANDS];/* Frequency markers for 2D EQ */
+gfloat		freq_at_pointer;/* Frequency at mouse pointer */
+gint		last_buf_l[CONVOLVE_SMALL];/* Convolve buffer */
+gint		last_buf_r[CONVOLVE_SMALL];/* Convolve buffer */
+gshort		cur_buf_l[CONVOLVE_BIG];/* Convolve buffer */
+gshort		cur_buf_r[CONVOLVE_BIG];/* Convolve buffer */
 		
 convolve_state	*l_state;	/* Pointer to make convolve happy */
 convolve_state	*r_state;	/* Pointer to make convolve happy */
-
-GdkColor	temp_color;	/* Temporary var for testing */
-GdkColor	*start,*pt2,*pt3,*pt4,*end; /* Colors for gradient board */
-gint		sync_to_left;	/* Scope displayt to sync on left channel */
-gint		sync_to_right;	/* Scope displayt to sync on left channel */
-gint		sync_independant;/* Each channel self synchronizes.. */
 gint		r_count;
 glong		frame_cnt;	/* Frame count */
 struct		timeval cur_time, last_time;
