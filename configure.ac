@@ -1,18 +1,18 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/main.c)
-AC_PREREQ(2.54)
+dnl AC_PREREQ(2.54)
 
 EXTACE_MAJOR_VERSION=1
 EXTACE_MINOR_VERSION=9
-EXTACE_MICRO_VERSION=1
+EXTACE_MICRO_VERSION=2
 
 EXTACE_VERSION=$EXTACE_MAJOR_VERSION.$EXTACE_MINOR_VERSION.${EXTACE_MICRO_VERSION}
 
-AM_INIT_AUTOMAKE(extace, ${EXTACE_VERSION})
+AM_INIT_AUTOMAKE(extace, 1.9.2)
 AM_CONFIG_HEADER(config.h)
 
-AM_MAINTAINER_MODE
+dnl AM_MAINTAINER_MODE
 
 dnl =========================================================================
 dnl control variables
