@@ -525,8 +525,8 @@ void reinit_extace(int new_nsamp)
     draw_stop();
     if(data_handle != -1) /* stop if previously opened */
       { 
-	audio_thread_stopper(data_handle);
-	close_sound(data_handle);
+	input_thread_stopper(data_handle);
+	close_datasource(data_handle);
       }	
 
   /* Free all buffers */
@@ -558,9 +558,9 @@ void reinit_extace(int new_nsamp)
 	ring_pos=0;
 	
 	/* only start if it has been stopped above */
-	if(data_handle != -1 && (data_handle=open_sound(data_source)) >= 0)
+	if(data_handle != -1 && (data_handle=open_datasource(data_source)) >= 0)
 	  {
-	    audio_thread_starter(data_handle);
+	    input_thread_starter(data_handle);
 	    draw_start();
 	  }
 }

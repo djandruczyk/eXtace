@@ -39,8 +39,8 @@ void leave(GtkWidget *widget, gpointer *data)
 {
 	draw_stop();
 	save_config(widget);
-	audio_thread_stopper(data_handle);
-	close_sound(data_handle);
+	input_thread_stopper(data_handle);
+	close_datasource(data_handle);
 	/* Free all buffers */
 	mem_dealloc();
 	gtk_main_quit();
@@ -195,14 +195,14 @@ gint set_data_source(GtkWidget *widget, gpointer *data)
   
   if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
     draw_stop();
-    audio_thread_stopper(data_handle);
-    close_sound(data_handle);
+    input_thread_stopper(data_handle);
+    close_datasource(data_handle);
     data_source = (DataSource) data;
     /* start even if none previously opened 
        (in case previous sound source was bad) */
-    if ((data_handle=open_sound(data_source)) >= 0)
+    if ((data_handle=open_datasource(data_source)) >= 0)
       {
-	audio_thread_starter(data_handle);
+	input_thread_starter(data_handle);
 	draw_start();
       }
   }

@@ -248,9 +248,9 @@ int main(int argc, char **argv)
 		update_pointer();
 	}
 
-	if ((data_handle=open_sound(data_source)) != -1)
+	if ((data_handle=open_datasource(data_source)) != -1)
 	  {
-	    audio_thread_starter(data_handle);
+	    input_thread_starter(data_handle);
 	    draw_start();
 	  }
 	if (mode == STARS)/* gotta emit it by hand due to config file */

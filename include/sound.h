@@ -18,11 +18,11 @@
 
 
 /* Prototypes */
-int audio_thread_starter(int handle);
-int audio_thread_stopper(int handle);
+int input_thread_starter(int handle);
+int input_thread_stopper(int handle);
 void *esd_starter_thread(void *esd_handle);
-int open_sound(DataSource data);
-int close_sound(int handle);
+int open_datasource(DataSource data);
+int close_datasource(int handle);
 void error_close_cb(GtkWidget *, gpointer * );
 
 /* Prototypes */
