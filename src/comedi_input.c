@@ -1,8 +1,8 @@
 /*
  *
  * comedi_input.c extace source file
- * 
- * esd (Esound) sound monitor program
+ * This are routines needed for manipulating, saving, and
+ * loading comedi_cmd structures.
  * 
  * Copyright (C) 1999 by Dave J. Andruczyk 
  * 
@@ -14,413 +14,88 @@
  * 
  * No warranty is made or implied. You use this program at your own risk.
  */
+
+#include <comedi_input.h>
 #include <stdio.h>
 #include <input.h>
-#include <comedi_input.h>
 #include <stdlib.h>
 #include <string.h>
 #include <configfile.h>
 
 #ifdef HAVE_COMEDI
-#define N_CHANS 16  // Maximum possible number of channels
 char *cmdtest_messages[];
-char *subdevice_types[];
-#endif
-
-
-/*  For multiple comedi windows, this would have to be generalized */
-#define MAX_STR 32
-#define MAX_RANGES 32
-#define MAX_SUB 4
-/* Definitions specific to a particular comedi window */
-static struct {
-	gchar device_name[255];
-	gchar subdevice[MAX_SUB][20];
-	gchar ranges[MAX_STR][20];
-	GtkWidget *handle;     /* window to control input device */
-}control_window;  
-
-
-#ifdef HAVE_COMEDI
-/* some local variables */
-static comedi_cmd *cmd;
-static comedi_t *dev;
-static int my_handle;
-
 char *cmd_src(int src,char *buf);
-void get_command_stuff(comedi_t *it,int s);
 
-/* change comedi subdevice is always called in 
-   conjunction with another action (channel or range.) */
 
-int change_comedi_subdevice(GtkWidget *widget, gpointer data)
+/*
+  Modify the scan rate for streaming input.  This function assumes
+  that cmd is already a valid structure.
+  This mimics, somewhat, the behavior of comedi_get_cmd_generic_timed(...)
+  except that it does not reset cmd.  On success, it returns the
+  modified rate.  On failure, it returns 0.
+
+  This was based on comedilib/lib/cmd.c internal 
+  routine __generic_timed(...)
+*/
+
+unsigned int comedi_command_timed(comedi_t *it, comedi_cmd *cmd, 
+			       unsigned int ns)
 {
-	int subdevice=GPOINTER_TO_INT(data);
-	if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
-#if 0
-		printf("change_comedi_subdevice %i\n",subdevice);
-#endif
-		cmd->subdev=subdevice;  /* don't actually do anything */
-	}
-	return TRUE;
-}
-
-int change_comedi_range(GtkWidget *widget, gpointer data)
-{
+	const int err=0;  /* error return */
 	int ret;
-	int range=GPOINTER_TO_INT(data);
-	int i;
 
-        if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
-        {
-#if 0
-		printf("change_comedi_range %i\n",range);
-#endif
-		input_thread_stopper(my_handle);
-		for(i=0; i<cmd->chanlist_len; i++)
-			cmd->chanlist[i]=CR_PACK(
-				CR_CHAN(cmd->chanlist[i]),
-				range,
-				CR_AREF(cmd->chanlist[i]));
-		ret=comedi_command_test(dev,cmd);
+	/* Potential bug: there is a possibility that the source mask may
+	 * have * TRIG_TIMER set for both convert_src and scan_begin_src,
+	 * but they may not be supported together. */
+	if(cmd->convert_src&TRIG_TIMER){
+		if(cmd->scan_begin_src&TRIG_FOLLOW){
+			cmd->convert_src = TRIG_TIMER;
+			cmd->convert_arg = ns;
+			cmd->scan_begin_src = TRIG_FOLLOW;
+			cmd->scan_begin_arg = 0;
+		}else{
+			cmd->convert_src = TRIG_TIMER;
+			cmd->convert_arg = ns;
+			cmd->scan_begin_src = TRIG_TIMER;
+			cmd->scan_begin_arg = ns;
+		}
+	}else if(cmd->convert_src & TRIG_NOW &&
+		cmd->scan_begin_src & TRIG_TIMER)
+	{
+		cmd->convert_src = TRIG_NOW;
+		cmd->convert_arg = 0;
+		cmd->scan_begin_src = TRIG_TIMER;
+		cmd->scan_begin_arg = ns;
+	}else{
+		fprintf(stderr,__FILE__":   can't do timed?\n");
+		return err;
+	}
+
+	ret=comedi_command_test(it,cmd);
+	if(ret==3)   		/* OK, try again */
+		ret=comedi_command_test(it,cmd);
+	if(ret!=4 && ret!=0)   	/* return with error */
+	{  
 #ifdef DEBUG
-		if(ret != 0){
-			fprintf(stderr,__FILE__ ":  fourth COMEDI command_test returned %i\n     See kernel system messages (dmesg)\n",ret);
-		}
+		printf(__FILE__ ":  comedi_command_test %i, returned %i\n"
+		       "     See kernel system messages (dmesg)\n",__LINE__,ret);
 #endif
-		input_thread_starter(my_handle);
-	}
-	return TRUE;
-}
-
-int change_comedi_channel(GtkWidget *widget, gpointer data)
-{
-	int i;
-	int ret;
-	int chan=GPOINTER_TO_INT(data);
-	int n_chan=cmd->chanlist_len;
-
-	if (GTK_TOGGLE_BUTTON(widget)->active) /* its pressed */
-	{
-		printf("change_comedi_channel:  add %i\n",chan);
-		input_thread_stopper(my_handle);
-		cmd->chanlist=realloc(cmd->chanlist,(n_chan+1)*sizeof(cmd->chanlist));
-		cmd->chanlist[cmd->chanlist_len++]=CR_PACK(
-			chan,
-			n_chan>0?CR_RANGE(cmd->chanlist[n_chan-1]):0,
-			n_chan>0?CR_AREF(cmd->chanlist[n_chan-1]):AREF_GROUND
-			);
-		ret=comedi_command_test(dev,cmd);
-		if(ret != 0){
-			fprintf(stderr,__FILE__ ":  third COMEDI command_test returned %i\n     See kernel system messages (dmesg)\n",ret);
-			
-		}
-		input_thread_starter(my_handle);
-	}
-	else
-	{
-		printf("change_comedi_channel:  remove %i\n",chan);
-		input_thread_stopper(my_handle);
-		for(i=0; i<cmd->chanlist_len; i++)
-			if(CR_CHAN(cmd->chanlist[i])==chan)break;
-		cmd->chanlist_len--;
-                for(; i<cmd->chanlist_len; i++)
-                        cmd->chanlist[i]=cmd->chanlist[i+1];
-		/* don't do anything more if no channels are opened */
-		if(cmd->chanlist_len == 0)return TRUE;
-		ret=comedi_command_test(dev,cmd);
-		if(ret != 0){
-			fprintf(stderr,__FILE__ ":  off COMEDI command_test returned %i\n     See kernel system messages (dmesg)\n",ret);
-			
-		}
-		input_thread_starter(my_handle);		
-	}
-	return TRUE;
-}
-
-int change_comedi_rate(GtkAdjustment *adj, gpointer *data)
-{
-	float rate = adj->value;
-	printf("rate %g\n",rate);
-	
-	return TRUE;
-}
-
-#endif
-
-GtkWidget *comedi_device_control_open(int handle_number)
-{
-        GtkWidget *vbox;
-        GtkWidget *label;
-#ifdef HAVE_COMEDI
-	int k;
-	gint j;
-	gint subdev;
-	int use_sub;
-	int n_subdevices;
-	comedi_range *rng;
-	gint chan;
-	int n_chans;
-	int n_ranges;
-	/* string containing integers */
-	static gchar channel_numbers[N_CHANS][10];
-	int type;
-	gchar *str;
-	GSList *group;
-	GtkWidget *button;
-	GtkWidget *frame;
-	GtkWidget *spinner;
-        GtkWidget *hbox;
-        GtkWidget *vbox2;
-        GtkWidget *vbox3;
-	GtkWidget *subdevice_frame;
-	GtkObject *spinner_adj;
-
-	for(j=0; j<N_CHANS; j++)
-		sprintf(channel_numbers[j],"%i",j);
-#endif
-
-	control_window.handle = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(control_window.handle),"COMEDI input");
-	gtk_window_set_policy(GTK_WINDOW(control_window.handle), 
-			      FALSE,		/* allow shrink */
-			      TRUE,		/* allow grow */
-			      FALSE);		/* auto shrink */
-	gtk_container_set_border_width(GTK_CONTAINER(control_window.handle),2);
-
-	vbox = gtk_vbox_new(FALSE,0);
-	gtk_container_add(GTK_CONTAINER(control_window.handle), vbox);
-	if(handle_number==-1)
-	{
-		label = gtk_label_new("\nComedi input not opened\n");
-		gtk_box_pack_start(GTK_BOX(vbox),label,TRUE, TRUE, 0);
-	}
-	else
-	{
-#ifdef HAVE_COMEDI
-		dev=comedi_dev_pointer(handle_number);
-		cmd=comedi_cmd_pointer(handle_number);
-		my_handle=handle_number;
-
-		/* the strings have to be persistant */
-		str=control_window.device_name;
-		sprintf(str,"Data acquistion board:  %s\n"
-			"Driver is %s, %i subdevices",
-			comedi_get_board_name(dev),
-			comedi_get_driver_name(dev),
-			n_subdevices=comedi_get_n_subdevices(dev)
-			);
-		label = gtk_label_new(str);
-		gtk_box_pack_start(GTK_BOX(vbox),label,TRUE, TRUE, 0);
-
-#ifdef DEBUG
-		printf("  version code: 0x%06x\n",comedi_get_version_code(dev));
-#endif	
-		
-		for(subdev=0, use_sub=0; subdev<n_subdevices; subdev++)
-		{
-			type=comedi_get_subdevice_type(dev,subdev);
-			/* Only show subdevices that could serve as input */
-			if(type!=1 && type != 3 && type != 5) continue;
-			if(use_sub>=MAX_SUB)
-			{
-				fprintf(stderr,__FILE__":  Too many subdevices\n");
-				exit(11);
-			}
-			str=control_window.subdevice[use_sub];
-			sprintf(str,"Subdevice %i, %s",subdev,subdevice_types[type]);
-			subdevice_frame = gtk_frame_new(str);
-			gtk_container_set_border_width(GTK_CONTAINER(subdevice_frame), 5);
-			gtk_container_add(GTK_CONTAINER(vbox),subdevice_frame);
-			vbox2 = gtk_vbox_new(FALSE,0);
-			gtk_container_add(GTK_CONTAINER(subdevice_frame), vbox2);
-			n_chans=comedi_get_n_channels(dev,subdev);
-			if(n_chans > N_CHANS)
-			{
-				fprintf(stderr,__FILE__":  n_chans=%i > N_CHANS=%i\n",
-					n_chans,N_CHANS);
-				exit(56);
-			}
-			
-#if DEBUG
-			if(!comedi_maxdata_is_chan_specific(dev,subdev)){
-				printf("  max data value: %d\n",comedi_get_maxdata(dev,subdev,0));
-			}else{
-				printf("  max data value: (channel specific)\n");
-				for(chan=0; chan<n_chans; chan++){
-					printf("    chan%d: %d\n",chan,
-					       comedi_get_maxdata(dev,subdev,chan));
-				}
-			}
-#endif			
-
-			if(!comedi_range_is_chan_specific(dev,subdev)){
-
-				frame = gtk_frame_new("Channels");
-				gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-				hbox = gtk_hbox_new(FALSE,0);
-				for(j=0; j<n_chans; j++){
-					button = gtk_toggle_button_new_with_label(channel_numbers[j]);
-					gtk_box_pack_start(GTK_BOX(hbox),button,TRUE, TRUE, 0);
-					for(k=0; k<cmd->chanlist_len; k++)
-						if(CR_CHAN(cmd->chanlist[k])==j)
-							gtk_toggle_button_set_active(
-								GTK_TOGGLE_BUTTON(button),TRUE);
-					gtk_signal_connect(
-						GTK_OBJECT(button),"toggled",
-						GTK_SIGNAL_FUNC(change_comedi_subdevice),
-						GINT_TO_POINTER(subdev)
-						);
-					gtk_signal_connect(
-						GTK_OBJECT(button),"toggled",
-						GTK_SIGNAL_FUNC(change_comedi_channel),
-						GINT_TO_POINTER(j)
-						);
-				}
-				gtk_container_add(GTK_CONTAINER(frame), hbox);
-				gtk_box_pack_start(GTK_BOX(vbox2),frame,TRUE, TRUE, 0);
-
-				n_ranges=comedi_get_n_ranges(dev,subdev,0);
-				if(n_chans > MAX_RANGES)
-				{
-					fprintf(stderr,__FILE__":  n_chans=%i > MAX_RANGES=%i\n",
-						n_chans,MAX_RANGES);
-					exit(56);
-				}
-
-				frame = gtk_frame_new("Voltage ranges for all channels");
-				gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-				hbox = gtk_hbox_new(FALSE,0);
-				group=NULL;
-
-				for(j=0;j<n_ranges;j++){
-
-					rng=comedi_get_range(dev,subdev,0,j);
-					str=control_window.ranges[j];
-					sprintf(str," %+g\n%+g",rng->max,rng->min);
-					button = gtk_radio_button_new_with_label(group,str);
-					gtk_box_pack_start(GTK_BOX(hbox),button,TRUE, TRUE, 0);	   
-					gtk_toggle_button_set_active(
-						GTK_TOGGLE_BUTTON(button),
-						CR_RANGE(cmd->chanlist[0])==j
-						);
-					gtk_signal_connect(
-						GTK_OBJECT(button),"toggled",
-						GTK_SIGNAL_FUNC(change_comedi_subdevice),
-						GINT_TO_POINTER(subdev)
-						);
-					gtk_signal_connect(
-						GTK_OBJECT(button),"toggled",
-						GTK_SIGNAL_FUNC(change_comedi_range),
-						GINT_TO_POINTER(j)
-						);
-					group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-				}
-
-				gtk_container_add(GTK_CONTAINER(frame), hbox);
-				gtk_box_pack_start(GTK_BOX(vbox2),frame,TRUE, TRUE, 0);
-			}
-			else
-			{
-				label = gtk_label_new("Channels and ranges");
-				gtk_box_pack_start(GTK_BOX(vbox2),label,TRUE, TRUE, 0);
-
-				hbox = gtk_hbox_new(FALSE,0);
-				for(chan=0;chan<n_chans;chan++){
-					vbox3 = gtk_vbox_new(FALSE,0);
-					button = gtk_toggle_button_new_with_label(channel_numbers[chan]);
-					gtk_box_pack_start(GTK_BOX(vbox3),button,TRUE, TRUE, 0);
-					for(k=0; k<cmd->chanlist_len; k++)
-						if(CR_CHAN(cmd->chanlist[k])==chan)
-							gtk_toggle_button_set_active(
-								GTK_TOGGLE_BUTTON(button),TRUE);
-					gtk_signal_connect(
-						GTK_OBJECT(button),"toggled",
-						GTK_SIGNAL_FUNC(change_comedi_subdevice),
-						GINT_TO_POINTER(subdev)
-						);
-					gtk_signal_connect(
-						GTK_OBJECT(button),"toggled",
-						GTK_SIGNAL_FUNC(change_comedi_range),
-						GINT_TO_POINTER(chan)
-						);
-					n_ranges=comedi_get_n_ranges(dev,subdev,chan);
-					if(n_ranges*n_chans > MAX_STR || n_ranges>MAX_RANGES)
-					{
-						fprintf(stderr,__FILE__":  Too many ranges in Comedi, %i>%i,MAX_RANGES=%i\n",n_ranges*n_chans,MAX_STR,MAX_RANGES);
-						exit(23);
-					}
-					group=NULL;
-					for(j=0;j<n_ranges;j++){
-						rng=comedi_get_range(dev,subdev,chan,j);
-						str=control_window.ranges[j*n_chans+chan];
-						sprintf(str," %+g\n%+g",rng->max,rng->min);
-						button = gtk_radio_button_new_with_label(group,str);
-						gtk_box_pack_start(GTK_BOX(vbox3),button,TRUE, TRUE, 0);
-					for(k=0; k<cmd->chanlist_len; k++)
-						if(CR_CHAN(cmd->chanlist[k])==chan)
-							gtk_toggle_button_set_active(
-								GTK_TOGGLE_BUTTON(button),CR_RANGE(cmd->chanlist[k])==j);
-						gtk_signal_connect(
-							GTK_OBJECT(button),"toggled",
-							GTK_SIGNAL_FUNC(change_comedi_subdevice),
-							GINT_TO_POINTER(subdev)
-							);
-						gtk_signal_connect(
-							GTK_OBJECT(button),"toggled",
-							GTK_SIGNAL_FUNC(change_comedi_range),
-							GINT_TO_POINTER(chan)
-						);
-						gtk_signal_connect(
-							GTK_OBJECT(button),"toggled",
-							GTK_SIGNAL_FUNC(change_comedi_range),
-							GINT_TO_POINTER(j)
-							);
-						group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-					}
-					gtk_box_pack_start(GTK_BOX(hbox),vbox3,TRUE, TRUE, 0);
-				}
-				gtk_box_pack_start(GTK_BOX(vbox2),hbox,TRUE, TRUE, 0);
-			}
-
-			frame = gtk_frame_new("Sample rate");
-			gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
-			hbox = gtk_hbox_new(FALSE,0);
-			label = gtk_label_new("samples per second for each channel:");
-			gtk_box_pack_start(GTK_BOX(hbox),label,TRUE, TRUE, 0);
-			/* These will have to be tweaked, maybe find a way to test allowed values */ 
-			spinner_adj = gtk_adjustment_new(
-				ring_rate, 0.0, 100000, ring_rate/100,
-				ring_rate/10, 0);
-			spinner = gtk_spin_button_new(
-				GTK_ADJUSTMENT(spinner_adj), 0.001, 5);
-			gtk_signal_connect(
-				GTK_OBJECT(spinner_adj),"value_changed",
-				GTK_SIGNAL_FUNC(change_comedi_rate),
-				NULL
-				);
-
-			gtk_box_pack_start(GTK_BOX(hbox),spinner,TRUE, TRUE, 0);
-			gtk_container_add(GTK_CONTAINER(frame), hbox);
-			gtk_container_add(GTK_CONTAINER(vbox), frame);
-		
-#ifdef DEBUG
-			printf("  command:\n");
-			get_command_stuff(dev,subdev);
-#endif
-			use_sub++;
-		}
-#endif
+		return err;
 	}
 	
-	gtk_widget_show_all(control_window.handle);	
-	return control_window.handle;
+	/* return with new rate */
+	if(cmd->convert_src&TRIG_TIMER)
+		return cmd->convert_arg;
+	else 
+		return cmd->scan_begin_arg;
 }
+
+#endif
 
 
 /***************************************************************************
 
-  Routine borrowed from Comedi demo programs
+  Routines borrowed from Comedi demo programs
 
 */
 
@@ -506,7 +181,7 @@ char *cmdtest_messages[]={
         "invalid chanlist",
 };
 
-char *subdevice_types[]={
+char *subdevice_types[N_SUBDEVICE_TYPES]={
 	"unused",
 	"analog input",
 	"analog output",
@@ -525,15 +200,18 @@ char *subdevice_types[]={
  rate is samples per second for each channel.
 
  returns the result of a comedi_command_test.
+ This is based on comedilib/demo/cmd.c
 */
 
 int default_comedi_cmd(comedi_t *dev, comedi_cmd *cmd, float *rate)
 {
 	int ret;
-	int *channels=0;
-	int n_channels;
-	int aref= AREF_GROUND;
-	int range=3;  // which voltage range to use
+	unsigned int *channels;
+	unsigned int n_channels;
+	unsigned int period;
+	unsigned int subdevice = 0; /* choose comedi subdevice */
+	unsigned int aref= AREF_GROUND;
+	unsigned int range=3;  // which voltage range to use
 
 	if(dev == NULL) /* don't do anything if there is no device */
 	{
@@ -541,27 +219,29 @@ int default_comedi_cmd(comedi_t *dev, comedi_cmd *cmd, float *rate)
 		return -1;
 	}
 
-	/* free any previous arrays */ 
-	if(cmd->chanlist_len) free(cmd->chanlist);
-	if(cmd->data_len) free(cmd->data);
-
-
-	cmd->subdev = 0;  // which subdevice
-
 	/* set default channels, but don't put into comedi_cmd */
-	channels=malloc(N_CHANS*sizeof(*cmd->chanlist));
+	channels=malloc(16*sizeof(*cmd->chanlist));
 	n_channels=0;
 	channels[n_channels++]=CR_PACK(8,range,aref);
 #if 0
     	channels[n_channels++]=CR_PACK(9,range,aref);
 #endif
+	if(n_channels > comedi_get_n_channels(dev,subdevice))
+	{
+		fprintf(stderr,__FILE__":  Too many channels defined\n");
+		return -1;
+	}
 
 	/* comedi rate is samples per nanosecond for 
 	   all channels being read.  
-	   Assume rate in samples per second per channel. */
-	*rate=ESD_DEFAULT_RATE;
-	ret = comedi_get_cmd_generic_timed(dev,cmd->subdev,cmd,
-					   1e9/(*rate*n_channels));
+	   Assume rate in samples per second for each channel. */
+	*rate=22222;
+
+	period=1e9/(*rate*(float) n_channels);
+#ifdef DEBUG
+	printf(__FILE__",%i:  period %i ns\n",__LINE__,period);
+#endif
+	ret = comedi_get_cmd_generic_timed(dev,subdevice,cmd,period);
 	if(ret<0){
 		comedi_perror("comedi_get_cmd_generic_timed\n");
 		return ret;
@@ -571,20 +251,27 @@ int default_comedi_cmd(comedi_t *dev, comedi_cmd *cmd, float *rate)
            on any allocation of cmd->chanlist */
 	cmd->chanlist_len=n_channels;
 	cmd->chanlist=channels;
-	
-	cmd->scan_end_arg = cmd->chanlist_len;
+        cmd->scan_end_arg = n_channels;
 
+	/* These are needed to get a signal */
 	cmd->stop_src = TRIG_NONE;
-	cmd->stop_arg = 0;
+        cmd->stop_arg = 0;
 	
-	return comedi_command_test(dev,cmd);
+	/* Test it once */
+        ret=comedi_command_test(dev,cmd);
+#ifdef DEBUG
+	if(ret)
+		printf(__FILE__",%i:  default comedi_command_test(...) returned %i\n",
+		       __LINE__,ret);
+#endif
+	return ret;
 }
 
 /*
   routines to save and load a comedi_cmd structure and
   the rate to and from a config file.
 
-  note that this reallocs two arrays in cmd.
+  note that this mallocs two arrays in cmd.
 */
 
 #define COMEDI_CONFIG_FILE "/.eXtace/comedi"
@@ -621,8 +308,7 @@ int read_comedi_cmd(comedi_cmd *cmd, float *rate)
 		cfg_read_int(cfgfile, "cmd", "stop_arg", &cmd->stop_arg);
 
 		cfg_read_int(cfgfile, "cmd", "chanlist_len", &cmd->chanlist_len);
-		cmd->chanlist=realloc(cmd->chanlist,
-				     cmd->chanlist_len*sizeof(*cmd->chanlist));
+		cmd->chanlist=malloc(cmd->chanlist_len*sizeof(*cmd->chanlist));
 		for(i=0; i<cmd->chanlist_len; i++)
 		{
 			sprintf(str,"chanlist_%i",i);
@@ -633,8 +319,7 @@ int read_comedi_cmd(comedi_cmd *cmd, float *rate)
 		}
 
 		cfg_read_int(cfgfile, "cmd", "data_len", &cmd->data_len);
-		cmd->data=realloc(cmd->data,
-				     cmd->data_len*sizeof(*cmd->data));
+		cmd->data=malloc(cmd->data_len*sizeof(*cmd->data));
 		for(i=0; i<cmd->data_len; i++)
 		{
 			sprintf(str,"data_%i",i);
@@ -714,8 +399,8 @@ int free_comedi_cmd(comedi_cmd *cmd)
 {
 	cmd->data_len=0;
 	cmd->chanlist_len=0;
-	cmd->data=realloc(cmd->data,0);
-	cmd->chanlist=realloc(cmd->chanlist,0);
+	free(cmd->data);
+	free(cmd->chanlist);
 
 	return 0;
 }

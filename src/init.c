@@ -549,8 +549,12 @@ void reinit_extace(int new_nsamp)
 	/* only start if it has been stopped above */
 	if(data_handle != -1 && (data_handle=open_datasource(data_source)) >= 0)
 	  {
-	    input_thread_starter(data_handle);
-	    draw_start();
+		  plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+		  input_thread_starter(data_handle);
+		  ring_rate_changed(); /* Fix all gui controls that depend on
+					* ring_rate (adjustments and such
+					*/
+		  draw_start();
 	  }
 }
 

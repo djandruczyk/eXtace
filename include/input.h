@@ -56,9 +56,15 @@ int ring_remainder;    /* if partial sample has been read, leftover bytes */
 int ring_channels;     /* number of channels being read into input ring 
 			  This should be set with update_ring_channels(...); */
 float ring_rate;       /* samples read per second in each channel */
-                       /* eventually, this should take over the functionality
-		       of RATE */
 
+/* time that most recent data in ring buffer was read */
+struct timeval input_arrival;
+
+/* Variables needed for updating the input progress monitor window */
+/* These must be initialized by routines outside of input.c */
+GtkWidget     *buffer_area;   /* Buffer latency display window area */
+GdkPixmap     *buffer_pixmap; /* Buffer window backing pixmap pointer */
+GdkGC         *latency_monitor_gc; /* Graphics context for Arc in dircontrol */
 
 /* Prototypes */
 int input_thread_starter(int );

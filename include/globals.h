@@ -38,13 +38,11 @@
 GdkPixmap	*dir_pixmap;	/* directional window pixmap pointer*/
 GdkPixmap	*grad_pixmap;	/* color gradient window pixmap pointer*/
 GdkPixmap	*main_pixmap;	/* MAIN window backing pixmap pointer */
-GdkPixmap	*buffer_pixmap;	/* Buffer window backing pixmap pointer */
 GdkPixmap	*grad[256];	/* Gradient pointers?? forgot bout this too */
 GtkWidget	*main_display;	/* Main Display pointer */
 GtkWidget	*optionsbut;	/* Options button pointer */
 GtkWidget	*dir_win;	/* Direction window pointer */
 GtkWidget	*dir_area;	/* directional window area */
-GtkWidget	*buffer_area;	/* Buffer latency display window area */
 GtkWidget	*dir_win_ptr;	/* Pointer */
 GtkWidget	*grad_win_ptr;	/* Pointer */
 GtkWidget	*options_win_ptr;/* pointer specific to that button */
@@ -52,7 +50,6 @@ GdkGC		*gc;		/* Main graphics context */
 GdkGC		*graticule_gc;	/* Graphics context for graticule in scope */
 GdkGC		*arc_gc;	/* Graphics context for Arc in dircontrol */
 GdkGC		*trace_gc;	/* Graphics context for Trace in scope */
-GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
 GdkColor	temp_color;	/* Temporary var for testing */
 GdkColor	*start,*pt2,*pt3,*pt4,*end; /* Colors for gradient board */
 gshort		*audio_left;	/* left channel (scope??) */

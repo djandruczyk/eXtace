@@ -16,6 +16,7 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
+#include <input.h>
 #include <color_win.h>
 #include <config.h>
 #include <dir.h>

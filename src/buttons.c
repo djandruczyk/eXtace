@@ -27,7 +27,7 @@
 #include <logo.xpm>
 #include <markers.h>
 #include <input.h>
-#include <comedi_input.h>
+#include <comedi_window.h>
 #include <stars.h>
 #include <unistd.h>
 
@@ -178,8 +178,12 @@ gint set_data_source(GtkWidget *widget, gpointer data)
        (in case previous sound source was bad) */
     if ((data_handle=open_datasource(data_source)) >= 0)
       {
-	input_thread_starter(data_handle);
-	draw_start();
+	      plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+	      ring_rate_changed(); /* Fix all gui controls that depend on
+				    * ring_rate (adjustments and such
+				    */
+	      input_thread_starter(data_handle);
+	      draw_start();
       }
     gtk_widget_set_sensitive(comedi_button,data_source == COMEDI);
     if(data_source == COMEDI)

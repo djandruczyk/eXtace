@@ -249,10 +249,14 @@ int main(int argc, char **argv)
 	}
 
 	if ((data_handle=open_datasource(data_source)) >= 0)
-	  {
-	    input_thread_starter(data_handle);
-	    draw_start();
-	  }
+	{
+		plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+		ring_rate_changed(); /* Fix all gui controls that depend on
+				      * ring_rate (adjustments and such)
+				      */
+		input_thread_starter(data_handle);
+		draw_start();
+	}
 	/* This will open comedi window on startup when approprate */
 	if(data_source == COMEDI)
 		gtk_toggle_button_set_active(

@@ -15,19 +15,20 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
-#include <asm/errno.h>
-#include <globals.h>
-#include <init.h>
-#include <input.h>
 #include <comedi_input.h>
+#include <stdio.h>
+#include <asm/errno.h>
+#include <input.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 #ifdef HAVE_COMEDI
 #include <comedilib.h>
-/* Fix!!  With several cards, there would be more than one device */
+/* With several cards, there would be more than one device 
+   This needs to be fixed. */
 char comedi_data_device[]="/dev/comedi0";
 #endif
 
@@ -36,9 +37,7 @@ static struct {
 	int opened;        /* device has been successfully opened */
 	int read_started;  /* read thread has been successfully sarted */
 	/* some devices return pointers, other integers */
-#ifdef HAVE_ESD
 	int esd;
-#endif
 #ifdef HAVE_COMEDI
 	comedi_t *dev; 
 	comedi_cmd cmd;
@@ -58,6 +57,8 @@ gint tag;		/* Used by gdk_input_* */
    the length ring_end should be set by the calling routine.
 */
 
+/* buffer_area should be constructed by an outside routine */
+//GtkWidget *buffer_area = NULL;    
 ring_type *ringbuffer = NULL;  /* initialize pointer for realloc later */
 int ring_end=0;                /* initialize length to zero */
 float ring_rate=-1;             /* initalize rate to nonsense */
@@ -87,7 +88,6 @@ int open_datasource(DataSource source)
 			/* esd rate is rate for each channel */
 			ring_rate=ESD_DEFAULT_RATE;
 			handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"extace");
-			update_ring_channels(2); /* since ESD_STEREO is set */
 			if (handles[i].esd > 0) 
 				handles[i].opened = 1;
 			break;
@@ -113,7 +113,6 @@ int open_datasource(DataSource source)
 				if(read_comedi_cmd(&handles[i].cmd,&ring_rate))
 					default_comedi_cmd(handles[i].dev,
 							   &handles[i].cmd,&ring_rate);
-				update_ring_channels(handles[i].cmd.chanlist_len);
 			}
 			break;
 #endif
@@ -128,12 +127,8 @@ int open_datasource(DataSource source)
 
 	if (handles[i].opened)
 	{
-		plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 		handles[i].source=source;
 		handles[i].read_started = 0;
-		ring_rate_changed(); /* Fix all gui controls that depend on
-				      * ring_rate (adjustments and such
-				      */
 		return i;
 	}
 
@@ -145,7 +140,7 @@ int open_datasource(DataSource source)
 	errbox = gtk_window_new(GTK_WINDOW_DIALOG);
 
 	gtk_window_set_title(GTK_WINDOW(errbox),"ERROR!!!");
-	label = gtk_label_new("Error, Cannot connect to Sound source!!\n. PLease make sure you have the proper setting in the options panel.\n");
+	label = gtk_label_new("Error, Cannot connect to input signal source!!\n. PLease make sure you have the proper setting in the options panel.\n");
 	gtk_container_add(GTK_CONTAINER(errbox), label);
 	gtk_widget_show_all(errbox);
 
@@ -176,12 +171,12 @@ int input_thread_starter(int i)
 
 	if (handles[i].read_started)  /* This should not happen */
 	{
-		fprintf(stderr,__FILE__"Error, reader already running!!\n");
+		fprintf(stderr,__FILE__"Error, input reader thread already running!!\n");
 		return -1;
 	}
 
 	/*
-	   since we want to audio to NOT be read in the main gtk loop,
+	   since we want input to NOT be read in the main gtk loop,
 	   we'll use the gtk input function as a helper. It will awaken
 	   our esound reader thread whenever data is ready. Save us from 
 	   having to setup a poll loop by hand, as gdk/gtk does 
@@ -192,6 +187,7 @@ int input_thread_starter(int i)
 	{
 #ifdef HAVE_ESD
 		case ESD:
+			update_ring_channels(2);  /* since ESD_STEREO is set */
 			err = pthread_create(&(handles[i].input_thread),
 					NULL, /*Thread attributes */
 					input_reader_thread,
@@ -205,12 +201,14 @@ int input_thread_starter(int i)
 #endif
 #ifdef HAVE_COMEDI
 		case COMEDI:
-                        ret = comedi_command_test(handles[i].dev, &handles[i].cmd);
+                        ret = comedi_command_test(handles[i].dev, 
+						  &handles[i].cmd);
 			if(ret != 0){
 				fprintf(stderr,__FILE__ ":  second COMEDI command_test returned %i\n     See kernel system messages (dmesg)\n",ret);
 						
 			}
-			ret = comedi_command(handles[i].dev,&handles[i].cmd);
+			update_ring_channels(handles[i].cmd.chanlist_len);
+			ret = comedi_command(handles[i].dev, &handles[i].cmd);
 			if(ret<0){
 				fprintf(stderr,__FILE__":  comedi_command failed for handle %i.\n    ",i);
 						
@@ -269,15 +267,14 @@ int input_thread_stopper(int i)
 		case ESD:
 			err=pthread_cancel(handles[i].input_thread);
 			if(err == ESRCH)
-				fprintf(stderr,"        No thread could be found corresponding "
-						"to that\n        specified by the thread ID.\n");
+				fprintf(stderr,"       Thread for ESD input could be found\n");
 			break;
 #endif 
 #ifdef HAVE_COMEDI
 		case COMEDI:
 			err=pthread_cancel(handles[i].input_thread);
 			if(err == ESRCH)
-				fprintf(stderr,"No thread could be found corresponding to that\nspecified by the thread ID.\n");
+				fprintf(stderr,__FILE__":  Thread for comedi input could be found.\n");
 
 #if 0 /* maybe later add this */
 			comedi_unlock(handles[i].dev,handles[i].cmd.subdev);
@@ -361,6 +358,7 @@ void *input_reader_thread(void *input_handle)
 
 	int source=*((int *)input_handle);
 	static gint last_marker=0;
+	static struct timeval input_arrival_last;
 	int count;
 	struct pollfd ufds;
 	ufds.fd = source;
@@ -416,7 +414,8 @@ void *input_reader_thread(void *input_handle)
 				ring_remainder = count%sizeof(ring_type);
 			}
 
-			input_arrival_last = input_arrival;
+			/* use in debug print */
+			input_arrival_last = input_arrival; 
 			gettimeofday(&input_arrival, NULL);
 
 #if 0  /* debug prints */
@@ -426,7 +425,10 @@ void *input_reader_thread(void *input_handle)
 #endif
 		}
 		pthread_testcancel();
-		if (gdk_window_is_visible(buffer_area->window))
+
+		/* draw markers in control window "buffer_area" */
+   
+		if (buffer_area && gdk_window_is_visible(buffer_area->window))
 		{
 			gdk_threads_enter();
 			gdk_draw_rectangle(buffer_pixmap,
@@ -447,6 +449,7 @@ void *input_reader_thread(void *input_handle)
 			gdk_threads_leave();
 		}
 		
+
 	}while(TRUE);
 	
 }
@@ -454,11 +457,18 @@ void *input_reader_thread(void *input_handle)
 /*
   Make sure that ring_end is divisible by ring_channels.
   If not, increase length slightly.
+  Returns zero on success.
 */
 
 int update_ring_channels(int new)
 {
-	int remainder=ring_end%new;
+	int remainder;
+	if(new==0)
+	{
+		fprintf(stderr,__FILE__":  Invalid number of input channels %i\n",new);
+		return -1;
+	}
+	remainder=ring_end%new;
 	ring_channels=new;
 	if(remainder)
 	{
@@ -470,7 +480,7 @@ int update_ring_channels(int new)
 
 void error_close_cb(GtkWidget *widget, gpointer *data)
 {
-	fprintf(stderr,__FILE__":  Cannot connect to sound source, check options.\n");
+	fprintf(stderr,__FILE__":  Cannot connect to input signal source, check options.\n");
 			
 	gtk_widget_destroy(errbox);
 }

@@ -20,15 +20,19 @@
 #include <comedilib.h>
 #endif
 
+#define N_SUBDEVICE_TYPES 12
+char *subdevice_types[N_SUBDEVICE_TYPES];
+
 /* Prototypes */
-/* Lame initialization function */
 #ifdef HAVE_COMEDI
 int default_comedi_cmd(comedi_t *dev, comedi_cmd *cmd, float *rate);
 int read_comedi_cmd(comedi_cmd *cmd, float *rate);
 int write_comedi_cmd(comedi_cmd *cmd, float rate);
+unsigned int comedi_command_timed(comedi_t *it, comedi_cmd *cmd, 
+				  unsigned int ns);
 int free_comedi_cmd(comedi_cmd *cmd);
+void get_command_stuff(comedi_t *it,int s);
 #endif
-GtkWidget *comedi_device_control_open(int input_handle);
 
 /* Prototypes */
 

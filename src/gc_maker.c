@@ -14,6 +14,7 @@
  */
 
 
+#include <input.h>
 #include <config.h> 
 #include <defines.h>
 #include <globals.h>
