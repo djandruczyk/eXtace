@@ -51,7 +51,6 @@ void change_spec_start(gint);
 void change_x_start(gint,gint);
 void change_x_end(gint,gint);
 int audio_chewer(void);
-void copy_to_centered_buffer(void);
 void split_and_decimate(void);
 
 gint configure_event(GtkWidget *, GdkEventConfigure *, gpointer );

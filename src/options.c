@@ -86,10 +86,10 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
 
 
-	hbox = gtk_hbox_new(TRUE,0);
+	hbox = gtk_hbox_new(FALSE,0);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,0);
 
-	button = gtk_radio_button_new_with_label(NULL, "1 (no decimation)");
+	button = gtk_radio_button_new_with_label(NULL, "1 (None)");
         gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
         gtk_signal_connect(GTK_OBJECT (button), "clicked",
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
@@ -131,6 +131,33 @@ int setup_options()
                         GTK_SIGNAL_FUNC (set_decimation_factor), \
 			(gpointer)DECIMATE_BY_5);
         if (decimation_factor == DECIMATE_BY_5)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+        button = gtk_radio_button_new_with_label(group, "6");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)DECIMATE_BY_6);
+        if (decimation_factor == DECIMATE_BY_6)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+        button = gtk_radio_button_new_with_label(group, "7");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)DECIMATE_BY_7);
+        if (decimation_factor == DECIMATE_BY_7)
+                gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+        button = gtk_radio_button_new_with_label(group, "8");
+        gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+        gtk_signal_connect(GTK_OBJECT (button), "clicked",
+                        GTK_SIGNAL_FUNC (set_decimation_factor), \
+			(gpointer)DECIMATE_BY_8);
+        if (decimation_factor == DECIMATE_BY_8)
                 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
 

@@ -556,6 +556,15 @@ gint set_decimation_factor(GtkWidget *widget, gpointer *data)
 		case DECIMATE_BY_5:
 			decimation_factor = (gint)data;
 			break;
+		case DECIMATE_BY_6:
+			decimation_factor = (gint)data;
+			break;
+		case DECIMATE_BY_7:
+			decimation_factor = (gint)data;
+			break;
+		case DECIMATE_BY_8:
+			decimation_factor = (gint)data;
+			break;
 		default:
 			decimation_factor = NO_DECIMATION;
 			break;

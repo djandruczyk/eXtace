@@ -37,8 +37,6 @@ static int read_started = 0;
 pthread_t esound_thread;
 gint esd_handle = 0;
 int esd_locked = 0;
-int bytes_2_move = 0;
-int bytes_moved = 0;
 
 /*--- globals to this file */
 
@@ -173,22 +171,24 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 
 	/* set predicate to block other thread */
 	esd_locked = 1;
-	bytes_moved = 0;
 	/* Things may look funky, but I had to do it this way because of the
 	 * buffer used. (Short int). Incrementing a short int pointer 
 	 * actually moves you TWO bytes ahead, due to the 16 bit nature
 	 * of a short int.  The trouble is the read() system call uses
 	 * bytes only, so we use some intermediates to shift between buffer
-	 * ELEMENTS and bytes. (2:! ratio)
+	 * ELEMENTS and bytes. (2:1 ratio)
 	 */
 
 	/* handle the condition of possible buffer overflow */
+	
+	read:
 	if ((elements_to_get + ring_pos) > ring_end)
 	{
-		/* printf("WRAP section, two part read\n");*/
+		/*	printf("WRAP section, two part read\n"); */
 		/* Need to read in two parts */
 		bytes_to_read = (ring_end - ring_pos)*2;
 		count = read(source,audio_ring + ring_pos,bytes_to_read);
+		/*	printf("LOOP requesting %i bytes,  Read %i bytes to ring_position %i\n",bytes_to_read,count,ring_pos); */
 
 		if (count < bytes_to_read)
 		{
@@ -196,6 +196,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 			/* printf("bytes_to_read= %i\n",bytes_to_read); */
 			elements_to_get  -= (count/2);
 			ring_pos += (count/2);	/*ELEMENTS not bytes */
+			goto read;
 		}
 		else if (count == bytes_to_read)
 		{
@@ -206,11 +207,12 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		}
 		else	/* over-run */
 		{
- printf("read overrun past end of ring, FAULT!!!\b\n"); 
+			printf("read overrun past end of ring, FAULT!!!\b\n"); 
 			exit (-3);
 		}
 		bytes_to_read = elements_to_get*2;
 		count = read(source,audio_ring,bytes_to_read);
+		/*printf("LOOP read %i bytes to ring_position %i\n",count,ring_pos); */
 		ring_pos = (count/2);	/*ELEMENTS not bytes */
 		elements_to_get = nsamp/2;
 		/* printf("Wrap complete, read in %i more bytes\n",count); */
@@ -220,6 +222,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		bytes_to_read = elements_to_get*2;
 		/* printf("Requesting %i bytes\n",bytes_to_read); */
 		count = read(source,audio_ring + ring_pos,bytes_to_read);
+		/* printf("NORM read %i bytes to ring_position %i\n",count,ring_pos); */
 		if (count == bytes_to_read)
 		{
 			/* printf("Full good read\n"); */
@@ -230,6 +233,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 		else if (count > bytes_to_read)
 		{
 			printf("BUG\b More data came in than requested, Oh shit!!!\n");
+			exit (-3);
 		}
 		else
 		{

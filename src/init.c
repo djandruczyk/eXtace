@@ -392,7 +392,6 @@ void mem_alloc()
 	end = malloc(nsamp*sizeof(GdkColor));
 
 	/* Audio block in time domain currently being processed, size of nsamp */
-	centered_buffer = malloc(BUFFER*sizeof(gshort));
 	/* Audio block in frequency domain being processed, size of nsamp */
 	raw_fft_out = malloc(nsamp*sizeof(gdouble));
 	raw_fft_in = malloc(nsamp*sizeof(gdouble));
@@ -420,8 +419,7 @@ void mem_alloc()
 	pip_arr = malloc(8192*sizeof(gint));
 
 
-	if ((centered_buffer == NULL) \
-			|| (raw_fft_out == NULL) \
+	if ((raw_fft_out == NULL) \
 			|| (raw_fft_in == NULL) \
 			|| (start == NULL) \
 			|| (pt2 == NULL) \
@@ -448,7 +446,6 @@ void mem_alloc()
 	memset((void *)pt4 , 0, nsamp*sizeof(GdkColor));
 	memset((void *)end , 0, nsamp*sizeof(GdkColor));
 
-	memset((void *)centered_buffer , 0, BUFFER*sizeof(gshort));
 	memset((void *)raw_fft_out , 0, nsamp*sizeof(gdouble));
 	memset((void *)raw_fft_in , 0, nsamp*sizeof(gdouble));
 	memset((void *)norm_fft , 0, nsamp*sizeof(gdouble));
@@ -464,12 +461,10 @@ void mem_alloc()
 	/* set pointers to proper values */
 	ring_pos = 0;	/* 0 = beginning */
 	ring_end = BUFFER; /* endpoint in ELEMENTS, NOT bytes */
-	centered_buffer_end = BUFFER;
 }
 
 void mem_dealloc()
 {
-	free(centered_buffer);
 	free(raw_fft_out);
 	free(raw_fft_in);
 	free(norm_fft);

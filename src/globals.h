@@ -54,13 +54,10 @@ GdkGC		*graticule_gc;	/* Graphics context for graticule in scope */
 GdkGC		*arc_gc;	/* Graphics context for Arc in dircontrol */
 GdkGC		*latency_monitor_gc;/* Graphics context for Arc in dircontrol */
 GdkImlibImage	*im;		/* Image for colormap */
-gulong		ring_pos;	/* place safe to write in ringbuffer */
-gulong		ring_end;	/* end of ringbuffer in ELEMENTS */
-gulong		elements_to_get;	/* amount to read in ELEMENTS */
+gint		ring_pos;	/* place safe to write in ringbuffer */
+gint		ring_end;	/* end of ringbuffer in ELEMENTS */
+gint		elements_to_get;	/* amount to read in ELEMENTS */
 gshort		*audio_ring;	/* Array raw  audio data from input source */
-gshort		*centered_buffer; /* array of audio to be being crunched */
-gint		centered_buffer_end; /* endpoint in array elements of 
-				      * audio buffer to be crunched */
 gshort		*audio_left;	/* left channel (scope??) */
 gshort		*audio_last_l;	/* last one of above, left channel (scope??) */
 gshort		*audio_last_r;	/* last one of above, right channel (scope??) */
