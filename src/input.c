@@ -16,7 +16,7 @@
 
 #include <comedi_input.h>
 #include <stdio.h>
-#include <asm/errno.h>
+#include <errno.h>
 #include <input.h>
 #include <poll.h>
 #include <stdlib.h>

@@ -15,7 +15,7 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
-#include <asm/errno.h>
+#include <errno.h>
 #include <input_processing.h>
 #include <config.h>
 #include <convolve.h>
