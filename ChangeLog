@@ -1,3 +1,9 @@
+2001-11-17 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Fixeda very longstanding bug in the audio I/O routines.  When the 
+	  buffer wrapped, it had an improper offset in an memcpy routine
+	  leaving a variable sized hole in the display, no more than nsamp/2
+	  bytes wide.  (a real bitch to find too...)
+	  CVS commit.
 2001-10-22 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	  Fixed time/frequency markers from clearing the screen.  Also adds
 	  a little breaker bar to the scrolled portion when switching freq

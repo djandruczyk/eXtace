@@ -47,14 +47,15 @@ int GetFFT(void)
     gdouble *imag_fft_out=NULL;
     gdouble *fft_ptr=NULL;
     gint nsamp_sqd=0;
-    gint delay = (int)(((float)lag/1000.0)*(float)RATE);
+    gint delay = (int)(((float)(fft_lag+lag)/1000.0)*(float)RATE);
     static gint last;
 
+//    printf("Current FFT lag is %i ms\n",delay*1000/RATE);
+//
 
     /* Set pointer position to be offset from the reader pointer by
-     * amount specified by "lag" (user adjustable). Should change lag to
-     * be a more user-friendly variable, like milliseconds, instead of 
-     * samples
+     * amount specified by "fft_lag" (user adjustable). fft_lag is in 
+     * milliseconds, and is converted to samples above (see delay)
      */
     draw_win_time_last = draw_win_time;
     gettimeofday(&draw_win_time, NULL); 
@@ -68,7 +69,11 @@ int GetFFT(void)
      * especially on a loaded system.
      */
 
-    raw_ptr = audio_ring+ring_pos+((BUFFER/2)-(int)delay)*2;
+    /* Must add "BUFFER" to the ring value to make sure that raw_ptr
+     * OVERFLOWS, otherwise it never gets to the end and wraps. Function below
+     * takes care of overflow and moves to the right spot
+     */
+    raw_ptr = audio_ring+ring_pos+BUFFER-((int)delay)*2;
 
     data_win_ptr=datawindow;
     audio_data_ptr=audio_data;

@@ -267,7 +267,7 @@ void alsa_reader_thread(void *private_data, char *buffer, size_t count)
 
 	/* wrap to beginning */
 	memcpy(audio_ring,
-		buffer + bytes_moved,
+		buffer + bytes_moved/2,
 		bytes_2_move - bytes_moved);
 	/* mark where we are .. */
 	ring_pos = (bytes_2_move - bytes_moved)/2; /* need elements NOT bytes*/
@@ -318,6 +318,9 @@ void alsa_reader_thread(void *private_data, char *buffer, size_t count)
 /* esd_reader_thread isn't a true thread as it runs in the GTK main lock
  * context, its called by the gtk main loop whenever data becomes available 
  * on the esd filedescriptor.
+ * I'd like to STOP using gtk's input handler and put that into its own thread
+ * so that the sound i/o routines are completely independant of the GUI so
+ * that they can be broken out into shared objects easier. (future plans)
  */
 void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 {
@@ -330,19 +333,26 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 
     /* copy fd so that reader thread can copy data to ringbuffer */
     count = read(source, incoming_buf, to_get); 
+ //   printf("%i bytes read from Esound\n",count);
     if (count > 0)
     {
 	bytes_2_move = count;
 	if (ring_pos+(bytes_2_move/2) > ring_end)
 	{
+
 	    /* fill up to end of ring buffer, but don't jump boundary */
 	    memcpy(audio_ring+ring_pos,
 		    incoming_buf,
 		    (ring_end - ring_pos)*2); /* bytes NOT elements */
+
 	    bytes_moved = (ring_end - ring_pos)*2;
+
 	    /* wrap to beginning */
+	    /* We have to use bytes_moved/2 for the mem address, because
+	     * incoming_buf is a SHORT *, thus an index increment of 1 = 2 bytes
+	     */
 	    memcpy(audio_ring,
-		    incoming_buf + bytes_moved,
+		    incoming_buf + bytes_moved/2, 
 		    bytes_2_move - bytes_moved);
 	    /* mark where we are .. */
 	    ring_pos =  (bytes_2_move - bytes_moved)/2; /* need elements not BYTES */
@@ -353,6 +363,7 @@ void esd_reader_thread(gpointer data, gint source, GdkInputCondition condition)
 	    memcpy(audio_ring+ring_pos,
 		    incoming_buf,
 		    bytes_2_move);
+//	    printf("NOWRAP %i bytes moved to %p\n",bytes_2_move,audio_ring+ring_pos);
 	    ring_pos += bytes_2_move/2; /*mark where we are in ringbuffer*/
 	}                  
     }
@@ -407,6 +418,11 @@ void *esd_starter_thread(void * params)
 void *alsa_starter_thread(void * handle)
 {
     /* Creates the ALSA callback handler for ALSA, then sleeps indefinitely */
+    /* Callback can return if the handle over-runs, (buffer overrun) thus
+     * when pausing extace (SIG_STOP/SUSPEND) the handle will overflow and
+     * upon resume the callback will exit. We get around that via the loop
+     * below.
+     */
     int retcode=0;
     pthread_t callback_thread;
     snd_pcm_loopback_callbacks_t callbacks;

@@ -73,6 +73,7 @@ gint		keep_reading;	/* keeps audio loop running */
 gint		alsa_processor_running; /* FLAG when function is running */
 gint		esd_processor_running; /* FLAG when function is running */
 gint 		lag;		/* delay between getting audio and displaying */
+gint 		fft_lag;	/* delay between getting audio and displaying */
 gint   		width;		/* Main window width */
 gint   		height;		/* Main window height */
 gint   		buffer_area_width;/* buffer_area window width */

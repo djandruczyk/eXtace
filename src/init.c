@@ -408,7 +408,7 @@ void mem_alloc()
     /* incoming buf ONLY used for esd, as incoming data amount is unknown
      * when running unlinke ALSA 0.5.x callback
      */
-    incoming_buf = malloc(nsamp*8*sizeof(gshort));
+    incoming_buf = malloc(nsamp*2*sizeof(gshort));
     /* Display values of norm_fft, scaled for screen viewing ,
      * for low resolution fft's (LAND_3D) */
     disp_val = malloc(nsamp*sizeof(gint));
@@ -445,7 +445,7 @@ void mem_alloc()
     memset((void *)norm_fft , 0, nsamp*sizeof(gdouble));
     memset((void *)datawindow , 0, nsamp*sizeof(gdouble));
     memset((void *)audio_ring, 0, BUFFER*sizeof(gshort));
-    memset((void *)incoming_buf, 0, nsamp*8*sizeof(gshort));
+    memset((void *)incoming_buf, 0, nsamp*2*sizeof(gshort));
     memset((void *)audio_left , 0, nsamp*sizeof(gshort));
     memset((void *)audio_last_l , 0, nsamp*sizeof(gshort));
     memset((void *)audio_right , 0, nsamp*sizeof(gshort));
@@ -455,7 +455,7 @@ void mem_alloc()
 
     /* set pointers to proper values */
     ring_pos = 0;	/* 0 = beginning */
-    ring_end = (BUFFER); /* endpoint in ELEMENTS, NOT bytes */
+    ring_end = BUFFER; /* endpoint in ELEMENTS, NOT bytes */
 }
 
 void mem_dealloc()
@@ -519,11 +519,12 @@ void reinit_extace(int new_nsamp)
      * The idea is the shift the lag slighly so that the "on-time" data
      * is in the MIDDLE of the window function for better eye/ear matchup
      */
-    lag += (int)(1000*(((float)(new_nsamp-nsamp)/2.0)/(float)RATE));
+//    lag += (int)(1000*(((float)(new_nsamp-nsamp)/2.0)/(float)RATE));
     nsamp = new_nsamp;
-    GTK_ADJUSTMENT(lag_adj)->value = lag;
+    fft_lag = 1000*((nsamp/2)/(float)RATE);
+//    GTK_ADJUSTMENT(lag_adj)->value = lag;
 //    GTK_ADJUSTMENT(lag_adj)->upper = 1000*((float)(BUFFER/2)/(float)RATE);
-    gtk_adjustment_changed(GTK_ADJUSTMENT(lag_adj));
+//    gtk_adjustment_changed(GTK_ADJUSTMENT(lag_adj));
     convolve_factor = floor(nsamp/width) < 3 ? floor(nsamp/width) : 3 ;
     if (convolve_factor == 0)
 	convolve_factor = 1;
