@@ -111,6 +111,8 @@ void draw_spike_3d()
 	{
 		x_tilt=1.0;
 		y_tilt=1.0;
+		xaxis_tilt=0.0;
+		yaxis_tilt=1.0;
 	}
 	else
 	{
@@ -184,8 +186,8 @@ void draw_spike_3d()
 		pt[0].y=height-(((i*loc_bins_per_pip)*y_draw_height*ydet_start)\
 				/(nsamp/2))-((((nsamp/2)-(i*loc_bins_per_pip))\
 					*y_draw_height*ydet_end)/(nsamp/2))-y_offset;
-		pt[1].x=pt[0].x-(gint)pip_arr[i]*0.5*(x_tilt+xaxis_tilt);
-		pt[1].y=pt[0].y-(gint)pip_arr[i]*0.5*(y_tilt+yaxis_tilt);
+		pt[1].x=pt[0].x-(gint)pip_arr[i]*(x_tilt*xaxis_tilt);
+		pt[1].y=pt[0].y-(gint)pip_arr[i]*(y_tilt*yaxis_tilt);
 		lvl=abs((gint)pip_arr[i]*4);
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
