@@ -133,6 +133,7 @@ void init()
     low_freq = 0;	/* Low frequency cutoff in hi-res displays */
     high_freq = RATE/2;	/* High frequency cutoff in hi-res displays */
     bandwidth = 22050;	/* frequency bandwidth in hi res modes */
+    clear_display = 0;	/* Flag for markers */
 
 			   /*	Color presets (default colormap) */
 

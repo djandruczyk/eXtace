@@ -34,6 +34,7 @@ void update_time_markers()
 	    space = (gint)((((float)(RATE)/(float)nsamp))*2.0*(float)tape_scroll);
 	    if (nsamp < 4096)
 		space = space/2.0;
+
 	    gdk_draw_rectangle(main_pixmap,
 		    main_display->style->black_gc,
 		    TRUE, 0,height-time_border,
@@ -121,14 +122,26 @@ void update_freq_markers()
     gint x1,x2,y1,y2;
     if(!ready)
 	return;
-    gdk_draw_rectangle(main_pixmap,
-	    main_display->style->black_gc,
-	    TRUE, 0,0,
-	    width,height);
+    if (clear_display == 1)
+    {
+	gdk_draw_rectangle(main_pixmap,
+		main_display->style->black_gc,
+		TRUE, 0,0,
+		width,height);
+    }
 
     if (mode == HORIZ_SPECGRAM)
     {
 	bord = width-horiz_spec_start + 3;
+
+	if (!clear_display)
+	{
+	    gdk_draw_rectangle(main_pixmap,
+		    main_display->style->black_gc,
+		    TRUE,bord-5,0,
+		    2*l_length+35,height);
+	}
+
 	if (height < 350)
 	    less_markers = 1;
 	for (i = 1;i <= (int)(bandwidth/1000);i++) 
@@ -160,6 +173,13 @@ void update_freq_markers()
     else if (mode == VERT_SPECGRAM)
     {
 	bord = height-vert_spec_start + 3;
+	if (!clear_display)
+	{
+	    gdk_draw_rectangle(main_pixmap,
+		    main_display->style->black_gc,
+		    TRUE,0,bord-5,
+		    width,2*l_length+35);
+	}
 	if (width < 820)
 	    less_markers = 1;
 	if (width < 410)

@@ -1,3 +1,9 @@
+2001-10-22 Dave J. Andruczyk <djandruczyk@yahoo.com>
+	  Fixed time/frequency markers from clearing the screen.  Also adds
+	  a little breaker bar to the scrolled portion when switching freq
+	  axis's so as to show when the user changed the display.
+	  CVS commit.
+
 2001-10-14 Dave J. Andruczyk <djandruczyk@yahoo.com>
 	  Fixed numerous bugs in reducer.c so that it no longer craps out
 	  when bins_per_pip=1.0000.  Also fixed the bug of half data missing

@@ -261,3 +261,4 @@ gint 		paused;
 gint		low_freq;
 gint		high_freq;
 gfloat		bandwidth;
+gint 		clear_display;

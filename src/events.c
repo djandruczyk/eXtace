@@ -107,6 +107,7 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 		    if (horiz_spec_start > width)
 			horiz_spec_start = width-10;
 		    display_markers = 1;
+		    clear_display = 1;
 		    break;
 		case (VERT_SPECGRAM):
 		    if (vert_spec_start < 120)
@@ -114,6 +115,7 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 		    if (vert_spec_start > height)
 			vert_spec_start = height-10;
 		    display_markers = 1;
+		    clear_display = 1;
 		    break;
 		case (SPIKE_3D):
 		    update_dircontrol(dir_area);
@@ -360,10 +362,6 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 		    }
 		    if (mode == VERT_SPECGRAM)
 		    {
-//			if (x != lock_x_at)
-//			{
-//			    printf("Should adjust horizontal axis!!\n");
-//			}
 			change_spec_start(y);
 		    }
 		}
@@ -519,6 +517,7 @@ void change_spec_start(gint new_pos)
 	    vert_spec_start = height-10;
     }
     display_markers = 1;
+    clear_display = 1;
 }
 
 void change_x_start(gint x_rel, gint y_rel)

@@ -34,6 +34,7 @@ void draw_vert_specgram()
 	update_freq_markers();
 	update_time_markers();
 	display_markers = 0;
+	clear_display = 0;
     }
     if (use_back_pixmap)
     {
