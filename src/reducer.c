@@ -32,16 +32,17 @@
  * screen.  This algorithm can handle bins_per_pip from just above 0 and up.
  * Hopefully it does it right.. :)
  *
- * disp_val[x] is the fft bin at point x
+ * disp_val[x] is the pixel representation of bins_per_pip of the fft.
+ * i.e. The combination of multiple bins for display.
  *
  * i is the index for the pixels on the display
  *
- * j is hte index for the fft bins
+ * j is the index for the fft bins
  *
  * This routine does a linear interpolation (well thats what I intended)
  * to smoothly fit the data on screen with minimal distortion.
- * Thoough it ain't perfect, as any for of interpolation will distort the
- * information somewhat.
+ * Though it ain't perfect, as any form of interpolation will distort the
+ * information somewhat from its original represenation.
  */
 
 void reducer(int low_freq, int hi_freq ,int axis_length)
@@ -91,7 +92,7 @@ void reducer(int low_freq, int hi_freq ,int axis_length)
 	    pip--;
 	    j++;
 	}
-	if ((pip < 1.0)  && (bins_per_pip > 1.0))
+	if ((pip <= 1.0)  && (bins_per_pip > 1.0))
 	{
 	    pip_total += disp_val[j]*pip;
 	    pip_arr[i] = (gint)(pip_total/bins_per_pip);

@@ -108,7 +108,7 @@ void init()
     dir_win_present = 1;/* Direction control window */
     grad_win_present = 0;/* Color picker window */
     one_to_fix = 0;	/* which end of trace to fix up */
-    to_get = nsamp/2;	/* how many sampels to read at a time */
+    to_get = nsamp/2;	/* how many samples to read at a time */
     height = 256;	/* Self explanitory */
     width  = 370;	/* Self explanitory */
     buffer_area_height = 100;	/* Self explanitory */
@@ -207,6 +207,14 @@ void read_config(void)
 	extace_cfg_read_int(cfgfile, "Global", "nsamp", &nsamp);
 	to_get = nsamp;/* nsamp * 2 channels * 2( 16 bit samples)*/
 	callback_buffer_size = 4096;
+	/* fft_lag is an added delay because the fft looks most synced to
+	 * audio when viewing the "middle" of the datawindow. i.e. 
+	 * at 1/2 the number of samples in the window
+	 * whereas the scope looks best at the beginning of the window
+	 * and the error would have been bad at large window sizes at the 
+	 * expense of one display over the other (time vs freq domains)
+	 * This factor helps to balance things out..
+	 */
 	fft_lag = 1000*((nsamp/2)/(float)RATE);
 	extace_cfg_read_int(cfgfile, "Global", "window_func", &window_func);
 	extace_cfg_read_int(cfgfile, "Global", "winstyle", &winstyle);

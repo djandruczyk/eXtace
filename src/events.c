@@ -259,6 +259,9 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
     }
     if (event->button == 2 ) /* If your press button 2 (middle one) */
     {
+#ifdef DND_DEBUG
+	g_print("BUTTON 2 PRESSED!! running handler\n");
+#endif
 	if (!grad_win_present)
 	{
 	    grad_win_create();
@@ -267,8 +270,11 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
     }
     if ((event->button == 3 ) && ((mode == HORIZ_SPECGRAM) || (mode == VERT_SPECGRAM))) /* If your press button 3 (right one) */
     {
+#ifdef DND_DEBUG
+	g_print("BUTTON 3 PRESSED!! running handler\n");
+#endif
 	/* This section of code is designed for stretching and compressing the 
-	 * frequency axis, (Zoom ability). IT ain't written yet.. feel free
+	 * frequency axis, (Zoom ability). It ain't written yet.. feel free
 	 * to write it and submit it to the author so he can add it into the 
 	 * normal releases...
 	 */
@@ -280,13 +286,13 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 	if (result == OFF_THE_LINE)
 	{
 #ifdef DND_DEBUG
-	    g_print("We didn't!! \n");
+	    g_print("We didn't find the line !! \n");
 #endif
 	}
 	else if (result == ON_THE_LINE)
 	{
 #ifdef DND_DEBUG
-	    g_print("We did... \n");
+	    g_print("We did find the line !! \n");
 #endif
 	}
     }
@@ -379,7 +385,7 @@ int test_on_line(int x_fed, int y_fed)
     }
     if (mode == VERT_SPECGRAM)
     {
-	if (abs(((height-vert_spec_start) - y_fed+20)) < 20)
+	if (abs(((height-vert_spec_start) - y_fed+40)) < 30)
 	    return (ON_THE_LINE);
     }
     return (OFF_THE_LINE);
@@ -407,7 +413,7 @@ int test_if_close(int x_fed, int y_fed)
 	case (LAND_3D):
 	    {
 		x_draw_width = width - abs(x3d_scroll)-2*x_border;
-		y_draw_height = height - abs(zdet_scroll)-2*y_border;
+		y_draw_height = height - abs(z3d_scroll)-2*y_border;
 		start.x = (x3d_start*x_draw_width);
 		start.y = ((1.0-y3d_start)*y_draw_height);
 		end.x = (x3d_end*x_draw_width);
@@ -417,7 +423,7 @@ int test_if_close(int x_fed, int y_fed)
 		    x_rel -= x3d_scroll;
 		y_rel = y_fed - 3*y_border - (abs(z3d_scroll)/2);
 #ifdef DND_DEBUG
-		g_print("fed coords, %i,%i, end %i,%i start %i,%i\n",x_rel,y_rel,end.x,end.y, start.x,start.y);
+		g_print("Mouse Position, %i,%i Axis-start %i,%i Axis-end %i,%i\n",x_rel,y_rel,start.x,start.y, end.x,end.y);
 #endif
 
 		/* tests to see if the mouse pointer is close to an end of an */
@@ -429,7 +435,7 @@ int test_if_close(int x_fed, int y_fed)
 			return (CHANGE_X_START);
 		    }
 		}
-		else if (abs((end.x-x_rel)) < 40)
+		if (abs((end.x-x_rel)) < 40)
 		{
 		    if (abs((end.y-y_rel)) < 40); /* + levels[0]) */
 		    {
@@ -461,19 +467,13 @@ int test_if_close(int x_fed, int y_fed)
 		{
 		    if (abs((start.y-y_rel)) < 40)
 		    {
-#ifdef DND_DEBUG
-			g_print("Start det found\n");
-#endif
 			return (CHANGE_X_START);
 		    }
 		}
-		else if (abs((end.x-x_rel)) < 40)
+		if (abs((end.x-x_rel)) < 40)
 		{
 		    if (abs((end.y-y_rel)) < 40)
 		    {
-#ifdef DND_DEBUG
-			g_print("End det found\n");
-#endif
 			return (CHANGE_X_END);
 		    }
 		}
@@ -487,7 +487,7 @@ int test_if_close(int x_fed, int y_fed)
 	    }
 	case VERT_SPECGRAM:
 	    {
-		if (abs(((height-vert_spec_start) - y_fed+20)) < 20)
+		if (abs(((height-vert_spec_start) - y_fed+45)) < 27)
 		    return (CHANGE_SPEC_START);
 		break;
 	    }
@@ -508,7 +508,7 @@ void change_spec_start(gint new_pos)
     }
     else if (mode == VERT_SPECGRAM)
     {
-	vert_spec_start = height-new_pos+20;
+	vert_spec_start = height-new_pos+45;
 	if (vert_spec_start < 120)
 	    vert_spec_start = 120;
 	if (vert_spec_start > height)
