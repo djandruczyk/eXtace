@@ -45,7 +45,7 @@ AUTOCONF = autoconf
 AUTOMAKE = automake
 AUTOHEADER = autoheader
 
-INSTALL = /usr/bin/install -c
+INSTALL = /bin/install -c
 INSTALL_PROGRAM = ${INSTALL} $(AM_INSTALL_PROGRAM_FLAGS)
 INSTALL_DATA = ${INSTALL} -m 644
 INSTALL_SCRIPT = ${INSTALL_PROGRAM}
@@ -59,7 +59,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 host_alias = i686-pc-linux-gnu
 host_triplet = i686-pc-linux-gnu
-ALSA_LIBS =  
+ALSA_LIBS = 
 AS = @AS@
 CC = gcc
 DFLAGS = 
@@ -68,13 +68,13 @@ ECHO = echo
 EFENCE = 
 ESD_CFLAGS = 
 ESD_CONFIG = /usr/bin/esd-config
-ESD_LIBS = -L/usr/lib -lesd -laudiofile -lm
+ESD_LIBS = -L/usr/lib -lesd -laudiofile -lm -lasound
 EXEEXT = 
 EXTACE_DATADIR = NONE/share/eXtace
 EXTACE_MAJOR_VERSION = 1
-EXTACE_MICRO_VERSION = 0
-EXTACE_MINOR_VERSION = 7
-EXTACE_VERSION = 1.7.0
+EXTACE_MICRO_VERSION = 04
+EXTACE_MINOR_VERSION = 8
+EXTACE_VERSION = 1.8.04
 EXTRA_LIBS = -lrfftw -lfftw -lm
 GLIB_CFLAGS = -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT
 GLIB_CONFIG = /usr/bin/glib-config
@@ -92,11 +92,11 @@ PACKAGE = extace
 PFLAGS = 
 RANLIB = ranlib
 STRIP = strip
-VERSION = 1.7.0
+VERSION = 1.8.04
 
 Multimediadir = $(datadir)/gnome/apps/Multimedia
 
-INCLUDES = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT -I/usr/X11R6/include -DGTK_DISABLE_COMPAT_H  -D_MAJOR_=1 -D_MINOR_=7 -D_MICRO_=0
+INCLUDES = -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2 -I/usr/lib/glib/include -D_REENTRANT -I/usr/X11R6/include -DGTK_DISABLE_COMPAT_H  -D_MAJOR_=1 -D_MINOR_=8 -D_MICRO_=04
 
 noinst_PROGRAMS = sine
 
@@ -104,10 +104,10 @@ sine_LDADD = -lm
 
 bin_PROGRAMS = extace
 
-extace_SOURCES =  	Makefile 	globals.h 	enums.h 	defaults.h 	defines.h 	protos.h 	convolve.h 	configfile.h 	stars.h 	logo.xpm    	stars.c 	init.c 	main.c 	draw.c 	land3d.c 	gc_maker.c 	dir.c 	getfft.c 	events.c 	configfile.c 	buttons.c 	color_win.c 	reducer.c 	convolve.c 	win_func.c 	2d_eq.c 	scope.c 	markers.c 	spike_3d.c 	sound.c 	vert_specgram.c 	horiz_specgram.c  	options.c 
+extace_SOURCES =  	Makefile 	globals.h 	enums.h 	defaults.h 	defines.h 	protos.h 	convolve.h 	configfile.h 	logo.xpm    	stars.c 	init.c 	main.c 	draw.c 	land3d.c 	gc_maker.c 	dir.c 	audio_processing.c 	events.c 	configfile.c 	buttons.c 	color_win.c 	reducer.c 	convolve.c 	win_func.c 	2d_eq.c 	scope.c 	markers.c 	spike_3d.c 	sound.c 	vert_specgram.c 	horiz_specgram.c  	options.c 
 
 
-extace_LDADD =  -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lgthread -lglib -lpthread -ldl -lXi -lXext -lX11 -lm -L/usr/lib -lesd -laudiofile -lm -lrfftw -lfftw -lm   -lgdk_imlib 
+extace_LDADD =  -L/usr/lib -L/usr/X11R6/lib -lgtk -lgdk -rdynamic -lgmodule -lgthread -lglib -lpthread -ldl -lXi -lXext -lX11 -lm -L/usr/lib -lesd -laudiofile -lm -lasound -lrfftw -lfftw -lm  -lgdk_imlib 
 
 LIBS = -lpthread
 
@@ -115,7 +115,7 @@ COMMON_FLAGS =
 
 CFLAGS = -O2  $(COMMON_FLAGS) -Wall 
 
-CLEANFILES =  *~ core* -rf .dep*
+CLEANFILES = *~ core* .deps/* gmon.out nohup.out -r .deps
 
 EXTRA_DIST = extace.desktop README NEWS TODO Colormap-format
 
@@ -133,7 +133,7 @@ CPPFLAGS =
 LDFLAGS = 
 extace_OBJECTS =  stars.$(OBJEXT) init.$(OBJEXT) main.$(OBJEXT) \
 draw.$(OBJEXT) land3d.$(OBJEXT) gc_maker.$(OBJEXT) dir.$(OBJEXT) \
-getfft.$(OBJEXT) events.$(OBJEXT) configfile.$(OBJEXT) \
+audio_processing.$(OBJEXT) events.$(OBJEXT) configfile.$(OBJEXT) \
 buttons.$(OBJEXT) color_win.$(OBJEXT) reducer.$(OBJEXT) \
 convolve.$(OBJEXT) win_func.$(OBJEXT) 2d_eq.$(OBJEXT) scope.$(OBJEXT) \
 markers.$(OBJEXT) spike_3d.$(OBJEXT) sound.$(OBJEXT) \
@@ -156,11 +156,11 @@ TODO
 
 DISTFILES = $(DIST_COMMON) $(SOURCES) $(HEADERS) $(TEXINFOS) $(EXTRA_DIST)
 
-TAR = gtar
+TAR = tar
 GZIP_ENV = --best
-DEP_FILES =  .deps/2d_eq.P .deps/buttons.P .deps/color_win.P \
-.deps/configfile.P .deps/convolve.P .deps/dir.P .deps/draw.P \
-.deps/events.P .deps/gc_maker.P .deps/getfft.P .deps/horiz_specgram.P \
+DEP_FILES =  .deps/2d_eq.P .deps/audio_processing.P .deps/buttons.P \
+.deps/color_win.P .deps/configfile.P .deps/convolve.P .deps/dir.P \
+.deps/draw.P .deps/events.P .deps/gc_maker.P .deps/horiz_specgram.P \
 .deps/init.P .deps/land3d.P .deps/main.P .deps/markers.P \
 .deps/options.P .deps/reducer.P .deps/scope.P .deps/sine.P \
 .deps/sound.P .deps/spike_3d.P .deps/stars.P .deps/vert_specgram.P \
@@ -172,7 +172,7 @@ all: all-redirect
 .SUFFIXES:
 .SUFFIXES: .S .c .lo .o .obj .s
 $(srcdir)/Makefile.in: # Makefile.am $(top_srcdir)/configure.in $(ACLOCAL_M4) 
-	cd $(top_srcdir) && $(AUTOMAKE) --gnu extace/Makefile
+	cd $(top_srcdir) && $(AUTOMAKE) --gnu src/Makefile
 
 Makefile: $(srcdir)/Makefile.in  $(top_builddir)/config.status $(BUILT_SOURCES)
 	cd $(top_builddir) \
@@ -309,14 +309,14 @@ maintainer-clean-tags:
 
 distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
 
-subdir = extace
+subdir = src
 
 distdir: $(DISTFILES)
 	here=`cd $(top_builddir) && pwd`; \
 	top_distdir=`cd $(top_distdir) && pwd`; \
 	distdir=`cd $(distdir) && pwd`; \
 	cd $(top_srcdir) \
-	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu extace/Makefile
+	  && $(AUTOMAKE) --include-deps --build-dir=$$here --srcdir-name=$(top_srcdir) --output-dir=$$top_distdir --gnu src/Makefile
 	@for file in $(DISTFILES); do \
 	  d=$(srcdir); \
 	  if test -d $$d/$$file; then \

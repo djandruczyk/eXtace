@@ -18,7 +18,6 @@ extace_SOURCES = \
 	protos.h \
 	convolve.h \
 	configfile.h \
-	stars.h \
 	logo.xpm \
    	stars.c \
 	init.c \
