@@ -97,10 +97,10 @@ VERSION = @VERSION@
 Multimediadir = $(datadir)/gnome/apps/Multimedia
 
 INCLUDES = @GTK_CFLAGS@ -DGTK_DISABLE_COMPAT_H  -D_MAJOR_=@EXTACE_MAJOR_VERSION@ -D_MINOR_=@EXTACE_MINOR_VERSION@ -D_MICRO_=@EXTACE_MICRO_VERSION@
-
-noinst_PROGRAMS = sine
+noinst_PROGRAMS = sweep
 
 sine_LDADD = -lm
+sweep_LDADD = -lm
 
 bin_PROGRAMS = extace
 
@@ -124,7 +124,7 @@ mkinstalldirs = $(SHELL) $(top_srcdir)/mkinstalldirs
 CONFIG_HEADER = ../config.h
 CONFIG_CLEAN_FILES = 
 bin_PROGRAMS =  extace$(EXEEXT)
-noinst_PROGRAMS =  sine$(EXEEXT)
+noinst_PROGRAMS =  sweep$(EXEEXT)
 PROGRAMS =  $(bin_PROGRAMS) $(noinst_PROGRAMS)
 
 
@@ -140,10 +140,10 @@ markers.$(OBJEXT) spike_3d.$(OBJEXT) sound.$(OBJEXT) \
 vert_specgram.$(OBJEXT) horiz_specgram.$(OBJEXT) options.$(OBJEXT)
 extace_DEPENDENCIES = 
 extace_LDFLAGS = 
-sine_SOURCES = sine.c
-sine_OBJECTS =  sine.$(OBJEXT)
-sine_DEPENDENCIES = 
-sine_LDFLAGS = 
+sweep_SOURCES = sweep.c
+sweep_OBJECTS =  sweep.$(OBJEXT)
+sweep_DEPENDENCIES = 
+sweep_LDFLAGS = 
 COMPILE = $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
@@ -161,11 +161,11 @@ DEP_FILES =  .deps/2d_eq.P .deps/audio_processing.P .deps/buttons.P \
 .deps/color_win.P .deps/configfile.P .deps/convolve.P .deps/dir.P \
 .deps/draw.P .deps/events.P .deps/gc_maker.P .deps/horiz_specgram.P \
 .deps/init.P .deps/land3d.P .deps/main.P .deps/markers.P \
-.deps/options.P .deps/reducer.P .deps/scope.P .deps/sine.P \
-.deps/sound.P .deps/spike_3d.P .deps/stars.P .deps/vert_specgram.P \
+.deps/options.P .deps/reducer.P .deps/scope.P .deps/sound.P \
+.deps/spike_3d.P .deps/stars.P .deps/sweep.P .deps/vert_specgram.P \
 .deps/win_func.P
-SOURCES = $(extace_SOURCES) sine.c
-OBJECTS = $(extace_OBJECTS) sine.$(OBJEXT)
+SOURCES = $(extace_SOURCES) sweep.c
+OBJECTS = $(extace_OBJECTS) sweep.$(OBJEXT)
 
 all: all-redirect
 .SUFFIXES:
@@ -254,9 +254,9 @@ extace$(EXEEXT): $(extace_OBJECTS) $(extace_DEPENDENCIES)
 	@rm -f extace$(EXEEXT)
 	$(LINK) $(extace_LDFLAGS) $(extace_OBJECTS) $(extace_LDADD) $(LIBS)
 
-sine$(EXEEXT): $(sine_OBJECTS) $(sine_DEPENDENCIES)
-	@rm -f sine$(EXEEXT)
-	$(LINK) $(sine_LDFLAGS) $(sine_OBJECTS) $(sine_LDADD) $(LIBS)
+sweep$(EXEEXT): $(sweep_OBJECTS) $(sweep_DEPENDENCIES)
+	@rm -f sweep$(EXEEXT)
+	$(LINK) $(sweep_LDFLAGS) $(sweep_OBJECTS) $(sweep_LDADD) $(LIBS)
 
 install-MultimediaDATA: $(Multimedia_DATA)
 	@$(NORMAL_INSTALL)

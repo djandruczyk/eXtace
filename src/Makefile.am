@@ -3,9 +3,11 @@ Multimediadir = $(datadir)/gnome/apps/Multimedia
 INCLUDES = @GTK_CFLAGS@ -DGTK_DISABLE_COMPAT_H  -D_MAJOR_=@EXTACE_MAJOR_VERSION@ -D_MINOR_=@EXTACE_MINOR_VERSION@ -D_MICRO_=@EXTACE_MICRO_VERSION@
 
 
-noinst_PROGRAMS = sine
+noinst_PROGRAMS = sine sweep
 
 sine_LDADD = -lm
+
+sweep_LDADD = -lm
 
 bin_PROGRAMS = extace
 
