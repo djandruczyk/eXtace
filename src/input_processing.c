@@ -24,12 +24,13 @@
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <math.h>
-#ifdef HAVE_LIBRFFTW
+#ifdef USING_FFTW2
 #include <fftw.h>
 #endif 
-#ifdef HAVE_LIBDRFFTW
-#include <dfftw.h>
+#ifdef USING_FFTW3
+#include <fftw3.h>
 #endif 
+
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -43,13 +44,18 @@ gint  scope_sync_source;
 void run_fft(void)
 {
 	int nsamp_sqd = nsamp*nsamp;
+	gdouble *fft_ptr=NULL;
 	gdouble *real_fft_out=NULL;
 	gdouble *imag_fft_out=NULL;
-	gdouble *fft_ptr=NULL;
 	gint index1=0;
 
 
+#ifdef USING_FFTW2
 	rfftw_one(plan, raw_fft_in, raw_fft_out);
+#elif USING_FFTW3
+	fftw_execute(plan);
+#endif
+
 	norm_fft[0] = (raw_fft_out[0]*raw_fft_out[0])/nsamp_sqd;
 	norm_fft[nsamp/2] = (raw_fft_out[nsamp/2]*raw_fft_out[nsamp/2])/nsamp_sqd;
 	 /*This pointer will be INCREMENTED below...  */
@@ -65,9 +71,17 @@ void run_fft(void)
 	index1 = nsamp;
 	while (index1--)
 	{
-		
+
 #if 0
-		*fft_ptr=multiplier*(noise_floor+log10((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
+		/* Power Spectrum */
+		*fft_ptr=multiplier*(noise_floor+(((*real_fft_out)*(*real_fft_out))+(*imag_fft_out)*(*imag_fft_out)));
+#elif 0
+		/* Amplitude Spectrum */
+		*fft_ptr=sqrt(multiplier*(noise_floor+(((*real_fft_out)*(*real_fft_out))+(*imag_fft_out)*(*imag_fft_out))));
+#elif 0
+		/* Phase Spectrum */
+		*fft_ptr=100*multiplier*atan2(*imag_fft_out,*real_fft_out);
+
 #elif 0  /* 	Normalized???  Not sure... */
 		*fft_ptr=multiplier*(noise_floor+log((((*real_fft_out * *real_fft_out)+(*imag_fft_out * *imag_fft_out)))/(nsamp_sqd)));
 #elif 1	 /* Phase and Real Components combined */

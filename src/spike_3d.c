@@ -18,6 +18,7 @@
 #include <math.h>
 #include <reducer.h>
 #include <spike_3d.h>
+#include <stdlib.h>
 
 
 /* See globals.h for variable declarations and DEFINES */

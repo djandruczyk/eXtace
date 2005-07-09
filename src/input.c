@@ -216,7 +216,7 @@ int open_datasource(DataSource source)
 	
 		tmp=44100; 
 		if((ring_rate=snd_pcm_hw_params_set_rate_near(
-			    handles[i].alsa, hwparams, tmp, 0)) < 0)
+			    handles[i].alsa, hwparams, &tmp, 0)) < 0)
 		{
 			fprintf (stderr, "Unable to set input rate\n");
 			break;

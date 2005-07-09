@@ -35,7 +35,7 @@ int setup_options()
 {
 
 	gint i;
-	char str[16];
+	gchar *str;
 	GtkWidget *options;
 	GtkWidget *vbox;
 	GtkWidget *eventbox;
@@ -69,9 +69,7 @@ int setup_options()
 	gtk_container_add(GTK_CONTAINER(options), notebook);
 	gtk_widget_show(notebook);
 
-
 	frame = gtk_frame_new("Global Settings");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_widget_show(frame);
 
 	label = gtk_label_new("General Options");
@@ -80,35 +78,40 @@ int setup_options()
 	vbox = gtk_vbox_new(FALSE,0);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
+	vbox1 = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox1),5);
+	gtk_box_pack_start(GTK_BOX(vbox),vbox1,TRUE,TRUE,0);
+
 	label = gtk_label_new("Refresh Rate in Frames/Sec. (approx)");
-	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(vbox1),label,TRUE,TRUE,0);
 
 	adj = gtk_adjustment_new((float)refresh_rate,1.0,refresh_max,1.0,1.0,1.0);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),0);
-	gtk_box_pack_start(GTK_BOX(vbox),scale,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(vbox1),scale,TRUE,TRUE,0);
 	gtk_range_set_update_policy(GTK_RANGE (scale),
 			GTK_UPDATE_CONTINUOUS);
 	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
 			GTK_SIGNAL_FUNC (slider_changed), 
 			    GINT_TO_POINTER(REFRESH_RATE));
 	sep = gtk_hseparator_new();
-	gtk_box_pack_start(GTK_BOX(vbox),sep,TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox1),sep,TRUE, TRUE, 0);
 
 	label = gtk_label_new("Scope/FFT Decimation Factors");
-	gtk_box_pack_start(GTK_BOX(vbox),label,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(vbox1),label,TRUE,TRUE,0);
 
-
-	hbox = gtk_hbox_new(FALSE,0);
-	gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,0);
+	hbox = gtk_hbox_new(TRUE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox),5);
+	gtk_box_pack_start(GTK_BOX(vbox1),hbox,TRUE,TRUE,0);
 	group=NULL;
 
 	for(i=1; i<=8; i++){
 		if(i==1)
-			sprintf(str,"1 (None)");
+			str= g_strdup("1 (None)");
 		else
-			sprintf(str,"%i",i);
+			str = g_strdup_printf("%i",i);
 		button = gtk_radio_button_new_with_label(group,str);
+		g_free(str);
 		gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 		gtk_signal_connect(GTK_OBJECT (button), "clicked",
 				   GTK_SIGNAL_FUNC (set_decimation_factor), \
@@ -118,10 +121,10 @@ int setup_options()
 	}
 
 	sep = gtk_hseparator_new();
-	gtk_box_pack_start(GTK_BOX(vbox),sep,TRUE, TRUE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox1),sep,TRUE, TRUE, 0);
 
 	button = gtk_toggle_button_new_with_label("Pause Display");
-	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(vbox1),button,TRUE,TRUE,5);
 	gtk_signal_connect (GTK_OBJECT (button), "toggled",
 			GTK_SIGNAL_FUNC (button_handle), 
 			    GINT_TO_POINTER(PAUSE_DISP));
@@ -131,6 +134,7 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(vbox), frame,TRUE,TRUE,0);
 
 	sub_vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width (GTK_CONTAINER (sub_vbox), 5);
 	gtk_container_add(GTK_CONTAINER(frame), sub_vbox);
 
 	label = gtk_label_new("Choose Sound Source ");
@@ -220,10 +224,10 @@ int setup_options()
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), box, label);
 
 	frame = gtk_frame_new("Low Resolution FFT Display Options");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	label = gtk_label_new("Number of bands (low res displays only)");
@@ -283,7 +287,7 @@ int setup_options()
 	sep = gtk_hseparator_new();
 	gtk_box_pack_start(GTK_BOX(vbox),sep,TRUE, TRUE, 0);
 
-	hbox1 = gtk_hbox_new(TRUE,0);
+	hbox1 = gtk_hbox_new(TRUE,2);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox1,FALSE,TRUE,0);
 
 	button = gtk_toggle_button_new_with_label("Leading Edge Shown");
@@ -307,7 +311,7 @@ int setup_options()
 			    GINT_TO_POINTER(USE_PEAK_DECAY));
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), peak_decay);
 
-	hbox1 = gtk_hbox_new(TRUE,0);
+	hbox1 = gtk_hbox_new(TRUE,2);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox1,FALSE,TRUE,0);
 
 	button = gtk_toggle_button_new_with_label("Invert Landform Y-axis");
@@ -369,14 +373,14 @@ int setup_options()
 	label = gtk_label_new("Scope Options");
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), vbox, label);
 
-	hbox = gtk_hbox_new(FALSE,0);
+	hbox = gtk_hbox_new(FALSE,5);
 	gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,0);
 
 	frame = gtk_frame_new("Scope Mode");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(hbox),frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	label = gtk_label_new("Scope Mode");
@@ -409,10 +413,10 @@ int setup_options()
 		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
 
 	frame = gtk_frame_new("Scope Controls");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(hbox),frame,TRUE,TRUE,0);
 
-	vbox = gtk_vbox_new(FALSE,0);
+	vbox = gtk_vbox_new(FALSE,5);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	button = gtk_toggle_button_new_with_label("Trace Stabilizer Disabled");
@@ -430,10 +434,10 @@ int setup_options()
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), show_graticule);
 
 	frame = gtk_frame_new("Sync/Trigger Controls");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(main_scope_vbox),frame,TRUE,TRUE,0);
 
 	hbox = gtk_hbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), hbox);
 
 	button = gtk_radio_button_new_with_label(NULL, "Sync to Left Channel");
@@ -473,11 +477,10 @@ int setup_options()
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), box, label);
 
 	frame = gtk_frame_new("High Resolution Display Bandwidth");
-	//gtk_widget_set_sensitive(frame,FALSE);
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	hbox = gtk_hbox_new(TRUE,0);
@@ -487,7 +490,7 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(hbox),label,TRUE,TRUE,0);
 
 	sep = gtk_vseparator_new();
-	gtk_box_pack_start(GTK_BOX(hbox),sep,TRUE,TRUE,0);
+	gtk_box_pack_start(GTK_BOX(hbox),sep,FALSE,TRUE,0);
 
 	label = gtk_label_new("High Frequency Limit");
 	gtk_box_pack_start(GTK_BOX(hbox),label,TRUE,TRUE,0);
@@ -528,10 +531,10 @@ int setup_options()
 			    GINT_TO_POINTER(HIGH_LIMIT));
 
 	frame = gtk_frame_new("High Resolution FFT Display Options");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box),frame,TRUE,TRUE,0);
 
-	hbox = gtk_hbox_new(TRUE,0);
+	hbox = gtk_hbox_new(TRUE,5);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), hbox);
 
 	button = gtk_toggle_button_new_with_label("Invert Spike Y-axis");
@@ -554,17 +557,18 @@ int setup_options()
 	/*  END of High Res, FFT Options Tab (Options Panel) */
 	/*  BEGINNING of FFT Options Tab (Options Panel) */
 
-	hbox = gtk_hbox_new(FALSE,0);
+	hbox = gtk_hbox_new(FALSE,5);
 
 	label = gtk_label_new("FFT Options");
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), hbox, label);
 
 	frame = gtk_frame_new("Window Functions");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(hbox),frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
+
 	button = gtk_radio_button_new_with_label(NULL,"Hamming");
 	gtk_box_pack_start(GTK_BOX(vbox),button,TRUE,TRUE,0);
 	if(window_func == HAMMING)
@@ -640,10 +644,10 @@ int setup_options()
 	gtk_box_pack_start(GTK_BOX(hbox),vbox1,TRUE,TRUE,0);
 
 	frame = gtk_frame_new("Window Function Options");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(vbox1),frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	label = gtk_label_new("Window Function Active Width");
@@ -684,12 +688,11 @@ int setup_options()
 			    GINT_TO_POINTER(EIGHTH));
 
 
-
 	frame = gtk_frame_new("FFT DataSource");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(vbox1),frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	label = gtk_label_new("FFT Audio Signal Source");
@@ -731,10 +734,10 @@ int setup_options()
 			    GINT_TO_POINTER(LEFT_MINUS_RIGHT));
 
 	frame = gtk_frame_new("FFT Width");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(hbox),frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	label = gtk_label_new("FFT Size in samples");
@@ -804,10 +807,10 @@ int setup_options()
 	gtk_notebook_append_page(GTK_NOTEBOOK (notebook), box, label);
 
 	frame = gtk_frame_new("Spectrogram Controls");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box), frame,TRUE,TRUE,0);
 
 	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
 	gtk_container_add(GTK_CONTAINER(frame), vbox);
 
 	label = gtk_label_new("Spectrogram Scroll Speed");
@@ -863,7 +866,6 @@ int setup_options()
 			    GINT_TO_POINTER(SENSITIVITY));
 
 	frame = gtk_frame_new("Buffer Latency Monitor");
-	gtk_container_set_border_width (GTK_CONTAINER (frame), 5);
 	gtk_box_pack_start(GTK_BOX(box), frame,FALSE,FALSE,0);
 
 	eventbox = gtk_event_box_new();

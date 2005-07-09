@@ -22,11 +22,10 @@
 #include <convolve.h>
 #include <config.h>
 #include <defines.h>
-#ifdef HAVE_LIBRFFTW
+#ifdef USING_FFTW2
 #include <rfftw.h>
-#endif
-#ifdef HAVE_LIBDRFFTW
-#include <drfftw.h>
+#elif USING_FFTW3
+#include <fftw3.h>
 #endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
@@ -120,7 +119,11 @@ struct		Color_map {
     gchar *filename;	/* Currently used colormap */
 }Color_map;
 
+#ifdef USING_FFTW2
 rfftw_plan	plan;		/* fft plan for fftw library */
+#elif USING_FFTW3
+fftw_plan	plan;		/* FFTW plan for fftw 3.x library */
+#endif
 gboolean	landtilt;	/* Landform 3D perspective tilt flag */
 gboolean	spiketilt;	/* Spike 3D perspective tilt flag */
 gboolean	landflip;	/* Invert Y axis on 3D modes */

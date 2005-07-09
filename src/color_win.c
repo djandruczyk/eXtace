@@ -24,6 +24,7 @@
 #include <events.h>
 #include <globals.h>
 #include <gtk/gtk.h>
+#include <stdio.h>
 #include <string.h>
 
 
@@ -158,7 +159,7 @@ gint close_fileselection(GtkWidget *widget, gpointer *data)
 void create_initial_colormaps(void)
 {
 
-	gchar val[20];
+	gchar *val;
 	gchar * filename;
 	ConfigFile *cfgfile;
 	gint i = 0;
@@ -219,15 +220,19 @@ void create_initial_colormaps(void)
 		/* This assumes only 5 points in above table.  be carefull */
 		for (j=1;j<=5;j++)
 		{
-			sprintf(val,"step_%i",j);
+			val = g_strdup_printf("step_%i",j);
 			cfg_write_float(cfgfile, "General", val, tmp);
+			g_free(val);
 			tmp+=0.25;
-			sprintf(val,"red_%i",j);
+			val = g_strdup_printf("red_%i",j);
 			cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
-			sprintf(val,"green_%i",j);
+			g_free(val);
+			val = g_strdup_printf("green_%i",j);
 			cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
-			sprintf(val,"blue_%i",j);
+			g_free(val);
+			val = g_strdup_printf("blue_%i",j);
 			cfg_write_int(cfgfile, "Colormap", val, temp_array[x++]);
+			g_free(val);
 		}
 		cfg_write_file(cfgfile, filename);
 		cfg_free(cfgfile);
@@ -249,7 +254,7 @@ void save_colormap(GtkWidget * widget, GtkFileSelection *filesel)
 	gint * trip_ptr = NULL;
 	gfloat * loc_ptr = NULL;
 	gint steps = 0;
-	gchar val[20];
+	gchar *val;
 	ConfigFile *cfgfile;
 
 	filename = g_strconcat(gtk_file_selection_get_filename(GTK_FILE_SELECTION(filesel)),NULL);
@@ -266,18 +271,22 @@ void save_colormap(GtkWidget * widget, GtkFileSelection *filesel)
 
 	for (j=1;j<=steps;j++)
 	{
-		sprintf(val,"step_%i",j);
+		val = g_strdup_printf("step_%i",j);
 		cfg_write_float(cfgfile, "General", val, *loc_ptr);
+		g_free(val);
 		loc_ptr++;
 
-		sprintf(val,"red_%i",j);
+		val = g_strdup_printf("red_%i",j);
 		cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
+		g_free(val);
 		trip_ptr++;
-		sprintf(val,"green_%i",j);
+		val = g_strdup_printf("green_%i",j);
 		cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
+		g_free(val);
 		trip_ptr++;
-		sprintf(val,"blue_%i",j);
+		val = g_strdup_printf("blue_%i",j);
 		cfg_write_int(cfgfile, "Colormap", val, *trip_ptr);
+		g_free(val);
 		trip_ptr++;
 	}
 
@@ -314,7 +323,7 @@ void read_colormap(char * filename)
 	gint i = 0;
 	gint *trip_ptr=NULL;
 	gfloat *loc_ptr=NULL;
-	gchar val[20];
+	gchar *val;
 
 
 	cfgfile = cfg_open_file(filename);
@@ -386,26 +395,30 @@ void read_colormap(char * filename)
 				 * incrment ptr for next read
 				 */
 				/*  Location point */
-				sprintf(val,"step_%i",i);
+				val = g_strdup_printf("step_%i",i);
 				cfg_read_float(cfgfile, "General",val , loc_ptr);
+				g_free(val);
 				*loc_ptr = *loc_ptr < 1.0 ? *loc_ptr :1.0;
 				loc_ptr++;
 
 				/* Red Value for above location pt */
-				sprintf(val,"red_%i",i);
+				val = g_strdup_printf("red_%i",i);
 				cfg_read_int(cfgfile, "Colormap",val , trip_ptr);
+				g_free(val);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
 				trip_ptr++;
 
 				/* Green Value for above location pt */
-				sprintf(val,"green_%i",i);
+				val = g_strdup_printf("green_%i",i);
 				cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
+				g_free(val);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
 				trip_ptr++;
 
 				/* Blue Value for above location pt */
-				sprintf(val,"blue_%i",i);
+				val = g_strdup_printf("blue_%i",i);
 				cfg_read_int(cfgfile, "Colormap",val, trip_ptr);
+				g_free(val);
 				*trip_ptr = *trip_ptr < 255 ? *trip_ptr :255;
 				trip_ptr++;
 			}
@@ -518,7 +531,7 @@ void init_colortab()
 		data[(i*3)+2]=cb[i];
 	}
 	im=gdk_imlib_create_image_from_data(data,NULL,1,MAXBANDS);
-	free(data);
+	g_free(data);
 	w=MAXBANDS;
 	h=im->rgb_height;
 

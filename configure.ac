@@ -18,8 +18,8 @@ dnl =========================================================================
 dnl control variables
 dnl =========================================================================
 
-have_rfftw=no
-have_drfftw=no
+have_fftw3=no
+have_fftw2=no
 have_alsa=no
 have_oss=no
 have_esd=no
@@ -58,7 +58,6 @@ EFENCE=""
 AC_SUBST(EFENCE)
 
 EXTRA_LIBS=""
-AC_SUBST(EXTRA_LIBS)
 
 dnl
 dnl Check for ESOUND library 
@@ -99,37 +98,39 @@ then
 	EXTRA_LIBS="-lcomedi $EXTRA_LIBS "
 fi
 
-dnl rfftw
+
+dnl fftw3
 dnl
 PROGRAMS_EXTACE=""
-AC_CHECK_LIB(rfftw, rfftw_one, have_rfftw=yes, have_rfftw=no,[-lfftw -lm] )
-if test "$have_rfftw" = "yes"
+AC_CHECK_LIB(fftw3, fftw_execute, have_fftw3=yes, have_fftw3=no,[-lfftw3 -lm] )
+if test "$have_fftw3" = "yes"
 then
- 	AC_CHECK_LIB(rfftw, rfftw_one,, )
+ 	AC_CHECK_LIB(fftw3, fftw_execute,, )
+	AC_DEFINE(USING_FFTW3,1,[Build with FFTW 3.x input])
 	PROGRAMS_EXTACE=extace
-	EXTRA_LIBS="-lrfftw -lfftw $EXTRA_LIBS "	
-fi
-
-if test "$have_rftw" = "no" 
-then
-	AC_CHECK_LIB(drfftw, drfftw_one, have_drfftw=yes,,[-ldrfftw -lm] )
-
-	if test "$have_drfftw" = "yes"
+	EXTRA_LIBS="-lfftw3 $EXTRA_LIBS "	
+else
+	dnl rfftw
+	dnl
+	PROGRAMS_EXTACE=""
+	AC_CHECK_LIB(rfftw, rfftw_one, have_fftw2=yes, have_fftw2=no,[-lfftw -lm] )
+	if test "$have_fftw2" = "yes"
 	then
-		AC_CHECK_LIB(drfftw, drfftw_one,, )
+ 		AC_CHECK_LIB(rfftw, rfftw_one,, )
+		AC_DEFINE(USING_FFTW2,1,[Build with FFTW 2.x input])
 		PROGRAMS_EXTACE=extace
-		EXTRA_LIBS="-ldrfftw -lfftw $EXTRA_LIBS "	
+		EXTRA_LIBS="-lrfftw -lfftw $EXTRA_LIBS "	
 	fi
 fi
 
-if test "$have_rfftw" = "no"
+if test "$have_fftw2" = "no"
 then
-	if test "$have_drfftw" = "no"
+	if test "$have_fftw3" = "no"
 	then
 		echo 
 		echo "!!! FFTW libraries NOT found. eXtace will NOT compile without them!!!"
 		echo
-		echo "Please install the FFTW 2.x library (Fastest FFT in the West), it is available from http://www.fftw.org or from your most convienient .RPM .DEB or Gentoo mirror"
+		echo "Please install the FFTW 3.x library (Fastest FFT in the West), it is available from http://www.fftw.org or from your most convienient .RPM .DEB or Gentoo mirror"
 		echo
 		echo " - Gentoo users can get it via \"emerge fftw\" as root"
 		echo " - Debian users can get it via \"apt-get fftw\" or \"apt-get fftw-lib\" as root"
@@ -200,6 +201,7 @@ PFLAGS="-pg"
 fi
 AC_SUBST(PFLAGS)
 
+AC_SUBST(EXTRA_LIBS)
 EXTACE_DATADIR="${prefix}/share/eXtace"
 AC_SUBST(EXTACE_DATADIR)
 AC_SUBST(EXTACE_MAJOR_VERSION)
@@ -218,6 +220,8 @@ echo "
 Configuration:
 
     Install Path:			${prefix}
+    FFTW 3.x Support:			${have_fftw3}
+    FFTW 2.x Support:			${have_fftw2}
     Experimental Features:		${enable_experimental}
     General Debugging:			${enable_debug}
     Drag'n Drop Debugging:		${enable_dnd_debug}

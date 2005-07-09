@@ -18,6 +18,7 @@
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <math.h>
+#include <stdlib.h>
 
 /* See globals.h for variable declarations and DEFINES */
 gfloat x_disp;         /* X displacement */

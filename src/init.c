@@ -423,8 +423,13 @@ void mem_alloc()
 	memset((void *)ringbuffer, 0, ring_end*sizeof(ring_type));
 
 	/* Audio block in frequency domain being processed, size of nsamp */
+#ifdef USING_FFTW2
 	raw_fft_out = malloc(nsamp*sizeof(gdouble));
 	raw_fft_in = malloc(nsamp*sizeof(gdouble));
+#elif USING_FFTW3
+	raw_fft_out = fftw_malloc(nsamp*sizeof(gdouble));
+	raw_fft_in = fftw_malloc(nsamp*sizeof(gdouble));
+#endif
 	/* datawindow applied to TIME series data, thus need "nsamp" datapoints */
 	datawindow = malloc(nsamp*sizeof(gdouble));
 	/* FFT after scaling/massaging, size of (nsamp+1)/2 */
@@ -489,8 +494,13 @@ void mem_alloc()
 void mem_dealloc()
 {
 	free(ringbuffer);  
+#ifdef USING_FFTW2
 	free(raw_fft_out);
 	free(raw_fft_in);
+#elif USING_FFTW3
+	fftw_free(raw_fft_out);
+	fftw_free(raw_fft_in);
+#endif
 	free(norm_fft);
 	free(datawindow);
 	free(audio_left);
@@ -541,6 +551,7 @@ void reinit_extace(int new_nsamp)
 		convolve_factor = 1;
 	recalc_markers = TRUE;
 	recalc_scale = TRUE;	
+
 	mem_alloc();
 	setup_datawindow(NULL,(WindowFunction)window_func);
 	ring_rate_changed();
@@ -549,7 +560,12 @@ void reinit_extace(int new_nsamp)
 	/* only start if it has been stopped above */
 	if(data_handle != -1 && (data_handle=open_datasource(data_source)) >= 0)
 	  {
+		  fftw_cleanup();
+#ifdef USING_FFTW2
 		  plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+#elif USING_FFTW3
+		  plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out,FFTW_R2HC, FFTW_FORWARD|FFTW_ESTIMATE);
+#endif
 		  input_thread_starter(data_handle);
 		  ring_rate_changed(); /* Fix all gui controls that depend on
 					* ring_rate (adjustments and such

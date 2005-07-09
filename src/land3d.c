@@ -18,6 +18,7 @@
 #include <gtk/gtk.h>
 #include <land_3d.h>
 #include <math.h>
+#include <stdlib.h>
 
 
 /* See globals.h for variable declarations and DEFINES */

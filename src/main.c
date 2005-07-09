@@ -249,7 +249,11 @@ int main(int argc, char **argv)
 
 	if ((data_handle=open_datasource(data_source)) >= 0)
 	{
+#ifdef USING_FFTW2
 		plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+#elif USING_FFTW3
+		plan = fftw_plan_r2r_1d(nsamp, raw_fft_in,raw_fft_out, FFTW_R2HC, FFTW_FORWARD|FFTW_ESTIMATE);
+#endif
 		ring_rate_changed(); /* Fix all gui controls that depend on
 				      * ring_rate (adjustments and such)
 				      */
@@ -265,6 +269,7 @@ int main(int argc, char **argv)
 		gtk_signal_emit_by_name(GTK_OBJECT(about_button),"clicked");
 	ready = 1;		/* All set */
 	ring_rate_changed();
+
 	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
