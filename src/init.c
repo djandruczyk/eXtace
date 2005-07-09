@@ -560,10 +560,11 @@ void reinit_extace(int new_nsamp)
 	/* only start if it has been stopped above */
 	if(data_handle != -1 && (data_handle=open_datasource(data_source)) >= 0)
 	  {
-		  fftw_cleanup();
 #ifdef USING_FFTW2
+		  fftw_destroy_plan(plan);
 		  plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 #elif USING_FFTW3
+		  fftw_cleanup();
 		  plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out,FFTW_R2HC, FFTW_FORWARD|FFTW_ESTIMATE);
 #endif
 		  input_thread_starter(data_handle);
