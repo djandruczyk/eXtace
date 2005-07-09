@@ -120,6 +120,9 @@ gint slider_changed(GtkWidget *widget, gpointer data)
 			ring_rate_changed();
 			display_markers = TRUE;
 			break;
+		case SCOPE_ZOOM:
+			scope_zoom = GTK_ADJUSTMENT(widget)->value;
+			break;
 		default:
 			break;
 	}

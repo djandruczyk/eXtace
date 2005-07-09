@@ -51,7 +51,6 @@ void draw_scope()
 	lo_width = (width < nsamp) ? width : nsamp;
 	height_per_scope = height/4;
 
-	gdk_threads_enter();
 		top = (height/4 - 128);
 		if (top < 0)
 			top = 0;
@@ -59,6 +58,7 @@ void draw_scope()
 		if (bottom > height);
 		bottom = height;
 
+	gdk_threads_enter();
 		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
 				TRUE, 0,top,
@@ -140,7 +140,7 @@ void draw_scope()
 	for(i=0,
 			scope_pos_l=scope_begin_l,
 			scope_pos_r=scope_begin_r;
-			i<lo_width;
+			i<(int)((float)lo_width/scope_zoom);
 			i++,
 			scope_pos_l++,
 			scope_pos_r++)
@@ -164,9 +164,9 @@ void draw_scope()
 		else if (right_val > 127)
 			right_val = 127;
 
-		l_scope_points[i].x = i;
+		l_scope_points[i].x = i*scope_zoom;
 		l_scope_points[i].y = height_per_scope+left_val;
-		r_scope_points[i].x = i;
+		r_scope_points[i].x = i*scope_zoom;
 		r_scope_points[i].y = height-height_per_scope+right_val;
 	}
 	switch ((ScopeMode)scope_sub_mode)
@@ -176,12 +176,12 @@ void draw_scope()
 			gdk_draw_points(main_pixmap,\
 					trace_gc,\
 					l_scope_points,\
-					lo_width);
+					(int)((float)lo_width/scope_zoom));
 			/* Right Channel */
 			gdk_draw_points(main_pixmap,\
 					trace_gc,\
 					r_scope_points,\
-					lo_width);
+					(int)((float)lo_width/scope_zoom));
 			break;
 
 		case LINE_SCOPE:
@@ -189,12 +189,12 @@ void draw_scope()
 			gdk_draw_lines(main_pixmap,\
 					trace_gc,\
 					l_scope_points,\
-					lo_width);
+					(int)((float)lo_width/scope_zoom));
 			/* RIGHT Channel scope */
 			gdk_draw_lines(main_pixmap,\
 					trace_gc,\
 					r_scope_points,\
-					lo_width);
+					(int)((float)lo_width/scope_zoom));
 			break;
 		case GRAD_SCOPE:
 

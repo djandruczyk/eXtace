@@ -436,9 +436,26 @@ int setup_options()
 	frame = gtk_frame_new("Sync/Trigger Controls");
 	gtk_box_pack_start(GTK_BOX(main_scope_vbox),frame,TRUE,TRUE,0);
 
+	vbox = gtk_vbox_new(FALSE,0);
+	gtk_container_set_border_width(GTK_CONTAINER(vbox),5);
+	gtk_container_add(GTK_CONTAINER(frame), vbox);
+
+	label = gtk_label_new("Scope Zoom Factor");
+	gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,TRUE,0);
+
+	adj = gtk_adjustment_new((float)scope_zoom,1.0,10,0.01,0.01,0);
+	scale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
+	gtk_scale_set_digits(GTK_SCALE(scale),2);
+	gtk_box_pack_start(GTK_BOX(vbox),scale,TRUE,TRUE,0);
+	gtk_range_set_update_policy(GTK_RANGE (scale),
+			GTK_UPDATE_CONTINUOUS);
+	gtk_signal_connect (GTK_OBJECT (adj), "value_changed",
+			GTK_SIGNAL_FUNC (slider_changed), 
+			    GINT_TO_POINTER(SCOPE_ZOOM));
+	sep = gtk_hseparator_new();
+
 	hbox = gtk_hbox_new(FALSE,0);
-	gtk_container_set_border_width(GTK_CONTAINER(hbox),5);
-	gtk_container_add(GTK_CONTAINER(frame), hbox);
+	gtk_box_pack_start(GTK_BOX(vbox),hbox,TRUE,TRUE,0);
 
 	button = gtk_radio_button_new_with_label(NULL, "Sync to Left Channel");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);

@@ -77,6 +77,7 @@ void init()
 	data_source = ESD;
 	comedi_window_open = TRUE;  /* open comedi control window */
 
+	scope_zoom = 1.0;	/* normal zoom, (none) */
 	refresh_rate = 34;	/* 34 frames per sec */
 	left_amplitude = 127.0/32768.0; /* Scaler for something */
 	right_amplitude = 127.0/32768.0; /* Scaler for something */
@@ -216,6 +217,7 @@ void read_config(void)
 			     &comedi_window_open);
 		cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
 		cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
+		cfg_read_float(cfgfile, "Global", "scope_zoom", &scope_zoom);
 		cfg_read_int(cfgfile, "Global", "refresh_rate", &refresh_rate);
 		cfg_read_int(cfgfile, "Global", "landflip", &landflip);
 		cfg_read_int(cfgfile, "Global", "spikeflip", &spikeflip);
@@ -299,6 +301,7 @@ void save_config(GtkWidget *widget)
 	cfg_write_int(cfgfile, "Global", "comedi_window_open", comedi_window_open);
 	cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
 	cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
+	cfg_write_float(cfgfile, "Global", "scope_zoom", scope_zoom);
 	cfg_write_int(cfgfile, "Global", "refresh_rate", refresh_rate);
 	cfg_write_int(cfgfile, "Global", "landflip", landflip);
 	cfg_write_int(cfgfile, "Global", "spikeflip", spikeflip);
