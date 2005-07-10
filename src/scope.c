@@ -199,7 +199,7 @@ void draw_scope()
 		case GRAD_SCOPE:
 
 			right_scope_pos = height-height_per_scope;
-			for(i=0;i<lo_width;i++)
+			for(i=0;i<(int)((float)lo_width/scope_zoom);i++)
 			{
 
 				left_val = l_scope_points[i].y\
@@ -215,16 +215,16 @@ void draw_scope()
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[left_val+127],\
 							0,0,\
-							i,l_scope_points[i].y,\
-							1,-left_val);
+							i*scope_zoom,l_scope_points[i].y,\
+							1*scope_zoom,-left_val);
 				}
 				else	/* Positive Signal (left channel)*/
 				{
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[left_val+127],\
 							0,0,\
-							i,height_per_scope,\
-							1,left_val);
+							i*scope_zoom,height_per_scope,\
+							1*scope_zoom,left_val);
 				}
 
 				if (right_val < 0) /*Negative Signal */
@@ -232,9 +232,9 @@ void draw_scope()
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[right_val+127],\
 							0,0,\
-							i,right_scope_pos\
+							i*scope_zoom,right_scope_pos\
 							+right_val,\
-							1,\
+							1*scope_zoom,\
 							-right_val);
 				}
 				else /* Positive Signal */
@@ -242,8 +242,8 @@ void draw_scope()
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[right_val+127],\
 							0,0,\
-							i,right_scope_pos,\
-							1,right_val);
+							i*scope_zoom,right_scope_pos,\
+							1*scope_zoom,right_val);
 				}
 
 			}
