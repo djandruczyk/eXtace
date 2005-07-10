@@ -143,6 +143,7 @@ gboolean	grad_win_present;/* Flag */
 
 gint		fft_signal_source;/* Left right or both channels */
 gint		refresh_rate;	/* display refresh rate*/
+gfloat 		scope_zoom;	/* Scope zoom factor */
 guint 		display_id;	/* display ID for gtk_timeout_* */
 gint		convolve_factor;	
 gint 		win_width;	/* window function options */	

@@ -40,7 +40,8 @@ typedef enum
 	TAPE_SCROLL,
 	REFRESH_RATE,
 	LOW_LIMIT,
-	HIGH_LIMIT	
+	HIGH_LIMIT,	
+	SCOPE_ZOOM,
 }Slider;
 
 typedef enum
