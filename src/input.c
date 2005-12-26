@@ -543,6 +543,7 @@ void *input_reader_thread(void *input_handle)
 	/* adjust position in ring buffer to be on first channel */
 	ring_pos -= ring_pos%ring_channels;
 	ring_remainder=0;
+	//printf("ring_pos is %p endpoint is %p\n",ringbuffer+ring_pos,ringbuffer+ring_end);
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
@@ -567,6 +568,7 @@ void *input_reader_thread(void *input_handle)
 		if (res)  /* Data Arrived */
 		{
 			to_get = (ring_end-ring_pos)*sizeof(ring_type)-ring_remainder;
+			//printf("requesting %i bytes at %p\n",to_get,ringbuffer+ring_pos);
 			count = read(source,ringbuffer+ring_pos,to_get);
 			if(count < 0)
 			{
@@ -574,17 +576,21 @@ void *input_reader_thread(void *input_handle)
 				perror("input_reader_thread");
 				exit (-3);
 			}
+			//printf("received %i BYTES\n",count);
 			/* include partial samples from previous read */
 			count += ring_remainder;
 			if (count == to_get) /* We read to the end of the ring */
 			{
+				//printf("We read to the end of the ring\n");
 				ring_pos = 0;
 				ring_remainder=0;
 			}
 			else
 			{
+				//printf("not at the end yet \n");
 				ring_pos += count/sizeof(ring_type);
 				ring_remainder = count%sizeof(ring_type);
+				//printf("ring_position is %p, ring remainder is %i\n",ringbuffer+ring_pos,ring_remainder);
 			}
 
 			/* use in debug print */

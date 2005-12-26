@@ -162,13 +162,14 @@ void split_and_decimate()
 	   past the newest points in the ring buffer.
 	 */
 	delay = nsamp/2+ring_rate*((float) lag)/1000.0;
+//	printf("delay %i samples, ring_rate %f(hz.), lag %d(ms.)\n",delay,ring_rate,lag);
 
 	draw_win_time_last = draw_win_time;
 	gettimeofday(&draw_win_time, NULL); 
 
 	/* cur_time is the absolute time NOW when this function runs.  Its 
 	 * needed to calculate how much time has past since the last chunk
-	 * of audio came in. (Most usefull with LARGE ft sizes (8192 points 
+	 * of audio came in. (Most usefull with LARGE fft sizes (8192 points 
 	 * or more..)
 	 */
 	cur_time = draw_win_time.tv_sec
@@ -236,6 +237,7 @@ void split_and_decimate()
 	while (end_offset > ring_end)	
 		end_offset -= ring_end;
 
+//	printf("start_offset is %i, end_offset is %i, len= %i\n",start_offset, end_offset, end_offset-start_offset);
 	/* copy to buffers section 
 	 * we find our position in the ring to copy from above, and 
 	 * copy the data to the audio_left and right buffers as requested
@@ -268,7 +270,7 @@ void split_and_decimate()
 						audio_right[count] = INPUT_RING(i+k);
 				}
 				i += ring_channels*decimation_factor;
-				while(i > ring_end)
+				while(i >= ring_end)
 					i -= ring_end;
 			}
 			break;
@@ -284,7 +286,7 @@ void split_and_decimate()
 						raw_fft_in[count] = datawindow[count]*
 							(INPUT_RING(i) - INPUT_RING(i+1))/2.0;
 						i += ring_channels*decimation_factor; 
-						while(i>ring_end) i -= ring_end;
+						while(i >= ring_end) i -= ring_end;
 					}
 					break;
 				case LEFT_PLUS_RIGHT:
@@ -295,7 +297,7 @@ void split_and_decimate()
 						raw_fft_in[count] = datawindow[count]*
 						  (INPUT_RING(i) + INPUT_RING(i+1))/2.0;
 						i += ring_channels*decimation_factor; 
-						while(i > ring_end) 
+						while(i >= ring_end) 
 							i -= ring_end;
 					}
 					break;
@@ -306,7 +308,7 @@ void split_and_decimate()
 						raw_fft_in[count] = datawindow[count]*
 							INPUT_RING(i);
 						i += ring_channels*decimation_factor; 
-						while(i > ring_end)
+						while(i >= ring_end)
 							i -= ring_end;
 					}
 					break;
@@ -317,7 +319,7 @@ void split_and_decimate()
 						raw_fft_in[count] = datawindow[count]*
 							INPUT_RING(i+1);
 						i += ring_channels*decimation_factor; 
-						while(i > ring_end)
+						while(i >= ring_end)
 							i -= ring_end;
 					}
 					break;

@@ -395,18 +395,21 @@ void draw_land3d_forward()
 
 				if (i == 0) /* cap */
 				{
-					gdk_draw_polygon(main_pixmap,\
+			/*		gdk_draw_polygon(main_pixmap,\
 							main_display->\
 							style->\
 							black_gc,\
 							TRUE,cap_pt,4);
+							*/
 					gdk_draw_polygon(main_pixmap,\
 							gc,FALSE,\
 							cap_pt,4);
 				}
+				/*
 				gdk_draw_polygon(main_pixmap,\
 						main_display->style->black_gc,\
 						TRUE,pt,4);
+						*/
 				gdk_draw_polygon(main_pixmap,\
 						gc,FALSE,pt,4);
 				break;
@@ -588,19 +591,23 @@ void draw_land3d_reverse()
 				}
 				break;
 			case WIRE_3D:
+				/*
 				gdk_draw_polygon(main_pixmap,\
 						main_display->\
 						style->black_gc,\
 						TRUE,pt,4);
+						*/
 				gdk_draw_polygon(main_pixmap,\
 						gc,FALSE,pt,4);
 				if (i == 0) /* cap */
 				{
+					/*
 					gdk_draw_polygon(main_pixmap,\
 							main_display->\
 							style->\
 							black_gc,TRUE,\
 							cap_pt,4);
+							*/
 					gdk_draw_polygon(main_pixmap,\
 							gc,\
 							FALSE,cap_pt,4);
