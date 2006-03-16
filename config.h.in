@@ -1,13 +1,7 @@
 /* config.h.in.  Generated from configure.ac by autoheader.  */
 
-/* Build with ALSA input */
-#undef HAVE_ALSA
-
 /* Define to 1 if you have the <asm/errno.h> header file. */
 #undef HAVE_ASM_ERRNO_H
-
-/* Build with COMEDI input */
-#undef HAVE_COMEDI
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
@@ -44,9 +38,6 @@
 
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
-
-/* Build with OSS input */
-#undef HAVE_OSS
 
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H

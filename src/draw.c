@@ -250,7 +250,7 @@ recalc:
 		if(recalc_markers)
 		{
 			if (axis_type == LINEAR)
-				resolution = (ring_rate/2.0)/(float)bands;
+				resolution = ((ring_rate/2.0)/(float)bands)/decimation_factor;
 			else if (axis_type == LOG)
 				resolution = ring_rate/((float)nsamp*decimation_factor);
 			switch (axis_type)

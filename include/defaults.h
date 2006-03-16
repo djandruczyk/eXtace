@@ -17,7 +17,7 @@
 #define _DEFAULTS_H_ 1
 
 const float	lag_min = 1.00;		/* Minimum lag allowed */
-const float	noise_floor_min = -100.0;
+const float	noise_floor_min = -160.0;
 const float	noise_floor_max = 100.0;
 const float	multiplier_min = 1.0;	/* Sensivity max allowed */
 const float	multiplier_max = 50.0;	/* Sensivity max allowed */

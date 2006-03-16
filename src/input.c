@@ -71,7 +71,6 @@ float ring_rate=-1;             /* initalize rate to nonsense */
 int open_datasource(DataSource source)
 {
 	int i=0;
-	int tmp;
 #ifdef HAVE_ALSA
 	snd_pcm_hw_params_t* hwparams;
 #endif
@@ -349,7 +348,6 @@ int input_thread_starter(int i)
 	switch (handles[i].source)
 	{
 		case ESD:
-		case OSS:
 			err = pthread_create(&(handles[i].input_thread),
 					NULL, /*Thread attributes */
 					input_reader_thread,
@@ -360,6 +358,7 @@ int input_thread_starter(int i)
 			else
 				handles[i].read_started = 1;
 			break;
+		case OSS:
 		case ALSA:
 			break;
 #ifdef HAVE_COMEDI
