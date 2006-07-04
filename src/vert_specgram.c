@@ -68,11 +68,6 @@ void draw_vert_specgram()
 			height-vert_spec_start-tape_scroll,
 			active_drawing_area,
 			tape_scroll);
-	gdk_draw_line(main_pixmap,gc,
-			0,
-			height-border,
-			border+active_drawing_area,
-			height-border);
 
 	for (i=0; i < (active_drawing_area); i++)
 	{

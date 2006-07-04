@@ -546,7 +546,8 @@ gint change_display_mode(GtkWidget *widget, gpointer data)
 			display_markers = 1;
 			break;
 		case VERT_SPECGRAM:
-			mode = VERT_SPECGRAM;
+		case VERT_SPECGRAM2:
+			mode = (DisplayMode) GPOINTER_TO_INT(data);
 			if (vert_spec_start > height)
 				vert_spec_start = height-10;
 			if (vert_spec_start < 120)

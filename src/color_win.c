@@ -189,9 +189,10 @@ void create_initial_colormaps(void)
 			/*Spring*/   5,  255,  0,255,255, 64,191,255,128,128,255,191, 64,255,255,  0, \
 			/*Summer*/   5,    0,128,102, 64,159,102,128,191,102,191,223,102,255,255,102, \
 			/*Blues*/    5,    0,  1, 18,  3,  6, 83,  6,  4,147, 11, 10,192,  6,  9,251, \
-			/*Winter*/   5,    0,  0,255,  0, 64,223,  0,128,191,  0,191,159,  0,255,128 };
+			/*Winter*/   5,    0,  0,255,  0, 64,223,  0,128,191,  0,191,159,  0,255,128, \
+			/*Greyscale*/5,  128,128,128,160,160,160,192,192,192,224,224,224,255,255,255 };
 
-	gchar * names[] = {"Authors_Favorite","Autumn","Black_n_White","Bone","Cool","Copper", "Default","Fire_Engine_Red","Flag","Green_Screen","Hot","HSV","Inverse_BW","Jet","Pink","Spring","Summer","The_Blues","Winter","NULL"};
+	gchar * names[] = {"Authors_Favorite","Autumn","Black_n_White","Bone","Cool","Copper", "Default","Fire_Engine_Red","Flag","Green_Screen","Hot","HSV","Inverse_BW","Jet","Pink","Spring","Summer","The_Blues","Winter","Greyscale","NULL"};
 
 	/* Setup at least one default one */
 	start->red=30;start->green=0;start->blue=160;

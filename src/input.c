@@ -97,6 +97,7 @@ int open_datasource(DataSource source)
 		ring_rate=ESD_DEFAULT_RATE;
 		update_ring_channels(2);  /* since ESD_STEREO is set */
 		handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"extace");
+		//handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,"localhost","extace");
 		if (handles[i].esd > 0) 
 			handles[i].opened = 1;
 		break;

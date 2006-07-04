@@ -42,6 +42,7 @@ extace_SOURCES = \
 	spike_3d.c \
 	stars.c \
 	vert_specgram.c \
+	vert_specgram2.c \
 	win_func.c
 
 extace_LDADD = @EFENCE@ @PACKAGE_LIBS@ @EXTRA_LIBS@

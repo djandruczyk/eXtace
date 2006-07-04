@@ -32,6 +32,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <vert_specgram.h>
+#include <vert_specgram2.h>
 
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
@@ -383,6 +384,9 @@ recalc:
 			break;
 		case VERT_SPECGRAM:
 			draw_vert_specgram();
+			break;
+		case VERT_SPECGRAM2:
+			draw_vert_specgram2();
 			break;
 		case HORIZ_SPECGRAM:
 			draw_horiz_specgram();

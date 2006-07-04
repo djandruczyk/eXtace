@@ -28,7 +28,8 @@ headers = \
 	spike_3d.h \
 	stars.h \
 	template.h \
-	vert_specgram.h
+	vert_specgram.h \
+	vert_specgram2.h
 
 
 EXTRA_DIST=$(headers)

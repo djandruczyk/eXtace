@@ -142,6 +142,13 @@ int main(int argc, char **argv)
 			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)VERT_SPECGRAM);
 
+	button=gtk_button_new_with_label("Vert Spectrogram2");
+	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+	gtk_tooltips_set_tip(tip, button, "Vertical Spectrogram2", NULL);
+	gtk_signal_connect(GTK_OBJECT(button),"clicked",
+			GTK_SIGNAL_FUNC(change_display_mode),
+			(gpointer)VERT_SPECGRAM2);
+
 	about_button=gtk_button_new_with_label("About");
 	gtk_tooltips_set_tip(tip, about_button, "About eXtace", NULL);
 	gtk_box_pack_start(GTK_BOX(hbox),about_button,TRUE,TRUE,0);

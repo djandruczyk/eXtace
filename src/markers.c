@@ -123,7 +123,7 @@ void update_freq_markers()
 
 		}
 	}
-	else if (mode == VERT_SPECGRAM)
+	else if ((mode == VERT_SPECGRAM) || (mode == VERT_SPECGRAM2))
 	{
 		bord = height-vert_spec_start + 5;
 		if (!clear_display)

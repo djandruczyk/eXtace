@@ -136,6 +136,7 @@ gint configure_event(GtkWidget *widget, GdkEventConfigure *event, gpointer data)
 						clear_display = TRUE;
 						break;
 					case VERT_SPECGRAM:
+					case VERT_SPECGRAM2:
 						if (vert_spec_start < 120)
 							vert_spec_start = 120;
 						if (vert_spec_start > height)
@@ -248,7 +249,8 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 		if ((mode == LAND_3D)||\
 				(mode == SPIKE_3D)||\
 				(mode == HORIZ_SPECGRAM)||\
-				(mode == VERT_SPECGRAM))
+				(mode == VERT_SPECGRAM)||\
+				(mode == VERT_SPECGRAM2))
 
 		{
 			result = test_if_close(x,y);
@@ -291,7 +293,7 @@ gint button_notify_event (GtkWidget *widget, GdkEventButton *event, gpointer dat
 			grad_win_present = 0;
 		}
 	}
-	if ((event->button == 3 ) && ((mode == HORIZ_SPECGRAM) || (mode == VERT_SPECGRAM))) /* If your press button 3 (right one) */
+	if ((event->button == 3 ) && ((mode == HORIZ_SPECGRAM) || (mode == VERT_SPECGRAM) || (mode == VERT_SPECGRAM2))) /* If your press button 3 (right one) */
 	{
 #ifdef DND_DEBUG
 		g_print("BUTTON 3 PRESSED!! running handler\n");
@@ -389,7 +391,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 					{
 						change_spec_start(x);
 					}
-					if (mode == VERT_SPECGRAM)
+					if ((mode == VERT_SPECGRAM) || (mode == VERT_SPECGRAM2))
 					{
 						change_spec_start(y);
 					}
@@ -409,7 +411,7 @@ int test_on_line(int x_fed, int y_fed)
 		if (abs(((width-horiz_spec_start) - x_fed)) < 30)
 			return (ON_THE_LINE);
 	}
-	if (mode == VERT_SPECGRAM)
+	if ((mode == VERT_SPECGRAM) || (mode == VERT_SPECGRAM2))
 	{
 		if (abs(((height-vert_spec_start) - y_fed+40)) < 30)
 			return (ON_THE_LINE);
@@ -506,6 +508,7 @@ int test_if_close(int x_fed, int y_fed)
 				return (CHANGE_SPEC_START);
 			break;
 		case VERT_SPECGRAM:
+		case VERT_SPECGRAM2:
 			if (abs(((height-vert_spec_start) - y_fed+45)) < 27)
 				return (CHANGE_SPEC_START);
 			break;
@@ -529,6 +532,7 @@ void change_spec_start(gint new_pos)
 			break;
 
 		case VERT_SPECGRAM:
+		case VERT_SPECGRAM2:
 			vert_spec_start = height-new_pos+52;
 			if (vert_spec_start < 120)
 				vert_spec_start = 120;

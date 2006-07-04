@@ -123,6 +123,7 @@ typedef enum
 	SPIKE_3D,
 	HORIZ_SPECGRAM,
 	VERT_SPECGRAM,
+	VERT_SPECGRAM2,
 	STARS
 }DisplayMode;
 
