@@ -26,6 +26,7 @@
 #include <gtk/gtk.h>
 #include <math.h>
 #include <markers.h>
+#include <stdlib.h>
 
 
 gint lock_x_at;
