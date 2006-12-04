@@ -41,6 +41,13 @@ void draw_2d_eq()
 	gint bar_start=0;         /* start position for bars on graphic EQ */
 	gint pos = border;
 	gchar *buff;
+	static GdkGC * trail_gc = NULL;
+
+	if (!trail_gc)
+	{
+		trail_gc = gdk_gc_new(main_display->window);
+                gdk_gc_copy(trail_gc,main_display->style->white_gc);
+	}
 
 	active_drawing_area = xdraw_width;
 
@@ -106,6 +113,8 @@ void draw_2d_eq()
 		}
 		cl.pixel=colortab[32][(int)(((float)pos)*((float)MAXBANDS/(float)width))];
 		gdk_gc_set_foreground(gc,&cl);
+		cl.pixel=colortab[64][(int)(((float)pos)*((float)MAXBANDS/(float)width))];
+		gdk_gc_set_foreground(trail_gc,&cl);
 		bar_start = height - border - (((gint)levels[i]*height)/128);
 		peak_spot = height - border - (((gint)trailers[i]*height)/128);
 		gdk_draw_rectangle(main_pixmap,gc,
@@ -116,7 +125,7 @@ void draw_2d_eq()
 		{
 			if (ptrailers[i] > 0)
 			{
-				gdk_draw_rectangle(main_pixmap,gc,
+				gdk_draw_rectangle(main_pixmap,trail_gc,
 						TRUE,
 						pos,peak_spot-seg_height,
 						line_width-1,seg_height);

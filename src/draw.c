@@ -23,6 +23,7 @@
 #include <horiz_specgram.h>
 #include <input_processing.h>
 #include <land_3d.h>
+#include <line_eq.h>
 #include <math.h>
 #include <scope.h>
 #include <spike_3d.h>
@@ -148,7 +149,7 @@ int draw(void)
 		disp_val[(nsamp/2)-1]=0;
 	}
 
-	if ((mode == LAND_3D) || (mode == EQ_2D))
+	if ((mode == LAND_3D) || (mode == EQ_2D) || (mode == LINE_EQ))
 	{
 		/* Gives a "log-like" x axis (for 2D (EQ like analyzer))
 		 * hacking to make it work better with the various displays
@@ -375,6 +376,9 @@ recalc:
 			break;
 		case EQ_2D:
 			draw_2d_eq();
+			break;
+		case LINE_EQ:
+			draw_line_eq();
 			break;
 		case SCOPE:
 			draw_scope();

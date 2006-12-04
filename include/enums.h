@@ -118,6 +118,7 @@ typedef enum
 	LAND_3D,
 	WIRE_3D,
 	FILL_3D,
+	LINE_EQ,
 	EQ_2D,
 	SCOPE,
 	SPIKE_3D,

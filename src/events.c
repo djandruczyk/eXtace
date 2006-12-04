@@ -346,7 +346,7 @@ gint motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer dat
 		state = event->state;
 	}
 
-	if (mode == EQ_2D)
+	if ((mode == EQ_2D) || (mode == LINE_EQ))
 	{
 		int band_num =0;
 		int x_draw_width = width-2*border;

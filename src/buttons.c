@@ -532,6 +532,10 @@ gint change_display_mode(GtkWidget *widget, gpointer data)
 			mode = EQ_2D;
 			enable_dir_win = 0;
 			break;
+		case LINE_EQ:
+			mode = LINE_EQ;
+			enable_dir_win = 0;
+			break;
 		case SCOPE:
 			mode = SCOPE;
 			enable_dir_win = 0;

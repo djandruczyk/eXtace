@@ -618,9 +618,10 @@ void ring_rate_changed()
 	upper = GTK_ADJUSTMENT(lf_adj)->upper;
 	newval = (percentage*(upper-lower)) + lower;
 	/* Reset the value */
-	GTK_ADJUSTMENT(lf_adj)->value = newval;
+//	GTK_ADJUSTMENT(lf_adj)->value = newval;
 
-	low_freq = newval;
+	low_freq = GTK_ADJUSTMENT(lf_adj)->value;
+	//low_freq = newval;
 	/* Store values BEFORE we change the limits... */
 	val = GTK_ADJUSTMENT(hf_adj)->value;
 	lower = GTK_ADJUSTMENT(hf_adj)->lower;
@@ -639,9 +640,10 @@ void ring_rate_changed()
 	lower = GTK_ADJUSTMENT(hf_adj)->lower;
 	upper = GTK_ADJUSTMENT(hf_adj)->upper;
 	newval = (percentage*(upper-lower)) + lower;
-	high_freq = newval;
+//	high_freq = newval;
+	high_freq = GTK_ADJUSTMENT(hf_adj)->value;
 	/* Reset the value */
-	GTK_ADJUSTMENT(hf_adj)->value = newval;
+//	GTK_ADJUSTMENT(hf_adj)->value = newval;
 
 	/* Force the adjustments to update on screen */
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));

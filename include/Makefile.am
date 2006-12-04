@@ -21,6 +21,7 @@ headers = \
 	input.h \
 	input_processing.h \
 	land_3d.h \
+	line_eq.h \
 	markers.h \
 	options.h \
 	reducer.h \

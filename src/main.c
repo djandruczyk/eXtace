@@ -107,12 +107,19 @@ int main(int argc, char **argv)
 			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)FILL_3D);
 
-	button=gtk_button_new_with_label("Graphic EQ");
+	button=gtk_button_new_with_label("Bar EQ");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
-	gtk_tooltips_set_tip(tip, button, "Graphic Equalizer", NULL);
+	gtk_tooltips_set_tip(tip, button, "Bar Style Equalizer", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
 			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)EQ_2D);
+
+	button=gtk_button_new_with_label("Line EQ");
+	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
+	gtk_tooltips_set_tip(tip, button, "Line Style Equalizer", NULL);
+	gtk_signal_connect(GTK_OBJECT(button),"clicked",
+			GTK_SIGNAL_FUNC(change_display_mode),
+			(gpointer)LINE_EQ);
 
 	button=gtk_button_new_with_label("Scope");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
@@ -128,21 +135,21 @@ int main(int argc, char **argv)
 			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)SPIKE_3D);
 
-	button=gtk_button_new_with_label("Horiz Spectrogram");
+	button=gtk_button_new_with_label("H Spectrogram");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Horizontal Spectrogram", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
 			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)HORIZ_SPECGRAM);
 
-	button=gtk_button_new_with_label("Vert Spectrogram");
+	button=gtk_button_new_with_label("V Spectrogram");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Vertical Spectrogram", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",
 			GTK_SIGNAL_FUNC(change_display_mode),
 			(gpointer)VERT_SPECGRAM);
 
-	button=gtk_button_new_with_label("Vert Spectrogram2");
+	button=gtk_button_new_with_label("V Spectrogram2");
 	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
 	gtk_tooltips_set_tip(tip, button, "Vertical Spectrogram2", NULL);
 	gtk_signal_connect(GTK_OBJECT(button),"clicked",

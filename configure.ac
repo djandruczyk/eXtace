@@ -5,11 +5,11 @@ dnl AC_PREREQ(2.54)
 
 EXTACE_MAJOR_VERSION=1
 EXTACE_MINOR_VERSION=9
-EXTACE_MICRO_VERSION=5
+EXTACE_MICRO_VERSION=6
 
 EXTACE_VERSION=$EXTACE_MAJOR_VERSION.$EXTACE_MINOR_VERSION.${EXTACE_MICRO_VERSION}
 
-AM_INIT_AUTOMAKE(extace, 1.9.5)
+AM_INIT_AUTOMAKE(extace, 1.9.6)
 AM_CONFIG_HEADER(config.h)
 
 dnl AM_MAINTAINER_MODE
@@ -20,10 +20,7 @@ dnl =========================================================================
 
 have_fftw3=no
 have_fftw2=no
-have_alsa=no
-have_oss=no
 have_esd=no
-have_comedi=no
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -69,36 +66,6 @@ then
 	AC_DEFINE(HAVE_ESD,1,[Build with Esound input])
 	EXTRA_LIBS="`esd-config --libs` $EXTRA_LIBS "
 fi
-
-dnl
-dnl Check for ALSA library (can also do OSS under emulation)
-dnl
-dnl AC_CHECK_LIB(asound, snd_pcm_open, have_alsa=yes, have_alsa=no) 
-dnl if test "$have_alsa" = "yes"
-dnl then
-dnl    AC_DEFINE(HAVE_ALSA,1,[Build with ALSA input]) 
-dnl    EXTRA_LIBS="-lasound $EXTRA_LIBS "
-dnl fi
-
-dnl
-dnl Check for OSS library
-dnl
-dnl AC_CHECK_HEADER(sys/soundcard.h, have_oss=yes, have_oss=no)
-dnl if test "$have_oss" = "yes"
-dnl then
-dnl 	AC_DEFINE(HAVE_OSS,1,[Build with OSS input])
-dnl fi
-
-dnl
-dnl Check for COMEDI library
-dnl
-dnl AC_CHECK_LIB(comedi, comedi_open, have_comedi=yes, have_comedi=no,[ -lm])
-dnl if test "$have_comedi" = "yes"
-dnl then
-dnl 	AC_DEFINE(HAVE_COMEDI,1,[Build with COMEDI input]) 
-dnl 	EXTRA_LIBS="-lcomedi $EXTRA_LIBS "
-dnl fi
-
 
 dnl fftw3
 dnl
@@ -230,8 +197,5 @@ Configuration:
     Memory Allocation Debugging:	${enable_malloc_debug}
     Profiling:				${enable_profiling}
     ESD Input Support:			${have_esd}
-    ALSA Input Support:			${have_alsa}
-    OSS Input Support:			${have_oss}
-    COMEDI Input Support:		${have_comedi}
 "
 
