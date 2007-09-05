@@ -14,7 +14,6 @@
  * No warranty is made or implied. You use this program at your own risk.
  */
 
-#include <comedi_input.h>
 #include <stdio.h>
 #include <errno.h>
 #include <input.h>
@@ -23,16 +22,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
-#ifdef HAVE_ALSA
-#include <sys/ioctl.h>
-#endif
-
-#ifdef HAVE_COMEDI
-#include <comedilib.h>
-/* With several cards, there would be more than one device 
-   This needs to be fixed. */
-char comedi_data_device[]="/dev/comedi0";
-#endif
 
 #define MAX_HANDLES 4
 static struct {
@@ -40,13 +29,6 @@ static struct {
 	int read_started;  /* read thread has been successfully sarted */
 	/* some devices return pointers, other integers */
 	int esd;
-#ifdef HAVE_ALSA
-	snd_pcm_t *alsa;
-#endif
-#ifdef HAVE_COMEDI
-	comedi_t *dev; 
-	comedi_cmd cmd;
-#endif
 	pthread_t input_thread;
 	DataSource source;
 } handles[MAX_HANDLES];
@@ -71,9 +53,6 @@ float ring_rate=-1;             /* initalize rate to nonsense */
 int open_datasource(DataSource source)
 {
 	int i=0;
-#ifdef HAVE_ALSA
-	snd_pcm_hw_params_t* hwparams;
-#endif
 
 	while(handles[i].opened && i<MAX_HANDLES)i++;
 	if(i==MAX_HANDLES)
@@ -97,185 +76,8 @@ int open_datasource(DataSource source)
 		ring_rate=ESD_DEFAULT_RATE;
 		update_ring_channels(2);  /* since ESD_STEREO is set */
 		handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"extace");
-		//handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,"localhost","extace");
 		if (handles[i].esd > 0) 
 			handles[i].opened = 1;
-		break;
-#endif
-#ifdef HAVE_OSS
-	case OSS:
-		handles[i].esd=open("/dev/dsp",O_RDONLY|O_NONBLOCK,0);
-		if (handles[i].esd < 0){
- 			perror("open /dev/dsp");
-			break; 
-		}
-		
-		/* Copied from xine-lib audio_oss_out.c */
-		/* We wanted non blocking open but now put it back to normal */
-		if( fcntl(handles[i].esd, F_SETFL, 
-			  fcntl(handles[i].esd, F_GETFL)&~O_NONBLOCK) < 0 )
-		{
- 			perror("Can't set non-blocking");
-			close(handles[i].esd);
-			break;
-		}
-
-		tmp=1;  /* stereo */
-		if(ioctl (handles[i].esd, SNDCTL_DSP_STEREO, &tmp) <0)
-		{
-			perror("Can't set stereo");
-			close(handles[i].esd);
-			break;
-		}
-		update_ring_channels(tmp?2:1); 
-
-		/* don't know if I need to set the blocksize with  
-		   SNDCTL_DSP_GETBLKSIZE */
-#if 0 /* don't know if I need to set the fragment size */
-		if (ioctl(handles[i].esd, SNDCTL_DSP_SETFRAGMENT, &fragsize)==-1)
-		{
-			perror("Can't set buffer size");
-			close(handles[i].esd);
-			break;
-		}
-#endif
-		
-		tmp = AFMT_S16_NE;
-		if(ioctl(handles[i].esd, SNDCTL_DSP_SETFMT, &tmp) == -1
-		   || tmp != AFMT_S16_NE)
-		{
-			fprintf(stderr, "Unable to set 2 bytes, returned"
-				" 0x%x !=  0x%x\n  big=0x%x little=0x%x",
-				tmp,AFMT_S16_NE,AFMT_S16_BE,AFMT_S16_LE);
-			close(handles[i].esd);
-			break;
-		}
-		if(8*sizeof(ring_type) != 16)
-		{
-			fprintf(stderr,__FILE__":  ring_type doesn't"
-				" match esound data\n");
-			close(handles[i].esd);
-			return -1;
-		}
-		input_unsigned = FALSE; /*  read signed integers */
-				
-		tmp = 44100;  /* sample rate */
-		if (ioctl (handles[i].esd, SNDCTL_DSP_SPEED, &tmp) == -1)
-		{
-			fprintf (stderr, "Unable to set audio rate %i\n",tmp);
-			close(handles[i].esd);
-			break;
-		}
-		ring_rate=tmp;
-		
-		handles[i].opened = 1;
-		break;
-#endif
-#ifdef HAVE_ALSA
-	case ALSA:
-		if(snd_pcm_open (&handles[i].alsa, "plughw:0,0", 
-				 SND_PCM_STREAM_CAPTURE, SND_PCM_NONBLOCK) < 0)
-		{
-			perror("open plughw:0,0");
-			break;
-		}
-		handles[i].esd = -1;  /* no file descripter */
-
-		if(snd_pcm_nonblock (handles[i].alsa, 0) < 0)
-		{
-			fprintf (stderr, "Unable to set alsa non-blocking\n");
-			break;
-		}
-		
-		snd_pcm_hw_params_alloca(&hwparams);
-		if (snd_pcm_hw_params_any (handles[i].alsa, hwparams) < 0) 
-		{
-			fprintf (stderr, "Unable to set hwparams\n");
-			break;
-		}
-
-		if(snd_pcm_hw_params_set_access (handles[i].alsa, hwparams,
-                                        SND_PCM_ACCESS_RW_INTERLEAVED) < 0) 
-		{
-			fprintf (stderr, "Unable to set interleaved\n");
-			break;
-		}
-
-		if(snd_pcm_hw_params_set_format(handles[i].alsa, hwparams, SND_PCM_FORMAT_S16_LE) < 0)
-		{
-			fprintf (stderr, "Unable to set 2 byte sample\n");
-			break;
-		}
-		if(8*sizeof(ring_type) != 16)
-		{
-				fprintf(stderr,__FILE__":  ring_type doesn't"
-					" match alsa data\n");
-				return -1;
-		}
-		input_unsigned = FALSE; /* read signed integers */
-	
-		tmp=44100; 
-		if((ring_rate=snd_pcm_hw_params_set_rate_near(
-			    handles[i].alsa, hwparams, &tmp, 0)) < 0)
-		{
-			fprintf (stderr, "Unable to set input rate\n");
-			break;
-		}
-		
-		tmp=2;
-		if(snd_pcm_hw_params_set_channels (handles[i].alsa, hwparams,tmp) < 0)
-		{
-			fprintf (stderr, "Unable to set stereo\n");
-			break;
-		}
-		update_ring_channels(tmp);
-
-		/* I have no idea what this is */
-		/* I am guessing that it is the number of channels? */
-		if (snd_pcm_hw_params_set_periods(handles[i].alsa, hwparams,tmp, 0) < 0) 
-		{
-			fprintf (stderr, "Unable to set periods?\n");
-			break;
-		}
-
-		tmp = 2*8192; /* I took this from an example, ?????? */
-		if(snd_pcm_hw_params_set_buffer_size (handles[i].alsa, hwparams, tmp) < 0)
-		{
-			fprintf (stderr, "Unable to set buffer size\n");
-			break;
-		}
-
-		if(snd_pcm_hw_params (handles[i].alsa, hwparams) < 0)
-		{
-			fprintf (stderr, "Unable to set device\n");
-			break;
-		}
-
-		handles[i].opened = 1;
-		break;
-#endif
-#ifdef HAVE_COMEDI
-	case COMEDI:
-		if(sizeof(ring_type) !=sizeof(sampl_t))
-		{
-			fprintf(stderr,__FILE__":  ring_type doesn't"
-				" match sampl_t\n");
-			return -1;
-		}
-		input_unsigned = TRUE; /* Comedi sampl_t is unsigned */
-#ifdef DEBUG  
-		comedi_loglevel(3); /* Set high log level for COMEDI */
-#endif
-		if((handles[i].dev = comedi_open(comedi_data_device)) == NULL)
-			comedi_perror(comedi_data_device);
-		else
-		{
-			handles[i].opened = 1;
-			/* read config file or set default values */
-			if(read_comedi_cmd(&handles[i].cmd,&ring_rate))
-				default_comedi_cmd(handles[i].dev,
-						   &handles[i].cmd,&ring_rate);
-		}
 		break;
 #endif
 	case ARTS:
@@ -320,9 +122,6 @@ int open_datasource(DataSource source)
 int input_thread_starter(int i)
 {
 	int err = -1;  
-#ifdef HAVE_COMEDI
-	int ret;
-#endif
 
 
 	if(i<0 || i>=MAX_HANDLES || !handles[i].opened)
@@ -359,43 +158,6 @@ int input_thread_starter(int i)
 			else
 				handles[i].read_started = 1;
 			break;
-		case OSS:
-		case ALSA:
-			break;
-#ifdef HAVE_COMEDI
-		case COMEDI:
-                        ret = comedi_command_test(handles[i].dev, 
-						  &handles[i].cmd);
-			if(ret != 0){
-				fprintf(stderr,__FILE__ ":  second COMEDI command_test returned %i\n     See kernel system messages (dmesg)\n",ret);
-						
-			}
-			update_ring_channels(handles[i].cmd.chanlist_len);
-			ret = comedi_command(handles[i].dev, &handles[i].cmd);
-			if(ret<0){
-				fprintf(stderr,__FILE__":  comedi_command failed for handle %i.\n    ",i);
-						
-				comedi_perror("comedi_command");
-				break;
-			}
-#if 0 /* maybe later add this */
-			comedi_lock(handles[i].dev,handels[i].subdevice);
-#endif 
-
-			/* start up the reading thread */
-			handles[i].esd=comedi_fileno(handles[i].dev);
-			err = pthread_create(&(handles[i].input_thread),
-					NULL, /*Thread attributes */
-					input_reader_thread,
-					/*args passed to thread */
-					(void *) &(handles[i].esd) 
-					);
-			if (err)
-				fprintf(stderr,__FILE__":  Error attempting to create COMEDI input thread\n");
-			else
-				handles[i].read_started = 1;
-			break;
-#endif
 		case ARTS:
 		case GSTREAMER:
 		case JACK:
@@ -426,30 +188,10 @@ int input_thread_stopper(int i)
 	switch (handles[i].source)
 	{
 		case ESD:
-		case OSS:
 			err=pthread_cancel(handles[i].input_thread);
 			if(err == ESRCH)
 				fprintf(stderr,"       Thread for input could not be found\n");
 			break;
-		case ALSA:
-			break;
-#ifdef HAVE_COMEDI
-		case COMEDI:
-			err=pthread_cancel(handles[i].input_thread);
-			if(err == ESRCH)
-				fprintf(stderr,__FILE__":  Thread for input could not be found.\n");
-
-#if 0 /* maybe later add this */
-			comedi_unlock(handles[i].dev,handles[i].cmd.subdev);
-#endif
-			err=comedi_cancel(handles[i].dev,
-					  handles[i].cmd.subdev);
-			if(err){
-				fprintf(stderr,__FILE__":  comedi_cancel failed\n    ");
-				comedi_perror("comedi_cancel");
-			}
-			break;
-#endif
 		case ARTS:
 		case GSTREAMER:
 		case JACK:
@@ -482,32 +224,6 @@ int close_datasource(int i)
 #ifdef HAVE_ESD
 		case ESD:
 			err=esd_close(handles[i].esd);
-			handles[i].opened=0;
-			break;
-#endif
-#ifdef HAVE_OSS
-		case OSS:
-			err=close(handles[i].esd);
-			handles[i].opened=0;
-			break;
-#endif
-#ifdef HAVE_ALSA
-		case ALSA:
-			err=snd_pcm_close(handles[i].alsa);
-			handles[i].opened=0;
-			break;
-#endif
-#ifdef HAVE_COMEDI
-		case COMEDI:
-			write_comedi_cmd(&handles[i].cmd,ring_rate);
-			/* free memory used by handle */
-			free_comedi_cmd(&handles[i].cmd);
-			err=comedi_close(handles[i].dev);
-			if(err)
-			{
-				fprintf(stderr,__FILE__":  comedi_close failed\n    ");
-				comedi_perror("comedi_close");
-			}
 			handles[i].opened=0;
 			break;
 #endif
@@ -572,6 +288,7 @@ void *input_reader_thread(void *input_handle)
 			count = read(source,ringbuffer+ring_pos,to_get);
 			if(count < 0)
 			{
+				continue;
 				fprintf(stderr,__FILE__":  input read error, count=%i invalid.\n          ",count);
 				perror("input_reader_thread");
 				exit (-3);
@@ -680,20 +397,3 @@ void error_close_cb(GtkWidget *widget, gpointer *data)
 	gtk_widget_destroy(errbox);
 }
 
-#ifdef HAVE_COMEDI
-comedi_t *comedi_dev_pointer(int i)
-{
-	if(handles[i].opened)
-		return handles[i].dev;
-	else
-		return NULL;
-}
-
-comedi_cmd *comedi_cmd_pointer(int i)
-{
-	if(handles[i].opened)
-		return &handles[i].cmd;
-	else
-		return NULL;
-}
-#endif

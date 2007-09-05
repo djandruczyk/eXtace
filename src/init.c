@@ -76,7 +76,6 @@ void init()
 
 	data_handle = -1;  /* initialize to empty handle */
 	data_source = ESD;
-	comedi_window_open = TRUE;  /* open comedi control window */
 
 	scope_zoom = 1.0;	/* normal zoom, (none) */
 	refresh_rate = 34;	/* 34 frames per sec */
@@ -214,8 +213,6 @@ void read_config(void)
 		  if(cfg_read_int(cfgfile, "Global", "data_source", &i))
 		  data_source=i;
 		}
-		cfg_read_int(cfgfile, "Global", "comedi_window_open", 
-			     &comedi_window_open);
 		cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
 		cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
 		cfg_read_float(cfgfile, "Global", "scope_zoom", &scope_zoom);
@@ -299,7 +296,6 @@ void save_config(GtkWidget *widget)
 		cfg_write_string(cfgfile, "Global", "last_colormap",g_strconcat(g_get_home_dir(),"/.eXtace/ColorMaps/","Default",NULL));
 	cfg_write_int(cfgfile, "Global", "mode", mode);
 	cfg_write_int(cfgfile, "Global", "data_source", data_source);
-	cfg_write_int(cfgfile, "Global", "comedi_window_open", comedi_window_open);
 	cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
 	cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
 	cfg_write_float(cfgfile, "Global", "scope_zoom", scope_zoom);

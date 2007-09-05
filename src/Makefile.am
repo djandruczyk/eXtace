@@ -21,8 +21,6 @@ extace_SOURCES = \
 	2d_eq.c \
 	buttons.c \
 	color_win.c \
-	comedi_input.c \
-	comedi_window.c \
 	configfile.c \
 	convolve.c \
 	dir.c \

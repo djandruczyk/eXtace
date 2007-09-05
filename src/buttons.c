@@ -27,7 +27,6 @@
 #include <logo.xpm>
 #include <markers.h>
 #include <input.h>
-#include <comedi_window.h>
 #include <stars.h>
 #include <unistd.h>
 
@@ -167,13 +166,6 @@ gint set_data_source(GtkWidget *widget, gpointer data)
   
   if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
     draw_stop();
-    if(data_source == COMEDI && comedi_window_open){
-	    /* temporarily close comedi control window */
-	    gtk_toggle_button_set_active(
-		    GTK_TOGGLE_BUTTON(comedi_button), 
-		    FALSE);
-	    comedi_window_open=TRUE;  /* reopen when comedi is chosen later */
-    }
     input_thread_stopper(data_handle);
     close_datasource(data_handle);
 
@@ -194,54 +186,10 @@ gint set_data_source(GtkWidget *widget, gpointer data)
 	      draw_start();
       }
 
-    if(comedi_button)  /* make sure it is defined */
-    {
-	    gtk_widget_set_sensitive(comedi_button,data_source == COMEDI);
-	    if(data_source == COMEDI)
-		    gtk_toggle_button_set_active(
-			    GTK_TOGGLE_BUTTON(comedi_button),
-			    comedi_window_open);
-    }
   }
   return TRUE;
 }
 
-gint comedi_window_close(GtkWidget *widget, gpointer *data)
-{
-	gtk_toggle_button_set_active(
-		GTK_TOGGLE_BUTTON(comedi_button),
-		FALSE
-		);	   
-	return TRUE;
-}
-
-gint comedi_control_window_toggle(GtkWidget *widget, gpointer *data)
-{ 
-	static GtkWidget *ww;
-
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget))) /* its pressed */
-	{
-		ww=comedi_device_control_open(data_handle);
-		gtk_signal_connect(GTK_OBJECT(ww),"delete_event",
-				   GTK_SIGNAL_FUNC(comedi_window_close),
-				   NULL);
-		gtk_signal_connect(GTK_OBJECT(ww),"destroy_event",
-				   GTK_SIGNAL_FUNC(comedi_window_close),
-				   NULL);
-
-		gtk_label_set_text(GTK_LABEL(GTK_BIN(widget)->child),
-						"Close control window");
-		comedi_window_open = TRUE;
-	}
-	else
-	{
-		gtk_widget_destroy(ww);
-		gtk_label_set_text(GTK_LABEL(GTK_BIN(widget)->child),
-						"Open control window");
-		comedi_window_open = FALSE;
-	}
-	return TRUE;
-}
 
 gint set_window_width(GtkWidget *widget, gpointer data)
 {

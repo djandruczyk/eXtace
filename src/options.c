@@ -157,62 +157,6 @@ int setup_options()
 			   GINT_TO_POINTER(ESD));
 #endif
 
-#if defined(HAVE_OSS) && defined(EXPERIMENTAL)
-	button = gtk_radio_button_new_with_label(group, "Use OSS (experimental)");
-        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
-	if (data_source == OSS)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			   GTK_SIGNAL_FUNC(set_data_source),
-			   GINT_TO_POINTER(OSS));
-#endif
-
-#if defined(HAVE_ALSA) && defined(EXPERIMENTAL)
-	button = gtk_radio_button_new_with_label(group, "Use ALSA (experimental)");
-        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
-	if (data_source == ALSA)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			   GTK_SIGNAL_FUNC(set_data_source),
-			   GINT_TO_POINTER(ALSA));
-#endif
-
-#ifdef HAVE_COMEDI
-	hbox = gtk_hbox_new(FALSE,0);
-	button = gtk_radio_button_new_with_label(group, "Use COMEDI");
-        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	gtk_box_pack_start(GTK_BOX(hbox),button,TRUE,TRUE,0);
-	if (data_source == COMEDI)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			   GTK_SIGNAL_FUNC(set_data_source),
-			   GINT_TO_POINTER(COMEDI));
-	if(comedi_window_open)
-		comedi_button = gtk_toggle_button_new_with_label("Close control window");
-	else
-		comedi_button = gtk_toggle_button_new_with_label("Open control window");
-	gtk_widget_set_sensitive(comedi_button,data_source == COMEDI);
-	gtk_box_pack_start(GTK_BOX(hbox),comedi_button,TRUE,TRUE,0);
-	gtk_signal_connect(GTK_OBJECT(comedi_button),"toggled",
-			GTK_SIGNAL_FUNC(comedi_control_window_toggle),NULL);
-	gtk_container_add(GTK_CONTAINER(sub_vbox), hbox);
-#else
-	comedi_button = NULL;
-#endif
-
-#if defined(HAVE_ARTS) && defined(DEBUG)
-	button = gtk_radio_button_new_with_label(group, "Use ARTS (experimental)");
-        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
-	if (data_source == ARTS)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			   GTK_SIGNAL_FUNC(set_data_source),
-			   GINT_TO_POINTER(ARTS));
-#endif
-
 	gtk_widget_show_all(vbox);
 	
 	/*  END of General Options Tab (Options Panel) */
