@@ -86,12 +86,6 @@ typedef enum
 typedef enum
 {
 	ESD,
-        OSS,
-	ALSA,
-	COMEDI,
-	ARTS,
-	GSTREAMER,
-	JACK
 }DataSource;
 
 typedef enum

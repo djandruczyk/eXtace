@@ -377,9 +377,9 @@ recalc:
 		case EQ_2D:
 			draw_2d_eq();
 			break;
-		case LINE_EQ:
-			draw_line_eq();
-			break;
+//		case LINE_EQ:
+//			draw_line_eq();
+//			break;
 		case SCOPE:
 			draw_scope();
 			break;

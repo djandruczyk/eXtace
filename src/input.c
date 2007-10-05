@@ -75,14 +75,11 @@ int open_datasource(DataSource source)
 			/* esd rate is rate for each channel */
 		ring_rate=ESD_DEFAULT_RATE;
 		update_ring_channels(2);  /* since ESD_STEREO is set */
-		handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"extace");
+		handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"eXtace");
 		if (handles[i].esd > 0) 
 			handles[i].opened = 1;
 		break;
 #endif
-	case ARTS:
-	case GSTREAMER:
-	case JACK:
 	default:
 		fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't open.\n");
 		break;
@@ -158,9 +155,6 @@ int input_thread_starter(int i)
 			else
 				handles[i].read_started = 1;
 			break;
-		case ARTS:
-		case GSTREAMER:
-		case JACK:
 		default:
 			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't start thread.\n");
 					
@@ -192,9 +186,6 @@ int input_thread_stopper(int i)
 			if(err == ESRCH)
 				fprintf(stderr,"       Thread for input could not be found\n");
 			break;
-		case ARTS:
-		case GSTREAMER:
-		case JACK:
 		default:
 			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't stop thread.\n");
 					
@@ -227,9 +218,6 @@ int close_datasource(int i)
 			handles[i].opened=0;
 			break;
 #endif
-		case ARTS:
-		case GSTREAMER:
-		case JACK:
 		default:
 			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't close.\n");
 					
