@@ -23,11 +23,14 @@
 /* See globals.h for variable declarations and DEFINES */
 static gint i=0;
 static gint j=0;
+static gint idx=0;
 static gint height_per_scope=0;
 static gint scope_pos_l=0;
 static gint scope_pos_r=0;
-static gint left_val=0;
-static gint right_val=0;
+static gint l_val=0;
+static gint r_val=0;
+static gfloat left_val=0.0;
+static gfloat right_val=0.0;
 static gint lo_width=0;
 static gint max=0;
 static gint right_scope_pos=0;
@@ -38,8 +41,8 @@ static gint right_scope_pos=0;
 	 */
 static GdkPoint	l_scope_points[2048];
 static GdkPoint	r_scope_points[2048];
-static gint top;
-static gint bottom;
+//static gint top;
+//static gint bottom;
 gfloat left_amplitude;
 gfloat right_amplitude;
 extern gint scope_sync_source;
@@ -51,18 +54,18 @@ void draw_scope()
 	lo_width = (width < nsamp) ? width : nsamp;
 	height_per_scope = height/4;
 
-		top = (height/4 - 128);
-		if (top < 0)
-			top = 0;
-		bottom = (height-(height/4))+127;
-		if (bottom > height);
-		bottom = height;
+//		top = (height/4 - 128);
+//		if (top < 0)
+//			top = 0;
+//		bottom = (height-(height/4))+127;
+//		if (bottom > height);
+//		bottom = height;
 
 	gdk_threads_enter();
 		gdk_draw_rectangle(main_pixmap,
 				main_display->style->black_gc,
-				TRUE, 0,top,
-				width,bottom);
+				TRUE, 0,0,
+				width,height);
 
 	if ((!stabilized) || (nsamp <=1024))
 	{
@@ -85,8 +88,9 @@ void draw_scope()
 	}
 	if (show_graticule)
 	{
-		max = (height_per_scope < 128) ? height_per_scope : 128;
-		for (i=0;i<=max;i+=32)
+		//max = (height_per_scope < 128) ? height_per_scope : 128;
+		max = height/4;
+		for (i=0;i<=max;i+=height/16)
 		{
 
 			gdk_draw_line(main_pixmap,graticule_gc,\
@@ -110,7 +114,7 @@ void draw_scope()
 					width,\
 					height_per_scope-i);
 		}
-		i-=32;
+		i-=height/16;
 
 		for (j=0;j<width/2;j+=32)
 		{
@@ -150,24 +154,14 @@ void draw_scope()
 		if (scope_pos_r > nsamp)
 			printf("scope_pos_right OVERFLOW!!!!\n");
 
-		left_val=(gint)(audio_left[scope_pos_l]*left_amplitude);
+		left_val = audio_left[scope_pos_l]/left_amplitude;
 
-		right_val=(gint)(audio_right[scope_pos_r]*right_amplitude);
-
-		if (left_val < -127)
-			left_val = -127;
-		else if (left_val > 127)
-			left_val = 127;
-
-		if (right_val < -127)
-			right_val = -127;
-		else if (right_val > 127)
-			right_val = 127;
+		right_val = audio_right[scope_pos_r]/right_amplitude;
 
 		l_scope_points[i].x = i*scope_zoom;
-		l_scope_points[i].y = height_per_scope+left_val;
+		l_scope_points[i].y = height_per_scope+(left_val*height/4);
 		r_scope_points[i].x = i*scope_zoom;
-		r_scope_points[i].y = height-height_per_scope+right_val;
+		r_scope_points[i].y = height-height_per_scope+(right_val*height/4);
 	}
 	switch ((ScopeMode)scope_sub_mode)
 	{
@@ -202,48 +196,54 @@ void draw_scope()
 			for(i=0;i<(int)((float)lo_width/scope_zoom);i++)
 			{
 
-				left_val = l_scope_points[i].y\
+				l_val = l_scope_points[i].y\
 					-height_per_scope;
-				right_val = r_scope_points[i].y\
+				r_val = r_scope_points[i].y\
 					+height_per_scope-height;
-				if (left_val == 0)
-					left_val++;
-				if (right_val == 0)
-					right_val++;
 				if (left_val < 0) /* Negative signal */
 				{
+					idx = (gint)(-left_val*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
-							grad[left_val+127],\
+							grad[idx],\
 							0,0,\
 							i*scope_zoom,l_scope_points[i].y,\
-							1*scope_zoom,-left_val);
+							1*scope_zoom,-l_val);
 				}
 				else	/* Positive Signal (left channel)*/
 				{
+					/*
+					idx = (gint)(left_val*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
-							grad[left_val+127],\
+							grad[idx],\
 							0,0,\
 							i*scope_zoom,height_per_scope,\
-							1*scope_zoom,left_val);
+							1*scope_zoom,l_val);
+							*/
 				}
 
 				if (right_val < 0) /*Negative Signal */
 				{
+					/*
+					idx = (gint)(-right_val*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
-							grad[right_val+127],\
+							grad[idx],\
 							0,0,\
-							i*scope_zoom,right_scope_pos\
-							+right_val,\
+							i*scope_zoom,r_scope_points[i].y,\
+							
 							1*scope_zoom,\
-							-right_val);
+							-r_val);
+							*/
 				}
 				else /* Positive Signal */
 				{
+					/*
+					idx = (gint)(right_val*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
-							grad[right_val+127],\
+							grad[idx],\
 							0,0,\
 							i*scope_zoom,right_scope_pos,\
-							1*scope_zoom,right_val);
+							1*scope_zoom,r_val);
+							*/
 				}
 
 			}

@@ -23,15 +23,14 @@
 #include <unistd.h>
 #include <sys/time.h>
 
-#define MAX_HANDLES 4
 static struct {
-	int opened;        /* device has been successfully opened */
+	int open;        /* device has been successfully opened */
 	int read_started;  /* read thread has been successfully sarted */
 	/* some devices return pointers, other integers */
-	int esd;
+	int fd;
 	pthread_t input_thread;
 	DataSource source;
-} handles[MAX_HANDLES];
+} handle;
 
 static GtkWidget *errbox;
 static int errorbox_up =0;
@@ -54,13 +53,6 @@ int open_datasource(DataSource source)
 {
 	int i=0;
 
-	while(handles[i].opened && i<MAX_HANDLES)i++;
-	if(i==MAX_HANDLES)
-	{
-		fprintf(stderr,__FILE__":  Error! Ran out of handles\n");
-		return -1;
-	}
-
 	switch (source)
 	{
 #ifdef HAVE_ESD
@@ -75,9 +67,9 @@ int open_datasource(DataSource source)
 			/* esd rate is rate for each channel */
 		ring_rate=ESD_DEFAULT_RATE;
 		update_ring_channels(2);  /* since ESD_STEREO is set */
-		handles[i].esd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_MONITOR,ring_rate,NULL,"eXtace");
-		if (handles[i].esd > 0) 
-			handles[i].opened = 1;
+		handle.fd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_RECORD,ring_rate,"127.0.0.1","eXtace");
+		if (handle.fd > 0) 
+			handle.open = 1;
 		break;
 #endif
 	default:
@@ -85,10 +77,10 @@ int open_datasource(DataSource source)
 		break;
 	}
 	
-	if (handles[i].opened)
+	if (handle.open)
 	{
-		handles[i].source=source;
-		handles[i].read_started = 0;
+		handle.source=source;
+		handle.read_started = 0;
 		return i;
 	}
 	
@@ -121,14 +113,7 @@ int input_thread_starter(int i)
 	int err = -1;  
 
 
-	if(i<0 || i>=MAX_HANDLES || !handles[i].opened)
-	{
-		fprintf(stderr,__FILE__": Invalid handle %i in input_thread_starter,  opened=%i\n",i,handles[i].opened);
-				
-		return -1;
-	}
-
-	if (handles[i].read_started)  /* This should not happen */
+	if (handle.read_started)  /* This should not happen */
 	{
 		fprintf(stderr,__FILE__"Error, input reader thread already running!!\n");
 		return -1;
@@ -142,18 +127,18 @@ int input_thread_starter(int i)
 	   it pretty well already.
 	 */
 
-	switch (handles[i].source)
+	switch (handle.source)
 	{
 		case ESD:
-			err = pthread_create(&(handles[i].input_thread),
+			err = pthread_create(&(handle.input_thread),
 					NULL, /*Thread attributes */
 					input_reader_thread,
-					(void *) &handles[i].esd /*args passed to thread */
+					(void *) &handle.fd /*args passed to thread */
 					);
 			if (err)
 				fprintf(stderr,__FILE__":  Error attempting to create input thread\n");
 			else
-				handles[i].read_started = 1;
+				handle.read_started = 1;
 			break;
 		default:
 			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't start thread.\n");
@@ -171,18 +156,18 @@ int input_thread_stopper(int i)
 	int err = -1;
 
 	/* error for stopping without starting */
-	if (i<0 || i>=MAX_HANDLES || !handles[i].opened || !handles[i].read_started)
+	if ( !handle.open || !handle.read_started)
 	{ 
 #if DEBUG 
-		fprintf(stderr,__FILE__":  Error stopping thread, handle=%i\n",i);
+		fprintf(stderr,__FILE__":  Error stopping thread\n");
 #endif
 		return -1;  
 	}
 
-	switch (handles[i].source)
+	switch (handle.source)
 	{
 		case ESD:
-			err=pthread_cancel(handles[i].input_thread);
+			err=pthread_cancel(handle.input_thread);
 			if(err == ESRCH)
 				fprintf(stderr,"       Thread for input could not be found\n");
 			break;
@@ -193,7 +178,7 @@ int input_thread_stopper(int i)
 	}
 
 
-	handles[i].read_started = 0;
+	handle.read_started = 0;
 	return err;
 }
 
@@ -202,20 +187,20 @@ int close_datasource(int i)
 	int err=-1;
 
 	/* error for stopping without starting */
-	if(i<0 || i>=MAX_HANDLES || !handles[i].opened) 
+	if(!handle.open) 
 	{
 #if DEBUG /* debug */
-		fprintf(stderr,__FILE__":  Error closing thread, handle=%i\n",i);
+		fprintf(stderr,__FILE__":  Error closing thread\n");
 #endif
 		return -1; 
 	}
 
-	switch(handles[i].source)
+	switch(handle.source)
 	{
 #ifdef HAVE_ESD
 		case ESD:
-			err=esd_close(handles[i].esd);
-			handles[i].opened=0;
+			err=esd_close(handle.fd);
+			handle.open=0;
 			break;
 #endif
 		default:
@@ -271,6 +256,7 @@ void *input_reader_thread(void *input_handle)
 		res = poll(&ufds,1,timeo);
 		if (res)  /* Data Arrived */
 		{
+
 			to_get = (ring_end-ring_pos)*sizeof(ring_type)-ring_remainder;
 			//printf("requesting %i bytes at %p\n",to_get,ringbuffer+ring_pos);
 			count = read(source,ringbuffer+ring_pos,to_get);

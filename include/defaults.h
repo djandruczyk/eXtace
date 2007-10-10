@@ -21,10 +21,10 @@ const float	noise_floor_min = -160.0;
 const float	noise_floor_max = 100.0;
 const float	multiplier_min = 1.0;	/* Sensivity max allowed */
 const float	multiplier_max = 100.0;	/* Sensivity max allowed */
-const float	bar_decay_max = 20.0;
-const float	peak_hold_max = 20.0;
-const float	peak_decay_max = 20.0;
-const float	refresh_max = 85.0;
+const float	bar_decay_max = 35.0;
+const float	peak_hold_max = 35.0;
+const float	peak_decay_max = 35.0;
+const float	refresh_max = 86.0;
 const float	tape_scroll_max = 12.0;
 
 #endif

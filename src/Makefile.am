@@ -32,6 +32,7 @@ extace_SOURCES = \
 	input.c \
 	input_processing.c \
 	land3d.c \
+	line_eq.c \
 	main.c \
 	markers.c \
 	options.c \

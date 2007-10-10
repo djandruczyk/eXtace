@@ -79,8 +79,8 @@ void init()
 
 	scope_zoom = 1.0;	/* normal zoom, (none) */
 	refresh_rate = 34;	/* 34 frames per sec */
-	left_amplitude = 127.0/32768.0; /* Scaler for something */
-	right_amplitude = 127.0/32768.0; /* Scaler for something */
+	left_amplitude = 32768.0; /* Scaler for something */
+	right_amplitude = 32768.0; /* Scaler for something */
 	fft_signal_source = LEFT_PLUS_RIGHT;/* signal input source for fft */
 	landflip = FALSE;	/* Flip 3D axis over */
 	spikeflip = FALSE;	/* Flip 3D axis over */
