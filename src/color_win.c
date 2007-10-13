@@ -536,15 +536,15 @@ void init_colortab()
 	w=MAXBANDS;
 	h=im->rgb_height;
 
-	for(i=128;i<256;i++)
+	for(i=0;i<=127;i++)
 	{
-		gdk_imlib_render(im,1,i-127);
+		gdk_imlib_render(im,1,128-i);
 		grad[i]=gdk_imlib_move_image(im);
 	}
 	gdk_imlib_flip_image_vertical(im);
-	for(i=0;i<127;i++)
+	for(i=128;i<256;i++)
 	{
-		gdk_imlib_render(im,1,127-i);
+		gdk_imlib_render(im,1,i-127);
 		grad[i]=gdk_imlib_move_image(im);
 	}
 	colortab_ready = 1;

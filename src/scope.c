@@ -200,31 +200,29 @@ void draw_scope()
 					-height_per_scope;
 				r_val = r_scope_points[i].y\
 					+height_per_scope-height;
-				if (left_val < 0) /* Negative signal */
+				if (l_val < 0) /* Negative signal */
 				{
-					idx = (gint)(-left_val*127);
+					idx = 127-(gint)((-l_val/(height/4.0))*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
-							i*scope_zoom,l_scope_points[i].y,\
+							i*scope_zoom,l_scope_points[i].y,
 							1*scope_zoom,-l_val);
 				}
 				else	/* Positive Signal (left channel)*/
 				{
-					/*
-					idx = (gint)(left_val*127);
+					
+					idx = 127+(gint)((l_val/(height/4.0))*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
 							i*scope_zoom,height_per_scope,\
 							1*scope_zoom,l_val);
-							*/
 				}
 
-				if (right_val < 0) /*Negative Signal */
+				if (r_val < 0) //Negative Signal 
 				{
-					/*
-					idx = (gint)(-right_val*127);
+					idx = 127-(gint)((-r_val/(height/4.0))*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
@@ -232,18 +230,15 @@ void draw_scope()
 							
 							1*scope_zoom,\
 							-r_val);
-							*/
 				}
-				else /* Positive Signal */
+				else // Positive Signal 
 				{
-					/*
-					idx = (gint)(right_val*127);
+					idx = 127+(gint)((r_val/(height/4.0))*127);
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
 							i*scope_zoom,right_scope_pos,\
 							1*scope_zoom,r_val);
-							*/
 				}
 
 			}
