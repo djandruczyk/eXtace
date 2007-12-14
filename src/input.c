@@ -86,23 +86,21 @@ int open_datasource(DataSource source)
 	
 	/* The rest is error handling */
 
-	GtkWidget *label;
 	if (errorbox_up)
 		return(-1); /* ERROR window already onscreen */
-	errbox = gtk_window_new(GTK_WINDOW_DIALOG);
 
-	gtk_window_set_title(GTK_WINDOW(errbox),"ERROR!!!");
-	label = gtk_label_new(
-		"Error, Cannot connect to input source!!\n"
-		"PLease check settings in the options panel.\n");
-	gtk_container_add(GTK_CONTAINER(errbox), label);
-	gtk_widget_show_all(errbox);
+	errbox = gtk_message_dialog_new(NULL,GTK_DIALOG_DESTROY_WITH_PARENT,
+			GTK_MESSAGE_ERROR,GTK_BUTTONS_OK,
+			"Error, Cannot connect to input source!!\nPLease check settings in the options panel.\n");
 
-	gtk_signal_connect(GTK_OBJECT(errbox), "delete_event",
-			GTK_SIGNAL_FUNC(error_close_cb), NULL);
-	gtk_signal_connect(GTK_OBJECT(errbox), "destroy_event",
-			GTK_SIGNAL_FUNC(error_close_cb), NULL);
-	errorbox_up = 1;
+
+	gtk_dialog_run(GTK_DIALOG(errbox));
+	gtk_widget_destroy(errbox);
+//	gtk_signal_connect(GTK_OBJECT(errbox), "delete_event",
+//			GTK_SIGNAL_FUNC(error_close_cb), NULL);
+//	gtk_signal_connect(GTK_OBJECT(errbox), "destroy_event",
+//			GTK_SIGNAL_FUNC(error_close_cb), NULL);
+//	errorbox_up = 1;
 
 	return -1;  /*error return */
 }

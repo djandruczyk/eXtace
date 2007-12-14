@@ -31,18 +31,18 @@
 /* See globals.h for variable declarations and DEFINES */
 GtkWidget *grad_disp;
 GtkWidget *colorseldlg;
-GdkImlibImage *im;
+GdkPixbuf *im;
 gint colortab_ready = 0;
 gint grad_x_origin;
 gint grad_y_origin;
 gint selection_open = 0;
+static GdkColor colors[MAXBANDS];
+GdkColormap * colormap = NULL;
 
 gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
 
-	gdouble colsel_colors[3];
 	gint handled = FALSE;
-
 
 	/* Check if we've received a button pressed event */
 
@@ -50,16 +50,8 @@ gint color_event (GtkWidget *widget, GdkEventButton *event, gpointer data)
 	{
 		/* where did the user press the button */
 		color_loc = widget->allocation.height - event->y;
-		colsel_colors[0] = cr[color_loc]/256.0;
-		colsel_colors[1] = cg[color_loc]/256.0;
-		colsel_colors[2] = cb[color_loc]/256.0;
-
-
 		/* Set the color in the selction dialog to wherever we clicked */
-
-		gtk_color_selection_set_color (GTK_COLOR_SELECTION(colorseldlg),colsel_colors);
-
-
+		gtk_color_selection_set_current_color (GTK_COLOR_SELECTION(colorseldlg),&colors[color_loc]);
 	}
 
 	return handled;
@@ -469,16 +461,19 @@ void init_colortab()
 {
 	/* this DOES NOT WORK RIGHT yet... */
 
-	gint i,ii,j;
+	gint i,j,k;
 	gint w, h;
 	gint r,g,b;
 	gint divisor;
 	gint amount;
 	gushort this_red,this_green,this_blue,next_red,next_green,next_blue;
+	gboolean success[MAXBANDS];
 	unsigned char *data;
 
 	j=0;
 
+	//colormap = gdk_colormap_new(gdk_visual_get_system(),FALSE);
+	colormap = gdk_colormap_get_system();
 	/* This section is ONLY valid if all points are evenly spaced in the map */
 	/* divisor is the number of times we need to run thru the interpolator
 	 * to "fill in the blanks" betwwne steps for a smooth gradient
@@ -488,19 +483,19 @@ void init_colortab()
 	divisor = Color_map.steps-1;
 	for (i=0;i<divisor;i++)
 	{
-		this_red=Color_map.triplets[(i*3)+0];
-		this_green=Color_map.triplets[(i*3)+1];
-		this_blue=Color_map.triplets[(i*3)+2];
+		this_red=(256*(1+Color_map.triplets[(i*3)+0]))-1;
+		this_green=(256*(1+Color_map.triplets[(i*3)+1]))-1;
+		this_blue=(256*(1+Color_map.triplets[(i*3)+2]))-1;
 
-		next_red=Color_map.triplets[((i+1)*3)+0];
-		next_green=Color_map.triplets[((i+1)*3)+1];
-		next_blue=Color_map.triplets[((i+1)*3)+2];
+		next_red=(256*(1+Color_map.triplets[((i+1)*3)+0]))-1;
+		next_green=(256*(1+Color_map.triplets[((i+1)*3)+1]))-1;
+		next_blue=(256*(1+Color_map.triplets[((i+1)*3)+2]))-1;
 		amount = (gint)(1.0/(Color_map.locations[i+1]-Color_map.locations[i]));
-		for(ii=0;ii<(MAXBANDS/amount);ii++)
+		for(k=0;k<(MAXBANDS/amount);k++)
 		{
-			cr[j]=(((((MAXBANDS/amount)-1)-ii)*this_red)+(ii*next_red))/((MAXBANDS/amount)-1);
-			cg[j]=(((((MAXBANDS/amount)-1)-ii)*this_green)+(ii*next_green))/((MAXBANDS/amount)-1);
-			cb[j]=(((((MAXBANDS/amount)-1)-ii)*this_blue)+(ii*next_blue))/((MAXBANDS/amount)-1);
+			colors[j].red = (((((MAXBANDS/amount)-1)-k)*this_red)+(k*next_red))/((MAXBANDS/amount)-1);
+			colors[j].green = (((((MAXBANDS/amount)-1)-k)*this_green)+(k*next_green))/((MAXBANDS/amount)-1);
+			colors[j].blue = (((((MAXBANDS/amount)-1)-k)*this_blue)+(k*next_blue))/((MAXBANDS/amount)-1);
 			j++;
 		}
 	}
@@ -511,18 +506,22 @@ void init_colortab()
 	{
 		for(j=0;j<MAXBANDS;j++)
 		{
-			r=cr[j]+((i-16)*2);
-			g=cg[j]+((i-16)*2);
-			b=cb[j]+((i-16)*2);
+			r=colors[j].red+(256*((i-16)*2));
+			g=colors[j].green+(256*((i-16)*2));
+			b=colors[j].blue+(256*((i-16)*2));
 			if (r < 0) r=0;
-			else if (r > 255) r=255;
+			else if (r > 65535) r=65535;
 			if (g < 0) g=0;
-			else if (g > 255) g=255;
+			else if (g > 65535) g=65535;
 			if (b < 0) b=0;
-			else if (b > 255) b=255;
-			colortab[i][j]=gdk_imlib_best_color_match(&r,&g,&b);
+			else if (b > 65535) b=65535;
+			colortab[i][j].red = r;
+			colortab[i][j].green = g;
+			colortab[i][j].blue = b;
 		}
+		gdk_colormap_alloc_colors(colormap,colortab[i],MAXBANDS,TRUE,TRUE,success);
 	}
+	/*
 	data=malloc(MAXBANDS*3);
 	memset((void *)data, 0, MAXBANDS*3);
 	for(i=0;i<MAXBANDS;i++)
@@ -531,10 +530,10 @@ void init_colortab()
 		data[(i*3)+1]=cg[i];
 		data[(i*3)+2]=cb[i];
 	}
-	im=gdk_imlib_create_image_from_data(data,NULL,1,MAXBANDS);
+	im=gdk_pixbuf_new_from_data(data,GDK_COLORSPACE_RGB,FALSE,8,MAXBANDS,MAXBANDS,MAXBANDS,NULL,NULL);
 	g_free(data);
 	w=MAXBANDS;
-	h=im->rgb_height;
+	h=MAXBANDS;
 
 	for(i=0;i<=127;i++)
 	{
@@ -547,6 +546,7 @@ void init_colortab()
 		gdk_imlib_render(im,1,i-127);
 		grad[i]=gdk_imlib_move_image(im);
 	}
+	*/
 	colortab_ready = 1;
 }
 
@@ -663,8 +663,8 @@ void gradient_update()
 		{
 			init_colortab();
 		}
-		gdk_imlib_render(im,w,h);
-		grad_pixmap=gdk_imlib_move_image(im);
+//		gdk_imlib_render(im,w,h);
+//		grad_pixmap=gdk_imlib_move_image(im);
 
 		gdk_window_set_back_pixmap(grad_disp->window,grad_pixmap,0);
 

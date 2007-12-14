@@ -26,37 +26,30 @@
 
 void buffer_area_update(void)
 {
-	gchar buff[60];
-	gint x;
+	extern PangoLayout *layout;
+	extern PangoFontDescription *font_desc;
+	PangoRectangle ink_rect;
+	PangoRectangle log_rect;
 
-	g_snprintf(buff,60,"Incoming audio position in buffer");
-	x = gdk_text_width(buffer_area->style->font,
-			buff,
-			strlen(buff))/2;
-	gdk_draw_text(buffer_pixmap,buffer_area->style->font,
-			buffer_area->style->white_gc,
-			buffer_area->allocation.width/2-x,12,
-			buff,
-			strlen(buff));
+	gchar *buff;
 
-	g_snprintf(buff,60,"Position in Audio Buffer when DRAWING");
-	x = gdk_text_width(buffer_area->style->font,
-			buff,
-			strlen(buff))/2;
-	gdk_draw_text(buffer_pixmap,buffer_area->style->font,
-			buffer_area->style->white_gc,
-			buffer_area->allocation.width/2-x,57,
-			buff,
-			strlen(buff));
-	g_snprintf(buff,60,"Incoming audio position in buffer");
-	x = gdk_text_width(buffer_area->style->font,
-			buff,
-			strlen(buff))/2;
-	gdk_draw_text(buffer_pixmap,buffer_area->style->font,
-			buffer_area->style->white_gc,
-			buffer_area->allocation.width/2-x,12,
-			buff,
-			strlen(buff));
+	buff = g_strdup("Incoming audio position in buffer");
+	pango_layout_set_font_description(layout,font_desc);
+	pango_layout_set_text(layout,buff,-1);
+        pango_layout_get_pixel_extents(layout,&ink_rect,&log_rect);
+	gdk_draw_layout(buffer_pixmap,buffer_area->style->white_gc,
+			buffer_area->allocation.width/2-(log_rect.width/2),
+			2,layout);
+	g_free(buff);
+
+
+	buff = g_strdup("Position in Audio Buffer when DRAWING");
+	pango_layout_set_text(layout,buff,-1);
+        pango_layout_get_pixel_extents(layout,&ink_rect,&log_rect);
+	gdk_draw_layout(buffer_pixmap,buffer_area->style->white_gc,
+			buffer_area->allocation.width/2-(log_rect.width/2),
+			47,layout);
+	g_free(buff);
 }
 
 void update_freq_markers()
@@ -70,7 +63,12 @@ void update_freq_markers()
 	const gint pixels_per_hmarker = 60;
 	extern gint ready;
 	gfloat freq_mark;
-	gchar buff[10];
+	gchar *buff;
+	extern PangoLayout *layout;
+	extern PangoFontDescription *font_desc;
+	PangoRectangle ink_rect;
+	PangoRectangle log_rect;
+	pango_layout_set_font_description(layout,font_desc);
 
 	if(!ready)
 		return;
@@ -107,19 +105,18 @@ void update_freq_markers()
 			freq_mark = (((float)(num_markers-i)/(float)num_markers)*(high_freq-low_freq))+(low_freq/1);
 
 			if (freq_mark > 1000)
-				g_snprintf(buff,10,"%.1f Khz",freq_mark/1000.0);
+				buff = g_strdup_printf("%.1f Khz",freq_mark/1000.0);
 			else
-				g_snprintf(buff,10,"%.1f Hz",freq_mark);
+				buff = g_strdup_printf("%.1f Hz",freq_mark);
 			
 			x2 += 3;
-			y2 += gdk_text_height(main_display->style->font,
-					buff,
-					strlen(buff))/2;
-			gdk_draw_text(main_pixmap,main_display->style->font,
+			pango_layout_set_text(layout,buff,-1);
+       			pango_layout_get_pixel_extents(layout,&ink_rect,&log_rect);
+			y2 -= log_rect.height/2;
+			gdk_draw_layout(main_pixmap,
 					main_display->style->white_gc,
-					x2,y2,
-					buff,
-					strlen(buff));
+					x2,y2,layout);
+			g_free(buff);
 
 		}
 	}
@@ -147,21 +144,19 @@ void update_freq_markers()
 
 			freq_mark = (((float)i/(float)num_markers)*(high_freq-low_freq))+low_freq;
 			if (freq_mark > 1000)
-				g_snprintf(buff,10,"%.1f Khz",freq_mark/1000.0);
+				buff = g_strdup_printf("%.1f Khz",freq_mark/1000.0);
 			else
-				g_snprintf(buff,10,"%.1f Hz",freq_mark);
+				buff = g_strdup_printf("%.1f Hz",freq_mark);
 			x2 -= 16;
-			y2 = y1+l_length + 2*gdk_text_height(main_display->\
-					style->font,
-					buff,
-					strlen(buff));
-			gdk_draw_text(main_pixmap,main_display->style->font,
+			pango_layout_set_text(layout,buff,-1);
+       			pango_layout_get_pixel_extents(layout,&ink_rect,&log_rect);
+			y2 = y1+l_length + log_rect.height/2;
+
+			gdk_draw_layout(main_pixmap,
 					main_display->style->white_gc,
-					x2,y2,
-					buff,
-					strlen(buff));
-			y2 += gdk_text_height(main_display->style->font,
-					buff,strlen(buff));
+					x2,y2,layout);
+			g_free(buff);
+			y2 += 1.5*log_rect.height;
 			gdk_draw_line(main_pixmap,main_display->style->white_gc,
 					x1,y2,x1,y2+l_length);
 

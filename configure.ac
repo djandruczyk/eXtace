@@ -34,10 +34,10 @@ AC_CHECK_HEADERS(asm/errno.h drfftw.h esd.h fcntl.h math.h pthread.h  rfftw.h st
 
 
 dnl 
-dnl check for gtk, imlibgdk, gthread
+dnl check for gtk, gthread
 dnl
 
-pkg_modules="gtk+ imlibgdk gthread"
+pkg_modules="gtk+-2.0 pango gthread-2.0"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)

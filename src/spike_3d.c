@@ -237,8 +237,7 @@ void draw_spike_3d()
 		else if (lvl <= 0)
 			lvl = 0;
 
-		cl.pixel=colortab[16][lvl];
-		gdk_gc_set_foreground(gc,&cl);
+		gdk_gc_set_foreground(gc,&colortab[16][lvl]);
 
 		gdk_draw_line(main_pixmap,gc,\
 				pt[0].x,\

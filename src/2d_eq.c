@@ -22,7 +22,6 @@
 
 /* See globals.h for variable declarations and DEFINES */
 static gint i=0;
-static GdkColor cl;
 gint seg_height;     /* height per segment in 2d spectrum analyzer */
 gint seg_space;      /* space between segments in 2d analyzer */
 static gint maxlevel;
@@ -42,6 +41,10 @@ void draw_2d_eq()
 	gint pos = border;
 	gchar *buff;
 	static GdkGC * trail_gc = NULL;
+	extern PangoLayout *layout;
+	extern PangoFontDescription *font_desc;
+	PangoRectangle ink_rect;
+	PangoRectangle log_rect;
 
 	if (!trail_gc)
 	{
@@ -89,10 +92,6 @@ void draw_2d_eq()
 
 	gdk_threads_enter();
 
-	//gdk_draw_rectangle(main_pixmap,
-	//		main_display->style->black_gc,
-	//		TRUE, 0,height-maxlevel,
-	//		width,maxlevel);
 	gdk_draw_rectangle(main_pixmap,
 			main_display->style->black_gc,
 			TRUE, 0,0,
@@ -111,10 +110,9 @@ void draw_2d_eq()
 		{
 			line_width = lwidth;
 		}
-		cl.pixel=colortab[32][(int)(((float)pos)*((float)MAXBANDS/(float)width))];
-		gdk_gc_set_foreground(gc,&cl);
-		cl.pixel=colortab[64][(int)(((float)pos)*((float)MAXBANDS/(float)width))];
-		gdk_gc_set_foreground(trail_gc,&cl);
+		gdk_gc_set_foreground(gc,&colortab[32][(int)(((float)pos)*((float)MAXBANDS/(float)width))]);
+		gdk_gc_set_foreground(trail_gc,&colortab[64][(int)(((float)pos)*((float)MAXBANDS/(float)width))]);
+
 		bar_start = height - border - (((gint)levels[i]*height)/128);
 		peak_spot = height - border - (((gint)trailers[i]*height)/128);
 		gdk_draw_rectangle(main_pixmap,gc,
@@ -148,15 +146,16 @@ void draw_2d_eq()
 			xdraw_width*0.33,10);
 
 	buff = g_strdup_printf("%.2f hertz", freq_at_pointer);
-	gdk_draw_text(main_pixmap,main_display->style->font,
-			main_display->style->white_gc,
-			xdraw_width*.66,10,
-			buff,
-			strlen(buff));
+	pango_layout_set_font_description(layout,font_desc);
+	pango_layout_set_text(layout,buff,-1);
+	pango_layout_get_pixel_extents(layout,&ink_rect,&log_rect);
+	gdk_draw_layout(main_pixmap,main_display->style->white_gc,
+			xdraw_width*.66,10,layout);
 	g_free(buff);
 
-
+	/* Area freq display text */
+	gdk_window_clear_area(main_display->window,xdraw_width*0.66,10,xdraw_width*0.33,log_rect.height);
+	/* Main area, only clear up to what's necessary for speed */
 	gdk_window_clear_area(main_display->window,0,height-maxlevel,width,maxlevel);
-	gdk_window_clear_area(main_display->window,xdraw_width*0.66,0,xdraw_width*0.33,10);
 	gdk_threads_leave();
 }

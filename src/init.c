@@ -22,6 +22,7 @@
 #include <enums.h>
 #include <fcntl.h>
 #include <globals.h>
+#include <gtk/gtk.h>
 #include <init.h>
 #include <math.h>
 #include <input.h>
@@ -60,6 +61,8 @@ extern gfloat right_amplitude;
 extern GtkObject *lf_adj;
 extern GtkObject *hf_adj;
 extern GtkObject *lag_adj;
+PangoLayout *layout = NULL;
+PangoFontDescription *font_desc = NULL;
 
 void init()
 {
@@ -73,6 +76,11 @@ void init()
 	   These are still needed in case
            default file is missing or incomplete.
 	 */
+
+	/* Pango text bullshit */
+	layout = pango_layout_new(gdk_pango_context_get());
+	font_desc = pango_font_description_from_string("sans");
+	pango_font_description_set_size(font_desc,(8)*PANGO_SCALE);
 
 	data_handle = -1;  /* initialize to empty handle */
 	data_source = ESD;

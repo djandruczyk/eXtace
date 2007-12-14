@@ -71,7 +71,7 @@ gint 		decimation_factor; /* for sub hertz resolution */
 gint 		lag;		/* delay between getting audio and displaying */
 gint   		width;		/* Main window width */
 gint   		height;		/* Main window height */
-gint  		colortab[MAXBANDS][MAXBANDS];/* ugly, statically allocated to up to MAXBANDS bands */
+GdkColor	colortab[MAXBANDS][MAXBANDS];/* ugly, statically allocated to up to MAXBANDS bands */
 gint		mode;		/* What display mode are we in */
 gint		bar_decay_speed;/* ONLY works with bar_decay "on" (TRUE) */
 gint		peak_decay_speed;/* ONLY works with peak_decay "on" (TRUE) */
@@ -89,9 +89,6 @@ gint		display_markers;/* Are markers showing? */
 gint		vert_spec_start;/* where vert spectram starts(abs) */
 gint		horiz_spec_start;/* where horiz spectram starts(abs) */
 gint		color_loc;	/* pixel location in color gradient for color mapper */
-gint		cr[MAXBANDS];
-gint		cg[MAXBANDS];
-gint		cb[MAXBANDS];
 gint		scope_sub_mode;	/* Dot, line or gradient sub mode  */
 gint		sub_mode_3D;	/* sub mode for 3D modes */
 gint		scope_begin_l;	/* Begining point in buffer for scope */

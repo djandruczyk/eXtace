@@ -66,8 +66,7 @@ void draw_vert_specgram2()
 
 	reducer(low_freq, high_freq, active_drawing_area);
 
-	cl.pixel=colortab[16][0];
-	gdk_gc_set_foreground(gc,&cl);
+	gdk_gc_set_foreground(gc,&colortab[16][0]);
 	gdk_draw_rectangle(main_pixmap,gc,
 			TRUE,
 			border,
@@ -86,9 +85,7 @@ void draw_vert_specgram2()
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
 
-		cl.pixel=colortab[16][lvl];
-
-		gdk_gc_set_foreground(gc,&cl);
+		gdk_gc_set_foreground(gc,&colortab[16][lvl]);
 
 		gdk_draw_line(main_pixmap,gc,
 				i+border,

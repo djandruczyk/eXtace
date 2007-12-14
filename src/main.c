@@ -46,7 +46,6 @@ int main(int argc, char **argv)
 
 	g_thread_init(NULL);
 	gtk_init(&argc, &argv);
-	gdk_imlib_init();
 
 	init();		/* initialize all global variables */
 	make_extace_dirs();	/* make conf dir if it doesn't exist */
@@ -54,9 +53,6 @@ int main(int argc, char **argv)
 	mem_alloc();	/* Alloate memory for the buffers */
 	create_initial_colormaps();	/* Create colormaps if you don't have em */
 	read_colormap(Color_map.filename);
-
-	gtk_widget_push_visual(gdk_imlib_get_visual());
-	gtk_widget_push_colormap(gdk_imlib_get_colormap());
 
 	main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_widget_set_uposition(main_window, main_x_origin, main_y_origin);
@@ -196,7 +192,7 @@ int main(int argc, char **argv)
 	gdk_window_set_back_pixmap(main_display->window,main_pixmap,0);
 	gtk_tooltips_set_tip(tip,main_display, "The middle button will get you the color picker", NULL);
 
-	dir_win = gtk_window_new(GTK_WINDOW_DIALOG);
+	dir_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	dir_win_ptr = dir_win;
 	gtk_window_set_title(GTK_WINDOW(dir_win),"Direction");
 	gtk_widget_set_usize(dir_win,dir_width,dir_height);

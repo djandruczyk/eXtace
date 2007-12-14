@@ -342,8 +342,7 @@ void draw_land3d_forward()
 
 		if (br<0) br=0;
 		else if (br > (MAXBANDS-1)) br= (MAXBANDS-1);
-		cl.pixel=colortab[br][lvl];
-		gdk_gc_set_foreground(gc,&cl);
+		gdk_gc_set_foreground(gc,&colortab[br][lvl]);
 
 		/* Variables for black outline on the displays */
 
@@ -543,8 +542,7 @@ void draw_land3d_reverse()
 
 		if (br<0) br=0;
 		else if (br > (MAXBANDS-1)) br= (MAXBANDS-1);
-		cl.pixel=colortab[br][lvl];
-		gdk_gc_set_foreground(gc,&cl);
+		gdk_gc_set_foreground(gc,&colortab[br][lvl]);
 
 		lpt[0].x=pt[1].x+(gint)levels[i]*x_amplitude;
 		lpt[0].y=pt[1].y+(gint)levels[i]*y_amplitude;

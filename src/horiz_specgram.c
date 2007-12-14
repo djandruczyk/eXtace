@@ -51,8 +51,7 @@ void draw_horiz_specgram()
 		lvl=(gint)pip_arr[i]*4;
 		if (lvl > (MAXBANDS-1))
 			lvl=(MAXBANDS-1);
-		cl.pixel=colortab[16][lvl];
-		gdk_gc_set_foreground(gc,&cl);
+		gdk_gc_set_foreground(gc,&colortab[16][lvl]);
 
 		gdk_draw_line(main_pixmap,gc,
 				width-horiz_spec_start-tape_scroll, 
