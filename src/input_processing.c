@@ -349,7 +349,7 @@ void split_and_decimate()
 			wrap = 0;	
 		}
 		// Only draw it if its visible.  Why waste CPU time ??? 
-		gdk_threads_enter();
+//		gdk_threads_enter();
 
 		gdk_draw_rectangle(buffer_pixmap,buffer_area->style->black_gc,\
 				TRUE,\
@@ -381,7 +381,7 @@ void split_and_decimate()
 			*((float)end_offset/(float)ring_end);
 
 		gdk_window_clear(buffer_area->window);
-		gdk_threads_leave();
+//		gdk_threads_leave();
 	}
 
 

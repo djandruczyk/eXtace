@@ -44,7 +44,10 @@ int main(int argc, char **argv)
 	extern gint main_x_origin;
 	extern gint main_y_origin;
 
-	g_thread_init(NULL);
+	if(!g_thread_supported())
+                g_thread_init(NULL);
+	gdk_threads_init();
+	gdk_threads_enter();
 	gtk_init(&argc, &argv);
 
 	init();		/* initialize all global variables */
@@ -275,7 +278,6 @@ int main(int argc, char **argv)
 	ready = 1;		/* All set */
 	ring_rate_changed();
 
-	gdk_threads_enter();
 	gtk_main();
 	gdk_threads_leave();
 	return 0;
