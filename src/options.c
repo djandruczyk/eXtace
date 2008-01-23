@@ -335,8 +335,10 @@ int setup_options()
 	gtk_signal_connect(GTK_OBJECT (button), "clicked",
 			GTK_SIGNAL_FUNC (scope_mode),
 			   GINT_TO_POINTER(GRAD_SCOPE));
-	if (scope_sub_mode == GRAD_SCOPE)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	//if (scope_sub_mode == GRAD_SCOPE)
+//		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	gtk_widget_set_sensitive(GTK_WIDGET(button),FALSE);
+
 
 	group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
 	button = gtk_radio_button_new_with_label(group, "Dot Scope");
