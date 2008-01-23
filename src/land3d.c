@@ -28,7 +28,6 @@ static GdkPoint cap_pt[4];
 static GdkPoint oldpt[4];
 static GdkPoint lpt[4];
 static gint br,lvl;
-static GdkColor cl;
 static gfloat land_axis_angle_deg = 0.0;
 static gfloat dir_angle_rad = 0.0;
 static gfloat dir_angle_deg = 0.0;

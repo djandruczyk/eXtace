@@ -39,7 +39,6 @@ static gint start_y = 0;
 static gint end_y = 0;
 static gint axis_length=0;
 static GdkPoint pt[4];
-static GdkColor cl;
 static gint lvl;
 static gint x_draw_width = 0;
 static gint y_draw_height = 0;

@@ -23,7 +23,6 @@
 
 /* See globals.h for variable declarations and DEFINES */
 static gint i=0;
-static GdkColor cl;
 static gint lvl;
 
 

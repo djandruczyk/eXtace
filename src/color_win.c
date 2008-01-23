@@ -462,13 +462,12 @@ void init_colortab()
 	/* this DOES NOT WORK RIGHT yet... */
 
 	gint i,j,k;
-	gint w, h;
 	gint r,g,b;
 	gint divisor;
 	gint amount;
 	gushort this_red,this_green,this_blue,next_red,next_green,next_blue;
 	gboolean success[MAXBANDS];
-	unsigned char *data;
+	//unsigned char *data;
 
 	j=0;
 
