@@ -17,7 +17,6 @@
 
 #include <gtk/gtk.h>
 #include <gdk/gdkx.h>
-#include <gdk_imlib.h>
 #include <sys/time.h>
 #include <convolve.h>
 #include <config.h>
