@@ -86,7 +86,10 @@ void draw_stop()
 }
 int draw(void)
 {
-	gint i,j,k,x;
+	gint i = 0;
+	gint j = 0;
+	gint k = 0;
+	gint x = 0;
 	/*	Used for frame per sec debugging 
 		gint elapsed_time_sec=0;
 		gint elapsed_time_usec=0;
