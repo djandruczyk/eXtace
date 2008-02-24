@@ -21,15 +21,6 @@
 #ifdef HAVE_ESD
 #include <esd.h>
 #endif
-#ifdef HAVE_ALSA
-#include <alsa/asoundlib.h>
-#endif
-#ifdef HAVE_OSS
-#include <sys/soundcard.h>
-#endif
-#ifdef HAVE_COMEDI
-#include <comedilib.h>
-#endif
 #ifdef HAVE_PTHREAD_H
 #include <pthread.h>
 #endif
@@ -76,14 +67,11 @@ GdkGC         *latency_monitor_gc; /* Graphics context for Arc in dircontrol */
 int input_thread_starter(int );
 int input_thread_stopper(int );
 void *input_reader_thread(void *);
+void *pa_input_reader_thread(void *);
 int open_datasource(DataSource );
 int close_datasource(int );
 int update_ring_channels(int );
 void error_close_cb(GtkWidget *, gpointer * );
-#ifdef HAVE_COMEDI
-comedi_t *comedi_dev_pointer(int handle);
-comedi_cmd *comedi_cmd_pointer(int handle);
-#endif
 /* Prototypes */
 
 #endif

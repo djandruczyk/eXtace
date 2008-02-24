@@ -157,6 +157,17 @@ int setup_options()
 			   GINT_TO_POINTER(ESD));
 #endif
 
+#ifdef HAVE_PULSEAUDIO
+	button = gtk_radio_button_new_with_label(group, "Use PulseAudio");
+        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
+	if (data_source == PULSEAUDIO)
+		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
+	gtk_signal_connect(GTK_OBJECT(button),"toggled",
+			   GTK_SIGNAL_FUNC(set_data_source),
+			   GINT_TO_POINTER(PULSEAUDIO));
+#endif
+
 	gtk_widget_show_all(vbox);
 	
 	/*  END of General Options Tab (Options Panel) */

@@ -22,6 +22,10 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/time.h>
+#ifdef HAVE_PULSEAUDIO
+#include <pulse/simple.h>
+#include <pulse/error.h>
+#endif
 
 static struct {
 	int open;        /* device has been successfully opened */
@@ -34,6 +38,9 @@ static struct {
 
 static GtkWidget *errbox;
 static int errorbox_up =0;
+#ifdef HAVE_PULSEAUDIO
+static pa_simple *s = NULL;
+#endif
 gint tag;		/* Used by gdk_input_* */
 
 /*--- globals to this file */
@@ -52,29 +59,50 @@ float ring_rate=-1;             /* initalize rate to nonsense */
 int open_datasource(DataSource source)
 {
 	int i=0;
+	int error = 0;
+	if(sizeof(ring_type) !=sizeof(short))
+	{
+		fprintf(stderr,__FILE__":  ring_type doesn't"
+			" match esound data\n");
+		return -1;
+	}
 
 	switch (source)
 	{
 #ifdef HAVE_ESD
-	case ESD:
-		if(sizeof(ring_type) !=sizeof(short))
-		{
-			fprintf(stderr,__FILE__":  ring_type doesn't"
-				" match esound data\n");
-			return -1;
-		}
-		input_unsigned = FALSE; /* esd gives signed integers */
+		case ESD:
+			input_unsigned = FALSE; /* esd gives signed integers */
 			/* esd rate is rate for each channel */
-		ring_rate=ESD_DEFAULT_RATE;
-		update_ring_channels(2);  /* since ESD_STEREO is set */
-		handle.fd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_RECORD,ring_rate,"127.0.0.1","eXtace");
-		if (handle.fd > 0) 
-			handle.open = 1;
-		break;
+			ring_rate=ESD_DEFAULT_RATE;
+			update_ring_channels(2);  /* since ESD_STEREO is set */
+			handle.fd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_RECORD,ring_rate,"127.0.0.1","eXtace");
+			if (handle.fd > 0) 
+				handle.open = 1;
+			break;
 #endif
-	default:
-		fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't open.\n");
-		break;
+#ifdef HAVE_PULSEAUDIO
+		case PULSEAUDIO:
+			input_unsigned = FALSE; /* esd gives signed integers */
+			/* esd rate is rate for each channel */
+			ring_rate=ESD_DEFAULT_RATE;
+			update_ring_channels(2);  /* since ESD_STEREO is set */
+			static const pa_sample_spec ss = {
+				.format = PA_SAMPLE_S16NE,
+				.rate = 44100,
+				.channels = 2
+			};
+			/* Create the recording stream */
+			if (!(s = pa_simple_new(NULL, "eXtace", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error)))
+				fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
+			else
+				handle.open = 1;
+			break;
+
+#endif
+
+		default:
+			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't open.\n");
+			break;
 	}
 	
 	if (handle.open)
@@ -138,6 +166,19 @@ int input_thread_starter(int i)
 			else
 				handle.read_started = 1;
 			break;
+#ifdef HAVE_PULSEAUDIO
+		case PULSEAUDIO:
+			err = pthread_create(&(handle.input_thread),
+					NULL, /*Thread attributes */
+					pa_input_reader_thread,
+					(void *) &s /*args passed to thread */
+					);
+			if (err)
+				fprintf(stderr,__FILE__":  Error attempting to create input thread\n");
+			else
+				handle.read_started = 1;
+			break;
+#endif
 		default:
 			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't start thread.\n");
 					
@@ -169,12 +210,20 @@ int input_thread_stopper(int i)
 			if(err == ESRCH)
 				fprintf(stderr,"       Thread for input could not be found\n");
 			break;
+#ifdef HAVE_PULSEAUDIO
+		case PULSEAUDIO:
+			err = pthread_cancel(handle.input_thread);
+			if(err == ESRCH)
+				fprintf(stderr,"       Thread for input could not be found\n");
+			err = pthread_join(handle.input_thread,NULL);
+			break;
+#endif
+
 		default:
 			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't stop thread.\n");
 					
 			break;
 	}
-
 
 	handle.read_started = 0;
 	return err;
@@ -199,6 +248,11 @@ int close_datasource(int i)
 		case ESD:
 			err=esd_close(handle.fd);
 			handle.open=0;
+			break;
+#endif
+#ifdef HAVE_PULSEAUDIO
+		case PULSEAUDIO:
+			/* For some reason pa_simple_free() hangs */
 			break;
 #endif
 		default:
@@ -226,7 +280,7 @@ void *input_reader_thread(void *input_handle)
 	gint timeo = 100; /* wait 100ms max before timeout */
 	gint res = -1;
 	gint to_get = 0;
-     
+
 	/* adjust position in ring buffer to be on first channel */
 	ring_pos -= ring_pos%ring_channels;
 	ring_remainder=0;
@@ -243,13 +297,12 @@ void *input_reader_thread(void *input_handle)
 	   Using mmap instead of read would greatly improve speed.
 
 	   In OSS and COMEDI, one can find/set the size of the data buffer.
-	 */
+	   */
 
 	fcntl(source,F_SETFL,O_NONBLOCK); /* Set source to non block I/O */
-	
-	do
+
+	while (TRUE)
 	{
-		/* in linux, there are no automatic test points yet */
 		pthread_testcancel();
 		res = poll(&ufds,1,timeo);
 		if (res)  /* Data Arrived */
@@ -289,52 +342,122 @@ void *input_reader_thread(void *input_handle)
 #if 0  /* debug prints */
 			printf("Moved %i elements of input data\n",count);
 			printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
-					 
+
 #endif
 		}
 		pthread_testcancel();
 
 		/* draw markers in control window "buffer_area" */
-   
+
 		if (buffer_area && gdk_window_is_visible(buffer_area->window))
 		{
 			gdk_threads_enter();
 			gdk_draw_rectangle(buffer_pixmap,
-					   buffer_area->style->black_gc,TRUE,
-					   last_marker, 20,
-					   2,15);
-			
+					buffer_area->style->black_gc,TRUE,
+					last_marker, 20,
+					2,15);
+
 			last_marker=(float)buffer_area->allocation.width
 				*(float)ring_pos/(float)ring_end;
-			
+
 			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-					   TRUE,
-					   last_marker, 20,
-						   2,15);
-			
+					TRUE,
+					last_marker, 20,
+					2,15);
+
 			gdk_window_clear(buffer_area->window);
 			gdk_flush();
 			gdk_threads_leave();
 		}
-		
-
-	}while(TRUE);
-	
+	}
 }
 
-#if 0
-			to_get = (ring_end-ring_pos)/handels[i].channels;
-			count = snd_pcm_readi(source,ringbuffer+ring_pos,to_get);
-			
-			if(count < 0)
-			{
-				fprintf(stderr,__FILE__":  ALSA input read error, count=%i invalid.\n          ",count);
-				exit (-3);
-			}
-			if (count == to_get) /* We read to the end of the ring */
-				ring_pos = 0;
-			else
-				ring_pos += count*handels[i].channels;
+
+#ifdef HAVE_PULSEAUDIO
+void *pa_input_reader_thread(void *input_handle)
+{
+	static gint last_marker=0;
+	static struct timeval input_arrival_last;
+	gint count = 0;
+	gint req = 0;
+	gint result = 0;
+	gint error = 0;
+	gint to_get = 0;
+
+	/* adjust position in ring buffer to be on first channel */
+	ring_pos -= ring_pos%ring_channels;
+	ring_remainder=0;
+	//printf("ring_pos is %p endpoint is %p\n",ringbuffer+ring_pos,ringbuffer+ring_end);
+
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+
+	do
+	{
+		pthread_testcancel();
+		to_get = (ring_end-ring_pos)*sizeof(ring_type)-ring_remainder;
+		req = to_get < 22050 ? to_get:22050;
+		//printf("requesting %i bytes at %p\n",to_get,ringbuffer+ring_pos);
+		result = pa_simple_read(s,ringbuffer+ring_pos,req,&error);
+		if(result < 0)
+		{
+			fprintf(stderr,__FILE__":  input read error, Code: %s, \n          ",pa_strerror(error));
+
+			exit (-3);
+		}
+		count = req;
+//		printf("received %i BYTES\n",count);
+		/* include partial samples from previous read */
+		count += ring_remainder;
+		if (count == to_get) /* We read to the end of the ring */
+		{
+			//printf("We read to the end of the ring\n");
+			ring_pos = 0;
+			ring_remainder=0;
+		}
+		else
+		{
+			//printf("not at the end yet \n");
+			ring_pos += count/sizeof(ring_type);
+			ring_remainder = count%sizeof(ring_type);
+			//printf("ring_position is %p, ring remainder is %i\n",ringbuffer+ring_pos,ring_remainder);
+		}
+
+		/* use in debug print */
+		input_arrival_last = input_arrival; 
+		gettimeofday(&input_arrival, NULL);
+
+#if 0  /* debug prints */
+		printf("Moved %i elements of input data\n",count);
+		printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
+
+#endif
+		pthread_testcancel();
+
+		/* draw markers in control window "buffer_area" */
+
+		if (buffer_area && gdk_window_is_visible(buffer_area->window))
+		{
+			gdk_threads_enter();
+			gdk_draw_rectangle(buffer_pixmap,
+					buffer_area->style->black_gc,TRUE,
+					last_marker, 20,
+					2,15);
+
+			last_marker=(float)buffer_area->allocation.width
+				*(float)ring_pos/(float)ring_end;
+
+			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
+					TRUE,
+					last_marker, 20,
+					2,15);
+
+			gdk_window_clear(buffer_area->window);
+			gdk_flush();
+			gdk_threads_leave();
+		}
+	}while(TRUE);
+}
 #endif
 
 
@@ -343,7 +466,6 @@ void *input_reader_thread(void *input_handle)
   If not, increase length slightly.
   Returns zero on success.
 */
-
 int update_ring_channels(int new)
 {
 	int remainder;

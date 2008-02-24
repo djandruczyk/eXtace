@@ -21,6 +21,7 @@ dnl =========================================================================
 have_fftw3=no
 have_fftw2=no
 have_esd=no
+have_pulseaudio=no
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -37,7 +38,7 @@ dnl
 dnl check for gtk, gthread
 dnl
 
-pkg_modules="gtk+-2.0 pango gthread-2.0"
+pkg_modules="gtk+-2.0 pango gthread-2.0 libpulse-simple"
 PKG_CHECK_MODULES(PACKAGE, [$pkg_modules])
 AC_SUBST(PACKAGE_CFLAGS)
 AC_SUBST(PACKAGE_LIBS)
@@ -65,6 +66,15 @@ if test "$have_esd" = "yes"
 then
 	AC_DEFINE(HAVE_ESD,1,[Build with Esound input])
 	EXTRA_LIBS="`esd-config --libs` $EXTRA_LIBS "
+fi
+
+dnl
+dnl Check for pulseaudio simple library 
+dnl
+AC_CHECK_LIB(pulse-simple, pa_simple_new,have_pulseaudio=yes,have_pulseaudio=no,[`pkg-config --cflags --libs libpulse-simple`]) 
+if test "$have_pulseaudio" = "yes"
+then
+	AC_DEFINE(HAVE_PULSEAUDIO,1,[Build with PulseAudio input])
 fi
 
 dnl fftw3
@@ -197,5 +207,6 @@ Configuration:
     Memory Allocation Debugging:	${enable_malloc_debug}
     Profiling:				${enable_profiling}
     ESD Input Support:			${have_esd}
+    PulseAudio Input Support:		${have_pulseaudio}
 "
 

@@ -42,6 +42,9 @@
 /* Define to 1 if you have the <pthread.h> header file. */
 #undef HAVE_PTHREAD_H
 
+/* Build with PulseAudio input */
+#undef HAVE_PULSEAUDIO
+
 /* Define to 1 if you have the <rfftw.h> header file. */
 #undef HAVE_RFFTW_H
 

@@ -86,6 +86,7 @@ typedef enum
 typedef enum
 {
 	ESD,
+	PULSEAUDIO,
 }DataSource;
 
 typedef enum
