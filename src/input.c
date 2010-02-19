@@ -59,6 +59,7 @@ float ring_rate=-1;             /* initalize rate to nonsense */
 int open_datasource(DataSource source)
 {
 	int i=0;
+	gchar * tmpbuf = NULL;
 	int error = 0;
 	if(sizeof(ring_type) !=sizeof(short))
 	{
@@ -92,10 +93,12 @@ int open_datasource(DataSource source)
 				.channels = 2
 			};
 			/* Create the recording stream */
-			if (!(s = pa_simple_new(NULL, "eXtace", PA_STREAM_RECORD, NULL, "record", &ss, NULL, NULL, &error)))
+			tmpbuf = g_strdup_printf("eXtace_%i",getpid());
+			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, NULL, tmpbuf, &ss, NULL, NULL, &error)))
 				fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
 			else
 				handle.open = 1;
+			g_free(tmpbuf);
 			break;
 
 #endif
@@ -216,6 +219,7 @@ int input_thread_stopper(int i)
 			if(err == ESRCH)
 				fprintf(stderr,"       Thread for input could not be found\n");
 			err = pthread_join(handle.input_thread,NULL);
+			pa_simple_drain(s,&err);
 			break;
 #endif
 
@@ -253,6 +257,7 @@ int close_datasource(int i)
 #ifdef HAVE_PULSEAUDIO
 		case PULSEAUDIO:
 			/* For some reason pa_simple_free() hangs */
+			//pa_simple_free(s);
 			break;
 #endif
 		default:
@@ -396,7 +401,7 @@ void *pa_input_reader_thread(void *input_handle)
 	{
 		pthread_testcancel();
 		to_get = (ring_end-ring_pos)*sizeof(ring_type)-ring_remainder;
-		req = to_get < 22050 ? to_get:22050;
+		req = to_get < 10000 ? to_get:10000;
 		//printf("requesting %i bytes at %p\n",to_get,ringbuffer+ring_pos);
 		result = pa_simple_read(s,ringbuffer+ring_pos,req,&error);
 		if(result < 0)

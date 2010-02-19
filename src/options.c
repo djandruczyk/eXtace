@@ -400,7 +400,7 @@ int setup_options()
 	label = gtk_label_new("Scope Zoom Factor");
 	gtk_box_pack_start(GTK_BOX(vbox),label,FALSE,TRUE,0);
 
-	adj = gtk_adjustment_new((float)scope_zoom,1.0,10,0.01,0.01,0);
+	adj = gtk_adjustment_new((float)scope_zoom,0.25,5,0.01,0.01,0);
 	scale = gtk_hscale_new(GTK_ADJUSTMENT(adj));
 	gtk_scale_set_digits(GTK_SCALE(scale),2);
 	gtk_box_pack_start(GTK_BOX(vbox),scale,TRUE,TRUE,0);

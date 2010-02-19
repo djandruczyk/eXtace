@@ -51,6 +51,8 @@ extern gint scope_sync_source;
 
 void draw_scope()
 {
+	gfloat min_zoom = 0.0;
+	gint t = 0;
 	lo_width = (width < nsamp) ? width : nsamp;
 	height_per_scope = height/4;
 
@@ -141,10 +143,14 @@ void draw_scope()
 		}
 	}
 	//    printf("drawing scope of %i points\n",lo_width);
+	t = (nsamp-scope_begin_l) > (nsamp-scope_begin_r) ? nsamp-scope_begin_l:nsamp-scope_begin_r;
+	min_zoom = scope_zoom < 2*(float)lo_width/(float)t ? 2*(float)lo_width/(float)t:scope_zoom ;
+	scope_zoom = min_zoom;
+	
 	for(i=0,
 			scope_pos_l=scope_begin_l,
 			scope_pos_r=scope_begin_r;
-			i<(int)((float)lo_width/scope_zoom);
+			i<(int)((float)lo_width/min_zoom);
 			i++,
 			scope_pos_l++,
 			scope_pos_r++)
@@ -158,9 +164,9 @@ void draw_scope()
 
 		right_val = audio_right[scope_pos_r]/right_amplitude;
 
-		l_scope_points[i].x = i*scope_zoom;
+		l_scope_points[i].x = i*min_zoom;
 		l_scope_points[i].y = height_per_scope+(left_val*height/4);
-		r_scope_points[i].x = i*scope_zoom;
+		r_scope_points[i].x = i*min_zoom;
 		r_scope_points[i].y = height-height_per_scope+(right_val*height/4);
 	}
 	switch ((ScopeMode)scope_sub_mode)
@@ -170,12 +176,12 @@ void draw_scope()
 			gdk_draw_points(main_pixmap,\
 					trace_gc,\
 					l_scope_points,\
-					(int)((float)lo_width/scope_zoom));
+					(int)((float)lo_width/min_zoom));
 			/* Right Channel */
 			gdk_draw_points(main_pixmap,\
 					trace_gc,\
 					r_scope_points,\
-					(int)((float)lo_width/scope_zoom));
+					(int)((float)lo_width/min_zoom));
 			break;
 
 		case LINE_SCOPE:
@@ -183,17 +189,17 @@ void draw_scope()
 			gdk_draw_lines(main_pixmap,\
 					trace_gc,\
 					l_scope_points,\
-					(int)((float)lo_width/scope_zoom));
+					(int)((float)lo_width/min_zoom));
 			/* RIGHT Channel scope */
 			gdk_draw_lines(main_pixmap,\
 					trace_gc,\
 					r_scope_points,\
-					(int)((float)lo_width/scope_zoom));
+					(int)((float)lo_width/min_zoom));
 			break;
 		case GRAD_SCOPE:
 
 			right_scope_pos = height-height_per_scope;
-			for(i=0;i<(int)((float)lo_width/scope_zoom);i++)
+			for(i=0;i<(int)((float)lo_width/min_zoom);i++)
 			{
 
 				l_val = l_scope_points[i].y\
@@ -206,8 +212,8 @@ void draw_scope()
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
-							i*scope_zoom,l_scope_points[i].y,
-							1*scope_zoom,-l_val);
+							i*min_zoom,l_scope_points[i].y,
+							1*min_zoom,-l_val);
 				}
 				else	/* Positive Signal (left channel)*/
 				{
@@ -216,8 +222,8 @@ void draw_scope()
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
-							i*scope_zoom,height_per_scope,\
-							1*scope_zoom,l_val);
+							i*min_zoom,height_per_scope,\
+							1*min_zoom,l_val);
 				}
 
 				if (r_val < 0) //Negative Signal 
@@ -226,9 +232,9 @@ void draw_scope()
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
-							i*scope_zoom,r_scope_points[i].y,\
+							i*min_zoom,r_scope_points[i].y,\
 							
-							1*scope_zoom,\
+							1*min_zoom,\
 							-r_val);
 				}
 				else // Positive Signal 
@@ -237,8 +243,8 @@ void draw_scope()
 					gdk_draw_pixmap(main_pixmap,gc,\
 							grad[idx],\
 							0,0,\
-							i*scope_zoom,right_scope_pos,\
-							1*scope_zoom,r_val);
+							i*min_zoom,right_scope_pos,\
+							1*min_zoom,r_val);
 				}
 
 			}
