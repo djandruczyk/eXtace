@@ -15,3 +15,9 @@ stamp-h1
 aclocal.m4
 autom4te.cache
 VERSION
+depcomp
+config.guess
+config.sub
+install-sh
+ltmain.sh
+missing
