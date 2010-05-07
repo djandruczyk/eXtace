@@ -1,15 +1,14 @@
 dnl Process this file with autoconf to produce a configure script.
 
 AC_INIT(src/main.c)
-dnl AC_PREREQ(2.54)
 
 EXTACE_MAJOR_VERSION=1
 EXTACE_MINOR_VERSION=9
-EXTACE_MICRO_VERSION=9
+EXTACE_MICRO_VERSION=10
 
 EXTACE_VERSION=$EXTACE_MAJOR_VERSION.$EXTACE_MINOR_VERSION.${EXTACE_MICRO_VERSION}
 
-AM_INIT_AUTOMAKE(extace, 1.9.9)
+AM_INIT_AUTOMAKE(extace, 1.9.10)
 AM_CONFIG_HEADER(config.h)
 
 dnl AM_MAINTAINER_MODE
@@ -190,7 +189,6 @@ AC_OUTPUT([
 Makefile 
 src/Makefile
 include/Makefile
-extace.spec
 VERSION
 ])
 
