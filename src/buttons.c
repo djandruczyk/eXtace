@@ -177,7 +177,7 @@ gint set_data_source(GtkWidget *widget, gpointer data)
 #ifdef USING_FFTW2
 	      plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 #elif USING_FFTW3
-	      plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out, FFTW_R2HC, FFTW_FORWARD|FFTW_ESTIMATE);
+	      plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out, FFTW_R2HC, FFTW_ESTIMATE);
 #endif
 	      ring_rate_changed(); /* Fix all gui controls that depend on
 				    * ring_rate (adjustments and such

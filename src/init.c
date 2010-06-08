@@ -573,7 +573,7 @@ void reinit_extace(int new_nsamp)
 		  plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 #elif USING_FFTW3
 		  fftw_cleanup();
-		  plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out,FFTW_R2HC, FFTW_FORWARD|FFTW_ESTIMATE);
+		  plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out,FFTW_R2HC, FFTW_ESTIMATE);
 #endif
 		  input_thread_starter(data_handle);
 		  ring_rate_changed(); /* Fix all gui controls that depend on

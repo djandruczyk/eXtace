@@ -263,7 +263,7 @@ int main(int argc, char **argv)
 #ifdef USING_FFTW2
 		plan = rfftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 #elif USING_FFTW3
-		plan = fftw_plan_r2r_1d(nsamp, raw_fft_in,raw_fft_out, FFTW_R2HC, FFTW_FORWARD|FFTW_ESTIMATE);
+		plan = fftw_plan_r2r_1d(nsamp, raw_fft_in,raw_fft_out, FFTW_R2HC, FFTW_ESTIMATE);
 #endif
 	if ((data_handle=open_datasource(data_source)) >= 0)
 	{
