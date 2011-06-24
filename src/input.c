@@ -218,7 +218,7 @@ int input_thread_stopper(int i)
 			err = pthread_cancel(handle.input_thread);
 			if(err == ESRCH)
 				fprintf(stderr,"       Thread for input could not be found\n");
-			err = pthread_join(handle.input_thread,NULL);
+			//err = pthread_join(handle.input_thread,NULL);
 			pa_simple_drain(s,&err);
 			break;
 #endif
@@ -292,7 +292,7 @@ void *input_reader_thread(void *input_handle)
 	//printf("ring_pos is %p endpoint is %p\n",ringbuffer+ring_pos,ringbuffer+ring_end);
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS, NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
 
 	/*
 	   There should be a "wait for input" line so that this
@@ -399,7 +399,7 @@ void *pa_input_reader_thread(void *input_handle)
 
 	do
 	{
-		pthread_testcancel();
+//		pthread_testcancel();
 		to_get = (ring_end-ring_pos)*sizeof(ring_type)-ring_remainder;
 		req = to_get < 10000 ? to_get:10000;
 		//printf("requesting %i bytes at %p\n",to_get,ringbuffer+ring_pos);
