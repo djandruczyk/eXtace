@@ -85,7 +85,7 @@ int open_datasource(DataSource source)
 		case PULSEAUDIO:
 			input_unsigned = FALSE; /* esd gives signed integers */
 			/* esd rate is rate for each channel */
-			ring_rate=ESD_DEFAULT_RATE;
+			ring_rate=44100;
 			update_ring_channels(2);  /* since ESD_STEREO is set */
 			static const pa_sample_spec ss = {
 				.format = PA_SAMPLE_S16NE,
