@@ -156,9 +156,9 @@ void draw_scope()
 			scope_pos_r++)
 	{
 		if (scope_pos_l > nsamp)
-			printf("scope_pos_left OVERFLOW!!!!\n");
+			printf("scope_pos_left UNDERFLOW!!!!\n");
 		if (scope_pos_r > nsamp)
-			printf("scope_pos_right OVERFLOW!!!!\n");
+			printf("scope_pos_right UNDERFLOW!!!!\n");
 
 		left_val = audio_left[scope_pos_l]/left_amplitude;
 
