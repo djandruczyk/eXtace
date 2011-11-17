@@ -1,7 +1,7 @@
 /*
  * win_func.c extace source file
  * 
- * /GDK/GNOME sound (esd) system output display program
+ * /GDK/GNOME sound system output display program
  * 
  * Copyright (C) 1999 by Dave J. Andruczyk 
  * 
@@ -18,7 +18,6 @@
 #include <config.h>
 #include <datawindow.h>
 #include <enums.h>
-#include <esd.h>
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <math.h>
