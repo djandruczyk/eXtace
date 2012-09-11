@@ -92,13 +92,18 @@ int open_datasource(DataSource source)
 				.rate = 44100,
 				.channels = 2
 			};
+			static const pa_buffer_attr attr = {
+				.maxlength = (uint32_t) -1,
+				.fragsize = 8192,
+			};
 			/* Create the recording stream */
 			tmpbuf = g_strdup_printf("eXtace_%i",getpid());
-			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, NULL, tmpbuf, &ss, NULL, NULL, &error)))
+			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, NULL, tmpbuf, &ss, NULL, &attr, &error)))
 				fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
 			else
 				handle.open = 1;
 			g_free(tmpbuf);
+			/*printf("pa_simple_get_latency is %i\n",pa_simple_get_latency(s,NULL));*/
 			break;
 
 #endif

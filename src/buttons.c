@@ -142,6 +142,8 @@ gint fft_set_axis_type(GtkWidget * widget, gpointer data)
 				axis_type = LINEAR; 
 				recalc_markers = TRUE;
 				break;
+			default:
+				break;
 		}
 	}
 	return TRUE;
@@ -213,6 +215,8 @@ gint set_window_width(GtkWidget *widget, gpointer data)
 				win_width = EIGHTH;
 				setup_datawindow(NULL,window_func);
 				break;
+			default:
+				break;
 		}
 	}
 	return TRUE;
@@ -235,6 +239,8 @@ gint set_fft_data_to_display(GtkWidget *widget, gpointer data)
 				break;
 			case LEFT_MINUS_RIGHT:
 				fft_signal_source=LEFT_MINUS_RIGHT;
+				break;
+			default:
 				break;
 		}
 	}
@@ -266,6 +272,8 @@ gint set_fft_size(GtkWidget *widget, gpointer data)
 				break;
 			case S_32768:
 				reinit_extace(32768);
+				break;
+			default:
 				break;
 		}
 	}
@@ -583,6 +591,8 @@ gint scope_mode(GtkWidget *widget, gpointer data)
 			break;
 		case GRAD_SCOPE:
 			scope_sub_mode = (ScopeMode) i;
+			break;
+		default:
 			break;
 	}
 	if (mode == SCOPE)

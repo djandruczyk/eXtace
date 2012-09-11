@@ -248,6 +248,9 @@ void draw_scope()
 				}
 
 			}
+			break;
+		default:
+			break;
 	}
 	for (i=0;i<nsamp;i++)
 	{

@@ -83,7 +83,7 @@ void init()
 	pango_font_description_set_size(font_desc,(8)*PANGO_SCALE);
 
 	data_handle = -1;  /* initialize to empty handle */
-	data_source = ESD;
+	data_source = PULSEAUDIO;
 
 	scope_zoom = 1.0;	/* normal zoom, (none) */
 	refresh_rate = 34;	/* 34 frames per sec */
