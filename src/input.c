@@ -92,9 +92,13 @@ int open_datasource(DataSource source)
 				.rate = 44100,
 				.channels = 2
 			};
+			static const pa_buffer_attr buf_attr = {
+				.fragsize = 16384,
+				.maxlength = (uint32_t) -1,
+			};
 			/* Create the recording stream */
 			tmpbuf = g_strdup_printf("eXtace_%i",getpid());
-			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, NULL, tmpbuf, &ss, NULL, NULL, &error)))
+			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, "alsa_output.pci-0000_00_1b.0.analog-stereo.monitor", tmpbuf, &ss, NULL, &buf_attr, &error)))
 				fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
 			else
 				handle.open = 1;
