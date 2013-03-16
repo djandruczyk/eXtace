@@ -345,7 +345,7 @@ gint button_handle(GtkWidget *widget, gpointer data)
 						"Resume Display");
 				paused = TRUE;
 				draw_stop();
-				input_thread_stopper(data_handle);
+				//input_thread_stopper(data_handle);
 				break;
 
 			default:
@@ -437,7 +437,7 @@ gint button_handle(GtkWidget *widget, gpointer data)
 				paused = FALSE;
 				if (data_handle >= 0)
 				{
-					input_thread_starter(data_handle);
+					//input_thread_starter(data_handle);
 					draw_start();
 				}
 				break;

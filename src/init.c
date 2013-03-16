@@ -597,10 +597,10 @@ void ring_rate_changed()
 
 	/* The idea behind this is pretty cool.  
 	 * First off, if you increas the decimation or fft size, the
-	 * lower limit goes lower.  What this does is gets the adjustments
+	 * lower/upper limit goes lower.  What this does is gets the adjustments
 	 * position as a percentage of range, alters the limits of that 
 	 * range and recalculates a new value and moves the pointer.  This
-	 * way if the pointer was atthe min, and you increased the fft size
+	 * way if the pointer was at the min, and you increased the fft size
 	 * the adjustment will auotmatically move to show you the increaed
 	 * resolution...
 	 */
@@ -621,11 +621,9 @@ void ring_rate_changed()
 	lower = GTK_ADJUSTMENT(lf_adj)->lower;
 	upper = GTK_ADJUSTMENT(lf_adj)->upper;
 	newval = (percentage*(upper-lower)) + lower;
+	GTK_ADJUSTMENT(lf_adj)->value = newval;
 	/* Reset the value */
-//	GTK_ADJUSTMENT(lf_adj)->value = newval;
-
 	low_freq = GTK_ADJUSTMENT(lf_adj)->value;
-	//low_freq = newval;
 	/* Store values BEFORE we change the limits... */
 	val = GTK_ADJUSTMENT(hf_adj)->value;
 	lower = GTK_ADJUSTMENT(hf_adj)->lower;
@@ -644,10 +642,9 @@ void ring_rate_changed()
 	lower = GTK_ADJUSTMENT(hf_adj)->lower;
 	upper = GTK_ADJUSTMENT(hf_adj)->upper;
 	newval = (percentage*(upper-lower)) + lower;
-//	high_freq = newval;
+	GTK_ADJUSTMENT(hf_adj)->value = newval;
 	high_freq = GTK_ADJUSTMENT(hf_adj)->value;
 	/* Reset the value */
-//	GTK_ADJUSTMENT(hf_adj)->value = newval;
 
 	/* Force the adjustments to update on screen */
 	gtk_adjustment_changed(GTK_ADJUSTMENT(lf_adj));
