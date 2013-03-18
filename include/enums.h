@@ -25,7 +25,8 @@ typedef enum
 	GAUSSIAN,
 	WELCH,
 	PARZEN,
-	RECTANGULAR
+	RECTANGULAR,
+	NUM_WINDOW_FUNCTIONS
 }WindowFunction;
 
 typedef enum
@@ -42,6 +43,7 @@ typedef enum
 	LOW_LIMIT,
 	HIGH_LIMIT,	
 	SCOPE_ZOOM,
+	NUM_SLIDERS
 }Slider;
 
 typedef enum
@@ -57,14 +59,16 @@ typedef enum
 	SPIKE_PERS_TILT,
 	LANDFLIP,
 	SPIKEFLIP,
-	PAUSE_DISP
+	PAUSE_DISP,
+	NUM_TOGGLEBUTTONS
 }ToggleButton;
 		
 typedef enum
 {
 	SYNC_LEFT,
 	SYNC_RIGHT,	
-	SYNC_INDEP
+	SYNC_INDEP,
+	NUM_SCOPE_SYNCSOURCES
 }ScopeSyncSource;
 
 typedef enum
@@ -72,21 +76,24 @@ typedef enum
 	LEFT,
 	RIGHT,
 	LEFT_PLUS_RIGHT,
-	LEFT_MINUS_RIGHT
+	LEFT_MINUS_RIGHT,
+	NUM_FFT_PACKING_METHODS
 }FftDataPacking;
 
 typedef enum
 {
 	LOG,
-	LINEAR
+	LINEAR,
+	NUM_AXIS_TYPES
 }AxisType;
 
 /* We are certainly ambitious :-)  */
 
 typedef enum
 {
-	ESD,
 	PULSEAUDIO,
+	ESD,
+	NUM_DATASOURCES
 }DataSource;
 
 typedef enum
@@ -94,7 +101,8 @@ typedef enum
 	FULL,
 	HALF,
 	QUARTER,
-	EIGHTH
+	EIGHTH,
+	NUM_WINDOW_WIDTHS
 }WindowWidth;
 
 typedef enum
@@ -105,7 +113,8 @@ typedef enum
 	S_4096,
 	S_8192,
 	S_16384,
-	S_32768
+	S_32768,
+	NUM_FFT_SIZES
 }FftSize;
 	
 typedef enum
@@ -120,34 +129,39 @@ typedef enum
 	HORIZ_SPECGRAM,
 	VERT_SPECGRAM,
 	VERT_SPECGRAM2,
-	STARS
+	STARS,
+	NUM_DISPLAY_MODES
 }DisplayMode;
 
 typedef enum
 {
 	DOT_SCOPE,
 	LINE_SCOPE,
-	GRAD_SCOPE
+	GRAD_SCOPE,
+	NUM_SCOPE_MODES
 }ScopeMode;
 
 typedef enum
 {
 	MAIN_DISPLAY,
 	BUFFER_AREA,
-	DIR_AREA
+	DIR_AREA,
+	NUM_DRAWABLE_AREAS
 }DrawableArea;
 
 typedef enum
 {	
 	CHANGE_SPEC_START,
 	CHANGE_X_START,
-	CHANGE_X_END
+	CHANGE_X_END,
+	NUM_EVENT_OPERATIONS
 }EventOperation;
 
 typedef enum
 {	
 	ON_THE_LINE,
-	OFF_THE_LINE
+	OFF_THE_LINE,
+	NUM_EVENT_STATUSES
 }EventStatus;
 
 typedef enum
@@ -155,7 +169,8 @@ typedef enum
 	CLOSE,
 	SAVE,
 	LOAD,
-	SET_COLOR
+	SET_COLOR,
+	NUM_COLOR_OPERATIONS
 }ColorOperation;
 
 #endif

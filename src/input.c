@@ -103,6 +103,7 @@ int open_datasource(DataSource source)
 			else
 				handle.open = 1;
 			g_free(tmpbuf);
+			/*printf("pa_simple_get_latency is %i\n",pa_simple_get_latency(s,NULL));*/
 			break;
 
 #endif

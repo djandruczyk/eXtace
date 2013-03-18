@@ -231,6 +231,8 @@ recalc:
 					recalc_scale = FALSE;
 				}
 				break;
+			default:
+				break;
 		}
 
 
