@@ -44,7 +44,7 @@ extace_SOURCES = \
 	vert_specgram2.c \
 	win_func.c
 
-extace_LDADD = @EFENCE@ @PACKAGE_LIBS@ @EXTRA_LIBS@
+extace_LDADD = @EFENCE@ @PACKAGE_LIBS@ @EXTRA_LIBS@ -lm
 
 LIBS= -lpthread
 
