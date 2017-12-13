@@ -98,16 +98,15 @@ int open_datasource(DataSource source)
 			};
 			/* Create the recording stream */
 			tmpbuf = g_strdup_printf("eXtace_%i",getpid());
-			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, "alsa_output.pci-0000_00_1b.0.analog-stereo.monitor", tmpbuf, &ss, NULL, &buf_attr, &error)))
+			//if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, "alsa_output.pci-0000_00_1f.3.analog-stereo.monitor", tmpbuf, &ss, NULL, &buf_attr, &error)))
+			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, NULL, tmpbuf, &ss, NULL, &buf_attr, &error)))
 				fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
 			else
 				handle.open = 1;
 			g_free(tmpbuf);
 			/*printf("pa_simple_get_latency is %i\n",pa_simple_get_latency(s,NULL));*/
 			break;
-
 #endif
-
 		default:
 			fprintf(stderr,__FILE__":  This kind of input has not been implemented, can't open.\n");
 			break;

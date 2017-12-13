@@ -16,7 +16,6 @@
 #define _GLOBALS_H_ 1
 
 #include <gtk/gtk.h>
-#include <gdk/gdkx.h>
 #include <sys/time.h>
 #include <convolve.h>
 #include <config.h>
