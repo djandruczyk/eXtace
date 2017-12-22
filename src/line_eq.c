@@ -1,7 +1,9 @@
 /*
  * 2d_eq.c source file for extace
  * 
- *    /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  *   
@@ -19,7 +21,6 @@
 #include <math.h>
 #include <string.h>
 
-
 /* See globals.h for variable declarations and DEFINES */
 static gint i=0;
 gint seg_height;     /* height per segment in 2d spectrum analyzer */
@@ -27,13 +28,11 @@ gint seg_space;      /* space between segments in 2d analyzer */
 static gint maxlevel;
 static gint prevlevel;
 
-
 void draw_line_eq()
 {
 	gint xdraw_width = width-2*border;
 	gint lwidth = (int)(xdraw_width/bands);
 	gint line_width = 0;
-	gint last_line_width = 0;
 	gfloat count = 0;
 //	gint peak_spot=0;
 	gfloat frag = ((float)xdraw_width/(float)bands) - (float)lwidth;
@@ -57,7 +56,6 @@ void draw_line_eq()
 		trail_gc = gdk_gc_new(main_display->window);
 		gdk_gc_copy(trail_gc,main_display->style->white_gc);
 	}
-
 
 	active_drawing_area = xdraw_width;
 
@@ -120,7 +118,6 @@ void draw_line_eq()
 		gdk_gc_set_foreground(gc,&colortab[64][(int)(((float)pos)*((float)MAXBANDS/(float)width))]);
 		gdk_gc_set_foreground(trail_gc,&colortab[32][(int)(((float)pos)*((float)MAXBANDS/(float)width))]);
 
-
 		if (i == 0)
 		{
 			x_begin = pos;
@@ -139,9 +136,6 @@ void draw_line_eq()
 		y_end = height-border-(((gint)levels[i]*height)/128);
 		y_pend = height-border-(((gint)trailers[i]*height)/128);
 
-		last_line_width = line_width;
-
-
 		gdk_draw_line(main_pixmap,gc,
 				x_begin,y_begin,
 				x_end,y_end);
@@ -150,8 +144,6 @@ void draw_line_eq()
 			gdk_draw_line(main_pixmap,trail_gc,
 				x_begin,y_pbegin,
 				x_end,y_pend);
-
-
 	}
 	gdk_draw_rectangle(main_pixmap,main_display->style->black_gc,
 			TRUE,
@@ -165,7 +157,6 @@ void draw_line_eq()
 	gdk_draw_layout(main_pixmap,main_display->style->white_gc,
 			xdraw_width*.66,10,layout);
 	g_free(buff);
-
 
 	//gdk_window_clear_area(main_display->window,0,height-maxlevel,width,maxlevel);
 	gdk_window_clear_area(main_display->window,0,0,width,height);

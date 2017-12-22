@@ -1,11 +1,10 @@
 
 /*
- *  /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
  * 
- * Copyright (C) 1999 by Dave J. Andruczyk 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
- *  
  * 
  * This software comes under the GPL (GNU Public License)
  * You may freely copy,distribute etc. this as long as the source code
@@ -84,6 +83,7 @@ void init()
 
 	data_handle = -1;  /* initialize to empty handle */
 	data_source = PULSEAUDIO;
+	data_source_name = NULL;
 
 	scope_zoom = 1.0;	/* normal zoom, (none) */
 	refresh_rate = 34;	/* 34 frames per sec */
@@ -220,6 +220,7 @@ void read_config(void)
 		  int i;
 		  if(cfg_read_int(cfgfile, "Global", "data_source", &i))
 		  data_source=i;
+		  cfg_read_string(cfgfile, "Global", "data_source_name", &data_source_name);
 		}
 		cfg_read_int(cfgfile, "Global", "decimation_factor", &decimation_factor);
 		cfg_read_int(cfgfile, "Global", "fft_signal_source", &fft_signal_source);
@@ -304,6 +305,7 @@ void save_config(GtkWidget *widget)
 		cfg_write_string(cfgfile, "Global", "last_colormap",g_strconcat(g_get_home_dir(),"/.eXtace/ColorMaps/","Default",NULL));
 	cfg_write_int(cfgfile, "Global", "mode", mode);
 	cfg_write_int(cfgfile, "Global", "data_source", data_source);
+	cfg_write_string(cfgfile, "Global", "data_source_name", data_source_name);
 	cfg_write_int(cfgfile, "Global", "decimation_factor", decimation_factor);
 	cfg_write_int(cfgfile, "Global", "fft_signal_source", fft_signal_source);
 	cfg_write_float(cfgfile, "Global", "scope_zoom", scope_zoom);

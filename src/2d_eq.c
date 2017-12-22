@@ -1,8 +1,10 @@
 /*
- * 2d_eq.c source file for extace
+ * 2d_eq.c source file for eXtace
  * 
- *    /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
  * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
+ *
  * Based on the original extace written by The Rasterman and Michael Fulbright
  *   
  * This software comes under the GPL (GNU Public License)

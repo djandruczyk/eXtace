@@ -1,10 +1,11 @@
 /*
  * options.c source file for extace
  * 
- * /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
- *  
  * 
  * This software comes under the GPL (GNU Public License)
  * You may freely copy,distribute etc. this as long as the source code
@@ -23,6 +24,7 @@
 #include <globals.h>
 #include <gtk/gtk.h>
 #include <options.h>
+#include <pa_utils.h>
 
 /* See globals.h for variable declarations and DEFINES */
 
@@ -137,35 +139,24 @@ int setup_options()
 	gtk_container_set_border_width (GTK_CONTAINER (sub_vbox), 5);
 	gtk_container_add(GTK_CONTAINER(frame), sub_vbox);
 
-	label = gtk_label_new("Choose Sound Source ");
-	gtk_box_pack_start(GTK_BOX(sub_vbox),label,TRUE,TRUE,0);
-	group = NULL;
-
 	/* 
 	   Do gtk_toggle_button_set_active() before gtk_signal_connect()
 	   so set_data_source is not run on initialization.
 	*/
 
-#ifdef HAVE_ESD
-	button = gtk_radio_button_new_with_label(group, "Use Esound");
-        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
-	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
-	if (data_source == ESD)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			   GTK_SIGNAL_FUNC(set_data_source),
-			   GINT_TO_POINTER(ESD));
-#endif
-
 #ifdef HAVE_PULSEAUDIO
-	button = gtk_radio_button_new_with_label(group, "Use PulseAudio");
-        group = gtk_radio_button_group (GTK_RADIO_BUTTON (button));
+	button = gtk_combo_box_new_text();
+	populate_inputs_from_pulseaudio(button);
 	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
-	if (data_source == PULSEAUDIO)
-		gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), TRUE);
-	gtk_signal_connect(GTK_OBJECT(button),"toggled",
-			   GTK_SIGNAL_FUNC(set_data_source),
-			   GINT_TO_POINTER(PULSEAUDIO));
+	gtk_signal_connect(GTK_OBJECT(button),"changed",
+			   GTK_SIGNAL_FUNC(update_data_source_name),
+			   NULL);
+
+	button = gtk_button_new_with_label("Open pavucontrol to link eXtace to your sound source");
+	gtk_box_pack_start(GTK_BOX(sub_vbox),button,TRUE,TRUE,0);
+	gtk_signal_connect(GTK_OBJECT(button),"pressed",
+			   GTK_SIGNAL_FUNC(open_pavucontrol),
+			   NULL);
 #endif
 
 	gtk_widget_show_all(vbox);

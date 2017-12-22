@@ -1,6 +1,10 @@
 /*
  * sine.c
  *
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
+ *
  * Generates a sine wave that steps gradually down from 22050 hertz down.
  * Useful for testing eXtace for accuracy and Window function performance
  *

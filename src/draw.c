@@ -1,7 +1,9 @@
 /*
  * draw.c source file for extace
  * 
- /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  *   
@@ -100,7 +102,7 @@ int draw(void)
 	gfloat orig_bands_per_block = 0;
 	gint fragcount = 0;
 	gfloat fractional_bands = 0.0;
-	static gint lin_x_axis[MAXBANDS];
+//	static gint lin_x_axis[MAXBANDS];
 	static gint log_x_axis[MAXBANDS];
 	gdouble val = 0;
 	gint sum = 0;
@@ -168,7 +170,7 @@ int draw(void)
 					for(i = 0;i < bands;i++)
 					{
 						/* Linear x axis */
-						lin_x_axis[i]=(nsamp/2)/bands; 
+						//lin_x_axis[i]=(nsamp/2)/bands; 
 					}
 				}
 				break;
@@ -410,7 +412,6 @@ recalc:
 		ptrailers[i]=trailers[i];
 	}
 	/* Frame per second counter for debugging purposes... 
-	 *
 	   frame_cnt++;
 	   if (frame_cnt == 10)
 	   {
@@ -424,7 +425,7 @@ recalc:
 	   last_time.tv_usec=cur_time.tv_usec;
 	   frame_cnt = 0;
 	   }
-	 **/
+	 */
 
 
 	return (TRUE);

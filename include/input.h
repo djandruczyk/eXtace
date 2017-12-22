@@ -68,10 +68,12 @@ int input_thread_starter(int );
 int input_thread_stopper(int );
 void *input_reader_thread(void *);
 void *pa_input_reader_thread(void *);
-int open_datasource(DataSource );
+int open_datasource(DataSource);
 int close_datasource(int );
 int update_ring_channels(int );
 void error_close_cb(GtkWidget *, gpointer * );
+int open_pavucontrol(void);
+
 /* Prototypes */
 
 #endif

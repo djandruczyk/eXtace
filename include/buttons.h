@@ -19,8 +19,6 @@
 
 DataSource	data_source;  /* input source of data */
 int             data_handle;  /* handle for particular data_source */
-int      comedi_window_open;  /* flag for comedi control window open */
-GtkWidget    *comedi_button;  /* button to open comedi control window */
 
 /* Prototypes */
 void leave(GtkWidget *, gpointer *);
@@ -29,8 +27,7 @@ gint close_grad_win(GtkWidget *, gpointer *);
 gint close_options(GtkWidget *, gpointer *);
 gint scope_sync_source_set(GtkWidget *, gpointer);
 gint change_display_mode(GtkWidget *, gpointer);
-gint set_data_source(GtkWidget *, gpointer);
-gint comedi_control_window_toggle(GtkWidget *, gpointer *);
+gint set_data_source();
 gint set_window_width(GtkWidget *, gpointer);
 gint set_fft_data_to_display(GtkWidget *, gpointer);
 gint set_fft_size(GtkWidget *, gpointer);
@@ -40,7 +37,7 @@ gint button_handle(GtkWidget *, gpointer);
 gint change_display(GtkWidget *, gpointer *);
 gint set_decimation_factor(GtkWidget *, gpointer);
 gint scope_mode(GtkWidget *, gpointer);
-gint comedi_window_close(GtkWidget *, gpointer *);
+gint update_data_source_name(GtkWidget *widget, gpointer data);
 
 /* Prototypes */
 

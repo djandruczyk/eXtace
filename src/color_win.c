@@ -1,11 +1,13 @@
 /*
  * color_win.c source file for extace (color picker)
  * 
- * /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  *
  * Based on the original extace written by The Rasterman and Michael Fulbright
  * 
- * Hacked by Dave J. Andruczyk <djandruczyk@yahoo.com>
+ * Hacked by David J. Andruczyk <djandruczyk@gmail.com>
  * to be fully scalable with lots of new options, for tilting the axis's
  * and various other cool stuff.
  * 

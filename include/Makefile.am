@@ -22,6 +22,7 @@ headers = \
 	line_eq.h \
 	markers.h \
 	options.h \
+	pa_utils.h \
 	reducer.h \
 	scope.h \
 	spike_3d.h \

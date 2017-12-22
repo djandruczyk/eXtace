@@ -1,4 +1,9 @@
 /*  XMMS - Cross-platform multimedia player
+ *
+ *  Audio visualization
+ * 
+ *  Copyright (C) 1999-2017 by Dave J. Andruczyk 
+ *
  *  Copyright (C) 1998-1999  Peter Alm, Mikael Alm, Olle Hallnas, Thomas Nilsson and 4Front Technologies
  *
  *  This program is free software; you can redistribute it and/or modify
@@ -15,7 +20,7 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  *
- *  Hacked slightly by Dave J. Andruczyk <djandruczyk@yahoo.com> to
+ *  Hacked slightly by Dave J. Andruczyk <djandruczyk@gmail.com> to
  *  fit into eXtace a bit better..
  */
 

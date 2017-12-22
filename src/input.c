@@ -1,9 +1,9 @@
 /*
  * input.c extace source file
  * 
- * esd (Esound) sound monitor program
+ * Audio visualization
  * 
- * Copyright (C) 1999 by Dave J. Andruczyk 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  * 
@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <input.h>
+#include <globals.h>
 #include <poll.h>
 #include <stdlib.h>
 #include <string.h>
@@ -56,6 +57,14 @@ ring_type *ringbuffer = NULL;  /* initialize pointer for realloc later */
 int ring_end=0;                /* initialize length to zero */
 float ring_rate=-1;             /* initalize rate to nonsense */
 
+int open_pavucontrol(void)
+{
+	gchar * argv[] = { "/usr/bin/pavucontrol", NULL };
+	g_spawn_async(NULL,argv,NULL,G_SPAWN_DEFAULT,NULL,NULL,NULL,NULL);
+	return 0;
+}
+
+
 int open_datasource(DataSource source)
 {
 	int i=0;
@@ -64,29 +73,18 @@ int open_datasource(DataSource source)
 	if(sizeof(ring_type) !=sizeof(short))
 	{
 		fprintf(stderr,__FILE__":  ring_type doesn't"
-			" match esound data\n");
+			" match audio data\n");
 		return -1;
 	}
 
 	switch (source)
 	{
-#ifdef HAVE_ESD
-		case ESD:
-			input_unsigned = FALSE; /* esd gives signed integers */
-			/* esd rate is rate for each channel */
-			ring_rate=ESD_DEFAULT_RATE;
-			update_ring_channels(2);  /* since ESD_STEREO is set */
-			handle.fd=esd_monitor_stream(ESD_BITS16|ESD_STEREO|ESD_STREAM|ESD_RECORD,ring_rate,"127.0.0.1","eXtace");
-			if (handle.fd > 0) 
-				handle.open = 1;
-			break;
-#endif
 #ifdef HAVE_PULSEAUDIO
 		case PULSEAUDIO:
-			input_unsigned = FALSE; /* esd gives signed integers */
-			/* esd rate is rate for each channel */
+			input_unsigned = FALSE; /* pulseaudio gives signed integers */
+			/* pulseaudio rate is rate for each channel */
 			ring_rate=44100;
-			update_ring_channels(2);  /* since ESD_STEREO is set */
+			update_ring_channels(2);  /* since pulseaudio is set */
 			static const pa_sample_spec ss = {
 				.format = PA_SAMPLE_S16NE,
 				.rate = 44100,
@@ -98,13 +96,12 @@ int open_datasource(DataSource source)
 			};
 			/* Create the recording stream */
 			tmpbuf = g_strdup_printf("eXtace_%i",getpid());
-			//if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, "alsa_output.pci-0000_00_1f.3.analog-stereo.monitor", tmpbuf, &ss, NULL, &buf_attr, &error)))
-			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, NULL, tmpbuf, &ss, NULL, &buf_attr, &error)))
+			if (!(s = pa_simple_new(NULL, tmpbuf, PA_STREAM_RECORD, data_source_name, tmpbuf, &ss, NULL, &buf_attr, &error)))
 				fprintf(stderr, __FILE__": pa_simple_new() failed: %s\n", pa_strerror(error));
 			else
 				handle.open = 1;
 			g_free(tmpbuf);
-			/*printf("pa_simple_get_latency is %i\n",pa_simple_get_latency(s,NULL));*/
+			//printf("pa_simple_get_latency is %i\n",(int)pa_simple_get_latency(s,NULL));
 			break;
 #endif
 		default:
@@ -155,24 +152,13 @@ int input_thread_starter(int i)
 	/*
 	   since we want input to NOT be read in the main gtk loop,
 	   we'll use the gtk input function as a helper. It will awaken
-	   our esound reader thread whenever data is ready. Save us from 
+	   our reader thread whenever data is ready. Save us from 
 	   having to setup a poll loop by hand, as gdk/gtk does 
 	   it pretty well already.
 	 */
 
 	switch (handle.source)
 	{
-		case ESD:
-			err = pthread_create(&(handle.input_thread),
-					NULL, /*Thread attributes */
-					input_reader_thread,
-					(void *) &handle.fd /*args passed to thread */
-					);
-			if (err)
-				fprintf(stderr,__FILE__":  Error attempting to create input thread\n");
-			else
-				handle.read_started = 1;
-			break;
 #ifdef HAVE_PULSEAUDIO
 		case PULSEAUDIO:
 			err = pthread_create(&(handle.input_thread),
@@ -212,11 +198,6 @@ int input_thread_stopper(int i)
 
 	switch (handle.source)
 	{
-		case ESD:
-			err=pthread_cancel(handle.input_thread);
-			if(err == ESRCH)
-				fprintf(stderr,"       Thread for input could not be found\n");
-			break;
 #ifdef HAVE_PULSEAUDIO
 		case PULSEAUDIO:
 			err = pthread_cancel(handle.input_thread);
@@ -252,15 +233,9 @@ int close_datasource(int i)
 
 	switch(handle.source)
 	{
-#ifdef HAVE_ESD
-		case ESD:
-			err=esd_close(handle.fd);
-			handle.open=0;
-			break;
-#endif
 #ifdef HAVE_PULSEAUDIO
 		case PULSEAUDIO:
-			/* For some reason pa_simple_free() hangs */
+			/* For some reason pa_simple_free() crashes with an error within libpulse */
 			//pa_simple_free(s);
 			break;
 #endif
@@ -278,10 +253,9 @@ int close_datasource(int i)
 
 void *input_reader_thread(void *input_handle)
 {
-
 	int source=*((int *)input_handle);
 	static gint last_marker=0;
-	static struct timeval input_arrival_last;
+//	static struct timeval input_arrival_last;
 	int count;
 	struct pollfd ufds;
 	ufds.fd = source;
@@ -344,11 +318,11 @@ void *input_reader_thread(void *input_handle)
 				//printf("ring_position is %p, ring remainder is %i\n",ringbuffer+ring_pos,ring_remainder);
 			}
 
+#if 0  /* debug prints */
 			/* use in debug print */
 			input_arrival_last = input_arrival; 
 			gettimeofday(&input_arrival, NULL);
 
-#if 0  /* debug prints */
 			printf("Moved %i elements of input data\n",count);
 			printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
 
@@ -386,7 +360,7 @@ void *input_reader_thread(void *input_handle)
 void *pa_input_reader_thread(void *input_handle)
 {
 	static gint last_marker=0;
-	static struct timeval input_arrival_last;
+//	static struct timeval input_arrival_last;
 	gint count = 0;
 	gint req = 0;
 	gint result = 0;
@@ -432,11 +406,11 @@ void *pa_input_reader_thread(void *input_handle)
 			//printf("ring_position is %p, ring remainder is %i\n",ringbuffer+ring_pos,ring_remainder);
 		}
 
+#if 0  /* debug prints */
 		/* use in debug print */
 		input_arrival_last = input_arrival; 
 		gettimeofday(&input_arrival, NULL);
 
-#if 0  /* debug prints */
 		printf("Moved %i elements of input data\n",count);
 		printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
 

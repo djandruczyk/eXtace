@@ -1,7 +1,9 @@
 /*
  * vert_specgram.c source file for extace
  * 
- *    /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  *   
@@ -111,10 +113,7 @@ void draw_vert_specgram2()
 				y_begin,
 				x_end,
 				y_end);
-
-
 	}
 	gdk_window_clear(main_display->window);
-
 	gdk_threads_leave();
 }

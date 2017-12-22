@@ -1,7 +1,9 @@
 /*
  * main.c source file for extace
  * 
- * /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  * 
@@ -191,7 +193,7 @@ int main(int argc, char **argv)
 	gtk_signal_connect( GTK_OBJECT(main_display),"expose_event",
 			(GtkSignalFunc)expose_event, (gpointer)MAIN_DISPLAY);
 	gdk_window_set_back_pixmap(main_display->window,main_pixmap,0);
-	gtk_tooltips_set_tip(tip,main_display, "The middle button will get you the color picker", NULL);
+	//gtk_tooltips_set_tip(tip,main_display, "The middle button will get you the color picker", NULL);
 
 	dir_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	dir_win_ptr = dir_win;

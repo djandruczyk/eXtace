@@ -104,6 +104,7 @@ convolve_state	*l_state;	/* Pointer to make convolve happy */
 convolve_state	*r_state;	/* Pointer to make convolve happy */
 gint		r_count;
 glong		frame_cnt;	/* Frame count */
+gchar		*data_source_name; /* Data source name in pulseaudio */
 struct		timeval cur_time, last_time;
 struct		timeval input_arrival, input_arrival_last;
 struct		timeval draw_win_time_last, draw_win_time;

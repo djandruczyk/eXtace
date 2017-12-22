@@ -1,7 +1,9 @@
 /*
  * spike_3d.c source file for extace
  * 
- *    /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
+ * 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  *   

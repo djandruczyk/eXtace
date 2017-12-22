@@ -1,10 +1,10 @@
 /*
  * events.c extace source file
  * Contains all GTK/GDK event handlers (well, most of them)
+ *
+ * Audio visualization
  * 
- * /GDK/GNOME sound (esd) system output display program
- * 
- * Copyright (C) 1999 by Dave J. Andruczyk 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  *  

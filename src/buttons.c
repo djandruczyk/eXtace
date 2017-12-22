@@ -1,9 +1,9 @@
 /*
  * buttons.c extace source file
  * 
- /GDK/GNOME sound (esd) system output display program
+ * Audio visualization
  * 
- * Copyright (C) 1999 by Dave J. Andruczyk 
+ * Copyright (C) 1999-2017 by Dave J. Andruczyk 
  * 
  * Based on the original extace written by The Rasterman and Michael Fulbright
  *    
@@ -163,33 +163,28 @@ gint scope_sync_source_set(GtkWidget * widget, gpointer data)
 	return TRUE;
 }
 
-gint set_data_source(GtkWidget *widget, gpointer data)
+gint set_data_source()
 {
-  
-  if (GTK_TOGGLE_BUTTON(widget)->active){ /* its pressed */
-    draw_stop();
-    input_thread_stopper(data_handle);
-    close_datasource(data_handle);
 
-    data_source = (DataSource) GPOINTER_TO_INT(data);
-    /* start even if none previously opened 
-       (in case previous sound source was bad) */
-    if ((data_handle=open_datasource(data_source)) >= 0)
-      {
+	draw_stop();
+	input_thread_stopper(data_handle);
+	close_datasource(data_handle);
+
+	if ((data_handle=open_datasource(data_source)) >= 0)
+	{
 #ifdef USING_FFTW2
-	      plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
+		plan = fftw_create_plan(nsamp, FFTW_FORWARD, FFTW_ESTIMATE);
 #elif USING_FFTW3
-	      plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out, FFTW_R2HC, FFTW_ESTIMATE);
+		plan = fftw_plan_r2r_1d(nsamp, raw_fft_in, raw_fft_out, FFTW_R2HC, FFTW_ESTIMATE);
 #endif
-	      ring_rate_changed(); /* Fix all gui controls that depend on
-				    * ring_rate (adjustments and such
-				    */
-	      input_thread_starter(data_handle);
-	      draw_start();
-      }
+		ring_rate_changed(); /* Fix all gui controls that depend on
+							  * ring_rate (adjustments and such
+							  */
+		input_thread_starter(data_handle);
+		draw_start();
+	}
 
-  }
-  return TRUE;
+	return TRUE;
 }
 
 
@@ -606,7 +601,11 @@ gint scope_mode(GtkWidget *widget, gpointer data)
 	return 0;
 }
 
-
-
-
-
+gint update_data_source_name(GtkWidget *widget, gpointer data)
+{
+	if (data_source_name) {
+		g_free(data_source_name);
+	}
+	data_source_name = gtk_combo_box_get_active_text(GTK_COMBO_BOX(widget));
+	set_data_source();
+}

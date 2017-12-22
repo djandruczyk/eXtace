@@ -1,6 +1,6 @@
 Multimediadir = $(datadir)/gnome/apps/Multimedia
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/include \
 	@PACKAGE_CFLAGS@ \
 	-DGTK_DISABLE_COMPAT_H \
@@ -36,6 +36,7 @@ extace_SOURCES = \
 	main.c \
 	markers.c \
 	options.c \
+	pa_utils.c \
 	reducer.c \
 	scope.c \
 	spike_3d.c \
