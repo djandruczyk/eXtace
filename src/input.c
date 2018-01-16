@@ -249,113 +249,6 @@ int close_datasource(int i)
 	return err;
 }
 
-/*****************************************************************************/
-
-void *input_reader_thread(void *input_handle)
-{
-	int source=*((int *)input_handle);
-	static gint last_marker=0;
-//	static struct timeval input_arrival_last;
-	int count;
-	struct pollfd ufds;
-	ufds.fd = source;
-	ufds.events = POLLIN;
-	gint timeo = 100; /* wait 100ms max before timeout */
-	gint res = -1;
-	gint to_get = 0;
-
-	/* adjust position in ring buffer to be on first channel */
-	ring_pos -= ring_pos%ring_channels;
-	ring_remainder=0;
-	//printf("ring_pos is %p endpoint is %p\n",ringbuffer+ring_pos,ringbuffer+ring_end);
-
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
-
-	/*
-	   There should be a "wait for input" line so that this
-	   loop is not always hogging CPU?  Does the blocking 
-	   read wait without hogging CPU if there is not enough data?
-
-	   Using mmap instead of read would greatly improve speed.
-
-	   In OSS and COMEDI, one can find/set the size of the data buffer.
-	   */
-
-	fcntl(source,F_SETFL,O_NONBLOCK); /* Set source to non block I/O */
-
-	while (TRUE)
-	{
-		pthread_testcancel();
-		res = poll(&ufds,1,timeo);
-		if (res)  /* Data Arrived */
-		{
-
-			to_get = (ring_end-ring_pos)*sizeof(ring_type)-ring_remainder;
-			//printf("requesting %i bytes at %p\n",to_get,ringbuffer+ring_pos);
-			count = read(source,ringbuffer+ring_pos,to_get);
-			if(count < 0)
-			{
-				continue;
-				fprintf(stderr,__FILE__":  input read error, count=%i invalid.\n          ",count);
-				perror("input_reader_thread");
-				exit (-3);
-			}
-			//printf("received %i BYTES\n",count);
-			/* include partial samples from previous read */
-			count += ring_remainder;
-			if (count == to_get) /* We read to the end of the ring */
-			{
-				//printf("We read to the end of the ring\n");
-				ring_pos = 0;
-				ring_remainder=0;
-			}
-			else
-			{
-				//printf("not at the end yet \n");
-				ring_pos += count/sizeof(ring_type);
-				ring_remainder = count%sizeof(ring_type);
-				//printf("ring_position is %p, ring remainder is %i\n",ringbuffer+ring_pos,ring_remainder);
-			}
-
-#if 0  /* debug prints */
-			/* use in debug print */
-			input_arrival_last = input_arrival; 
-			gettimeofday(&input_arrival, NULL);
-
-			printf("Moved %i elements of input data\n",count);
-			printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
-
-#endif
-		}
-		pthread_testcancel();
-
-		/* draw markers in control window "buffer_area" */
-
-		if (buffer_area && gdk_window_is_visible(buffer_area->window))
-		{
-			gdk_threads_enter();
-			gdk_draw_rectangle(buffer_pixmap,
-					buffer_area->style->black_gc,TRUE,
-					last_marker, 20,
-					2,15);
-
-			last_marker=(float)buffer_area->allocation.width
-				*(float)ring_pos/(float)ring_end;
-
-			gdk_draw_rectangle(buffer_pixmap,latency_monitor_gc,
-					TRUE,
-					last_marker, 20,
-					2,15);
-
-			gdk_window_clear(buffer_area->window);
-			gdk_flush();
-			gdk_threads_leave();
-		}
-	}
-}
-
-
 #ifdef HAVE_PULSEAUDIO
 void *pa_input_reader_thread(void *input_handle)
 {
@@ -389,7 +282,7 @@ void *pa_input_reader_thread(void *input_handle)
 			exit (-3);
 		}
 		count = req;
-//		printf("received %i BYTES\n",count);
+		//printf("received %i BYTES\n",count);
 		/* include partial samples from previous read */
 		count += ring_remainder;
 		if (count == to_get) /* We read to the end of the ring */
@@ -406,13 +299,13 @@ void *pa_input_reader_thread(void *input_handle)
 			//printf("ring_position is %p, ring remainder is %i\n",ringbuffer+ring_pos,ring_remainder);
 		}
 
-#if 0  /* debug prints */
+#if 1  /* debug prints */
 		/* use in debug print */
 		input_arrival_last = input_arrival; 
 		gettimeofday(&input_arrival, NULL);
 
-		printf("Moved %i elements of input data\n",count);
-		printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
+	//	printf("Moved %i elements of input data\n",count);
+	//	printf("-- Audio READER: current at %.6f, diff %.2fms\n",input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000,((input_arrival.tv_sec +(double)input_arrival.tv_usec/1000000)-(input_arrival_last.tv_sec +(double)input_arrival_last.tv_usec/1000000))*1000);
 
 #endif
 		pthread_testcancel();
